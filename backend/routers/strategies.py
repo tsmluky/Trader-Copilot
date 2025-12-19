@@ -18,7 +18,7 @@ import json
 from database import SessionLocal
 from models_db import StrategyConfig
 from strategies.registry import get_registry
-from backend.core.signal_logger import log_signal
+from core.signal_logger import log_signal
 from pydantic import BaseModel
 from marketplace_config import MARKETPLACE_PERSONAS, get_active_strategies
 

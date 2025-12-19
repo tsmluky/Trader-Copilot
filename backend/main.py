@@ -1,4 +1,4 @@
-﻿from backend.routers.analysis import router as analysis_router
+﻿from routers.analysis import router as analysis_router
 import sys
 import os
 import asyncio
@@ -16,7 +16,7 @@ import os
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
-from backend.core.config import load_env_if_needed
+from core.config import load_env_if_needed
 load_env_if_needed()
 from routers.auth import router as auth_router
 # Startup Banner (Single Source of Truth Check)
@@ -41,8 +41,8 @@ from models import LiteReq, LiteSignal, ProReq, AdvisorReq  # Modelos oficiales 
 from pydantic import BaseModel
 
 # === 2b. Imports del Signal Hub unificado ===
-from backend.core.schemas import Signal
-from backend.core.signal_logger import log_signal, signal_from_dict
+from core.schemas import Signal
+from core.signal_logger import log_signal, signal_from_dict
 
 # === 2c. RAG Context ===
 from rag_context import build_token_context
@@ -52,7 +52,7 @@ from rag_context import build_token_context
 # FIX: Windows + Async PG functionality requires SelectorEventLoopPolicy
 if sys.platform == 'win32':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-from backend.core.limiter import limiter
+from core.limiter import limiter
 from slowapi.middleware import SlowAPIMiddleware
 
 # === App Initialization ===
@@ -103,7 +103,7 @@ def health_check():
 def ready_check():
     """Readiness probe: DB is accessible."""
     try:
-        from backend.database import SessionLocal
+        from database import SessionLocal
         from sqlalchemy import text
         db = SessionLocal()
         try:
@@ -149,8 +149,8 @@ app.add_middleware(
 )
 
 # ==== DB Init ====
-from backend.database import engine, Base
-from backend.models_db import Signal as SignalDB, SignalEvaluation, User, StrategyConfig, PushSubscription  # Import models to register them
+from database import engine, Base
+from models_db import Signal as SignalDB, SignalEvaluation, User, StrategyConfig, PushSubscription  # Import models to register them
 
 @app.on_event("startup")
 async def startup():
@@ -267,7 +267,7 @@ def compute_stats_summary() -> Dict[str, Any]:
         from typing import Dict, Any
         from sqlalchemy import func
         from models_db import Signal, SignalEvaluation
-        from backend.database import SessionLocal
+        from database import SessionLocal
         
         db = SessionLocal()
         try:
@@ -531,7 +531,7 @@ async def factory_reset(request: Request):
     Se usa para demos limpias o reiniciar el entorno.
     """
     try:
-        from backend.database import AsyncSessionLocal
+        from database import AsyncSessionLocal
         from sqlalchemy import text
         
         async with AsyncSessionLocal() as session:

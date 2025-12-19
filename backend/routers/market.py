@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query, HTTPException
 from typing import List, Optional
-from backend.core.market_data_api import get_market_summary, get_ohlcv_data
+from core.market_data_api import get_market_summary, get_ohlcv_data
 
 router = APIRouter()
 

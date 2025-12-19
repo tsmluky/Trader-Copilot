@@ -13,7 +13,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 
 from .base import Strategy, StrategyMetadata
-from backend.core.schemas import Signal
+from core.schemas import Signal
 
 
 class RSIMACDDivergenceStrategy(Strategy):

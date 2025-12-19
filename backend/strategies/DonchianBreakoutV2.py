@@ -3,7 +3,7 @@ import pandas_ta as ta
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from .base import Strategy, StrategyMetadata
-from backend.core.schemas import Signal
+from core.schemas import Signal
 from indicators.market import get_market_data
 
 class DonchianBreakoutV2(Strategy):

@@ -3,10 +3,10 @@ from datetime import datetime
 import asyncio
 
 # Imports from project
-from backend.models import LiteSignal, ProReq
-from backend.format_prompt_lite import format_lite_prompt
-from backend.format_prompt_pro import format_pro_prompt_v2
-from backend.strategies.registry import get_registry
+from models import LiteSignal, ProReq
+from format_prompt_lite import format_lite_prompt
+from format_prompt_pro import format_pro_prompt_v2
+from strategies.registry import get_registry
 from rag_context import build_token_context
 from deepseek_client import generate_pro_analysis
 # from narrative_engine import generate_dynamic_rationale
@@ -241,7 +241,7 @@ async def _build_pro_markdown(
 
     # 2. Build Prompt
     # from gemini_client import generate_pro  <-- REMOVED
-    from backend.core.ai_service import get_ai_service
+    from core.ai_service import get_ai_service
     
     system_instruction = (
         "Eres TraderCopilot, un analista técnico de élite institucional y asesor de posiciones para trading.\n"

@@ -4,7 +4,7 @@ from sqlalchemy import select, and_
 from typing import List, Dict
 
 from models_db import Signal, SignalEvaluation, StrategyConfig
-from backend.core.market_data_api import get_current_price
+from core.market_data_api import get_current_price
 
 # Minimum age to evaluate (avoid instant evaluation on creation)
 MIN_SIGNAL_AGE_MINUTES = 5 

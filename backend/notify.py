@@ -1,8 +1,8 @@
 from __future__ import annotations
 import os, json, requests
 from pywebpush import webpush, WebPushException
-from backend.database import SessionLocal
-from backend.models_db import PushSubscription
+from database import SessionLocal
+from models_db import PushSubscription
 
 def send_telegram(text: str) -> dict:
     token = os.getenv("TRADERCOPILOT_BOT_TOKEN","").strip()

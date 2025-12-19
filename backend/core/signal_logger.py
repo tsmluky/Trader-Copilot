@@ -124,8 +124,8 @@ def _write_to_db(signal: Signal, mode: str) -> None:
     Si falla, no interrumpe el flujo (ya se guardó en CSV).
     """
     try:
-        from backend.database import SessionLocal
-        from backend.models_db import Signal as SignalDB # Explicit import from backend package
+        from database import SessionLocal
+        from models_db import Signal as SignalDB # Explicit import from backend package
         from sqlalchemy.exc import IntegrityError
 
         # Compute Idempotency Key

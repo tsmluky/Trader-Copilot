@@ -23,9 +23,9 @@ sys.path.insert(0, str(current_dir))
 
 from database import SessionLocal
 from strategies.registry import get_registry
-from backend.core.signal_logger import log_signal
+from core.signal_logger import log_signal
 from marketplace_config import get_active_strategies
-from backend.core.signal_evaluator import evaluate_pending_signals
+from core.signal_evaluator import evaluate_pending_signals
 
 class StrategyScheduler:
     """

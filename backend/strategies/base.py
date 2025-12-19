@@ -29,7 +29,7 @@ import sys
 from pathlib import Path
 backend_dir = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(backend_dir))
-from backend.core.schemas import Signal
+from core.schemas import Signal
 
 
 class StrategyMetadata(BaseModel):

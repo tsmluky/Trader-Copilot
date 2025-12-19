@@ -1,14 +1,7 @@
 import pandas as pd
 import ta
 # Importar desde el módulo core
-try:
-    from backend.core.market_data_api import get_ohlcv_data
-except ImportError:
-    # Fallback para ejecución aislada o tests
-    import sys
-    import os
-    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-from backend.core.market_data_api import get_ohlcv_data
+from core.market_data_api import get_ohlcv_data
 
 # Exchange ID for data source (used by evaluator)
 EXCHANGE_ID = "binance"
@@ -21,7 +14,7 @@ def get_market_data(symbol: str, timeframe: str = "1h", limit: int = 1000):
     try:
         # Usar la API robusta con fallback
         import inspect
-        from backend.core import market_data_api
+        from core import market_data_api
         print(f"[DEBUG MARKET] API File: {market_data_api.__file__}")
         print(f"[DEBUG MARKET] Signature: {inspect.signature(market_data_api.get_ohlcv_data)}")
         

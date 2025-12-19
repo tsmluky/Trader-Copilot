@@ -3,17 +3,17 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
-from backend.core.ai_service import get_ai_service
+from core.ai_service import get_ai_service
 from rag_context import build_token_context
-from backend.core.market_data_api import get_ohlcv_data
+from core.market_data_api import get_ohlcv_data
 
 # Auth & Entitlements
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from routers.auth import get_current_user
 from models_db import User
-from backend.core.entitlements import can_use_advisor, check_and_increment_quota, assert_token_allowed
-from backend.core.limiter import limiter
+from core.entitlements import can_use_advisor, check_and_increment_quota, assert_token_allowed
+from core.limiter import limiter
 
 router = APIRouter(tags=["advisor"])
 
@@ -146,8 +146,8 @@ def advisor_chat(
 
 # ==== Endpoint Analysis Advisor (Legacy V1 Local) ====
 from models import AdvisorReq
-from backend.core.schemas import Signal
-from backend.core.signal_logger import log_signal
+from core.schemas import Signal
+from core.signal_logger import log_signal
 from datetime import datetime
 
 @router.post("/")

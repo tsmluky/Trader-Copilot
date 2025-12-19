@@ -8,7 +8,7 @@ import ccxt
 import time
 from typing import List, Dict, Any, Optional, Tuple, Union
 from datetime import datetime, timedelta
-from backend.core.cache import cache  # Importar Cache
+from core.cache import cache  # Importar Cache
 
 print("[DEBUG] LOADING MARKET_DATA_API (Scale-Ready Fix)")
 

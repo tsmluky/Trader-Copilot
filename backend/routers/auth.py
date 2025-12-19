@@ -5,9 +5,9 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
-from backend.database import get_db
-from backend.models_db import User
-from backend.core.security import verify_password, create_access_token, get_password_hash, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
+from database import get_db
+from models_db import User
+from core.security import verify_password, create_access_token, get_password_hash, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -44,7 +44,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
         raise credentials_exception
         
     return user
-from backend.core.limiter import limiter
+from core.limiter import limiter
 
 @router.post("/token")
 @limiter.limit("5/minute")
@@ -122,9 +122,9 @@ async def register_user(
     }
 
 # Entitlements Endpoint (Sync DB required for core logic)
-from backend.database import SessionLocal
+from database import SessionLocal
 from sqlalchemy.orm import Session
-from backend.core.entitlements import get_user_entitlements
+from core.entitlements import get_user_entitlements
 
 def get_sync_db():
     db = SessionLocal()

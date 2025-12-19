@@ -1,7 +1,7 @@
 # backend/dependencies.py
 from fastapi import Depends, HTTPException, status
-from backend.models_db import User
-from backend.routers.auth import get_current_user
+from models_db import User
+from routers.auth import get_current_user
 
 def require_plan(required_plan: str):
     """

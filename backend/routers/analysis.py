@@ -5,22 +5,22 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 # Imports internos
-from backend.indicators.market import get_market_data
-from backend.models import LiteReq, ProReq
-from backend.core.schemas import Signal
-from backend.core.signal_logger import log_signal
+from indicators.market import get_market_data
+from models import LiteReq, ProReq
+from core.schemas import Signal
+from core.signal_logger import log_signal
 # Logic imports
 # Logic imports
-from backend.core.analysis_logic import (
+from core.analysis_logic import (
     _build_lite_from_market,
     _load_brain_context,
     _inject_rag_into_lite_rationale,
     _build_pro_markdown
 )
 # Entitlements
-from backend.core.entitlements import assert_token_allowed, check_and_increment_quota
+from core.entitlements import assert_token_allowed, check_and_increment_quota
 from sqlalchemy.orm import Session
-from backend.database import SessionLocal
+from database import SessionLocal
 
 def get_db():
     db = SessionLocal()
@@ -34,9 +34,9 @@ router = APIRouter()
 # ==== 9. Endpoint LITE ====
 
 # Auth Dependency
-from backend.routers.auth import get_current_user
-from backend.models_db import User
-from backend.core.limiter import limiter
+from routers.auth import get_current_user
+from models_db import User
+from core.limiter import limiter
 from fastapi import Request
 from dependencies import require_pro
 

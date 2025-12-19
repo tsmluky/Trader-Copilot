@@ -1,6 +1,6 @@
 
 from .base import Strategy, StrategyMetadata
-from backend.core.schemas import Signal
+from core.schemas import Signal
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 import pandas as pd
