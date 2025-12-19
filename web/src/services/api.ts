@@ -433,7 +433,7 @@ export async function register(email: string, password: string, name?: string): 
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, name: name || 'Trader' })
   });
-  
+
   // Handle 409 Conflict specifically
   if (res.status === 409) {
     throw new Error('Email already registered');
@@ -441,10 +441,22 @@ export async function register(email: string, password: string, name?: string): 
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
+
+    // Handle Validation Errors (422)
+    if (res.status === 422 && Array.isArray(errorData.detail)) {
+      const messages = errorData.detail.map((err: any) => matchValidationError(err)).join(', ');
+      throw new Error(messages);
+    }
+
     throw new Error(errorData.detail || 'Registration failed');
   }
-  
+
   return res.json();
+}
+
+function matchValidationError(err: any): string {
+  if (err.msg) return err.msg;
+  return JSON.stringify(err);
 }
 
 export async function getMe(): Promise<UserProfile['user']> {
