@@ -1,0 +1,43 @@
+name: ci
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  backend-sanity:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps (if requirements.txt exists)
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f backend/requirements.txt ]; then
+            pip install -r backend/requirements.txt
+          fi
+
+      - name: Compile all Python (syntax check)
+        run: |
+          python -m compileall backend || python -m compileall .
+
+      - name: Run pytest (if tests exist)
+        run: |
+          if [ -d backend/tests ] || [ -d tests ]; then
+            pip install pytest
+            pytest -q
+          else
+            echo "No tests folder found; skipping pytest."
+          fi
