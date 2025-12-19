@@ -1,0 +1,21 @@
+{
+  "properties": {
+    "history": {
+      "items": {
+        "$ref": "#/components/schemas/ChatMessage"
+      },
+      "type": "array",
+      "title": "History"
+    },
+    "context": {
+      "type": "object",
+      "title": "Context"
+    }
+  },
+  "type": "object",
+  "required": [
+    "history",
+    "context"
+  ],
+  "title": "AdvisorChatReq"
+}
