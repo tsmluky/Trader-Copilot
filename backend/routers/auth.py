@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -7,6 +7,7 @@ from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 from database import get_db
 from models_db import User
+from core.schemas import UserCreate, UserResponse
 from core.security import verify_password, create_access_token, get_password_hash, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -84,42 +85,64 @@ async def login_for_access_token(
         }
     }
 
-@router.post("/register")
+@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register_user(
-    email: str, 
-    password: str, 
-    name: str = "Trader", 
+    user_data: UserCreate, 
     db: Session = Depends(get_db)
 ):
-    """(Dev Helper) Registra un usuario inicial."""
-    # Verificar si existe
-    result = db.execute(select(User).where(User.email == email))
+    """
+    Registra un nuevo usuario en la plataforma.
+    
+    - Valida email único (409 Conflict)
+    - Hashing seguro de contraseña (bcrypt)
+    - Retorna el usuario creado (DTO seguro sin password)
+    """
+    # 1. Normalizar email
+    email_norm = user_data.email.strip().lower()
+    
+    # 2. Verificar duplicado
+    result = db.execute(select(User).where(User.email == email_norm))
     existing_user = result.scalars().first()
     
     if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email already registered"
+        )
     
-    hashed_pwd = get_password_hash(password)
-    new_user = User(email=email, hashed_password=hashed_pwd, name=name, role="user")
+    # 3. Hash Password
+    hashed_pwd = get_password_hash(user_data.password)
     
-    db.add(new_user)
+    # 4. Crear Usuario
+    new_user = User(
+        email=email_norm, 
+        hashed_password=hashed_pwd, 
+        name=user_data.name, 
+        role="user",
+        plan="free",
+        plan_status="active",
+        created_at=datetime.utcnow() # Ensure model has this or defaults
+    )
+    
     try:
+        db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        return {"id": new_user.id, "email": new_user.email, "msg": "User created"}
+        return new_user
+        
     except IntegrityError:
         db.rollback()
-        raise HTTPException(status_code=400, detail="Error creating user")
-
-    return {
-        "id": current_user.id,
-        "email": current_user.email,
-        "name": current_user.name,
-        "role": current_user.role,
-        "plan": current_user.plan,
-        "plan_status": current_user.plan_status,
-        "avatar_url": f"https://ui-avatars.com/api/?name={current_user.name}&background=10b981&color=fff"
-    }
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Error creating user (Integrity)"
+        )
+    except Exception as e:
+        db.rollback()
+        print(f"[AUTH ERROR] Register failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error during registration"
+        )
 
 # Entitlements Endpoint (Sync DB required for core logic)
 from database import SessionLocal

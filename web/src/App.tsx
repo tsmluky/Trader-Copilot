@@ -13,6 +13,7 @@ import { PricingPage } from './pages/PricingPage';
 import { AdminPage } from './pages/AdminPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastContainer } from './components/Toast';
@@ -46,6 +47,7 @@ const App: React.FC = () => {
           <ToastContainer />
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
             {/* Protected Routes */}
             <Route
@@ -74,10 +76,10 @@ const App: React.FC = () => {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
 
-        
 
-      </Router>
-    </ThemeProvider>
+
+        </Router>
+      </ThemeProvider>
     </AuthProvider>
   );
 };

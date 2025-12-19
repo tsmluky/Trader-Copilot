@@ -14,7 +14,7 @@ import {
   CheckCircle2,
   ChevronRight
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('demo@tradercopilot.com');
@@ -180,6 +180,12 @@ export const LoginPage: React.FC = () => {
                 >
                   {loading ? <Loader2 className="animate-spin" size={20} /> : <>Initialize Session <ChevronRight size={18} className="group-hover/btn:translate-x-0.5 transition-transform" /></>}
                 </button>
+
+                <div className="text-center pt-2">
+                  <Link to="/register" className="text-xs text-slate-400 hover:text-emerald-400 transition-colors">
+                    Don't have an account? <span className="font-bold text-slate-300">Register Access</span>
+                  </Link>
+                </div>
               </form>
 
 

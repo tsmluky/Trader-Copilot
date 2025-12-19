@@ -428,12 +428,22 @@ export async function login(email: string, password: string): Promise<any> {
 }
 
 export async function register(email: string, password: string, name?: string): Promise<any> {
-  const res = await fetchWithTimeout(`${API_BASE_URL}/auth/register?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}&name=${encodeURIComponent(name || 'Trader')}`, {
+  const res = await fetchWithTimeout(`${API_BASE_URL}/auth/register`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, name: name || 'Trader' })
   });
+  
+  // Handle 409 Conflict specifically
+  if (res.status === 409) {
+    throw new Error('Email already registered');
+  }
 
-  if (!res.ok) throw new Error('Registration failed');
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.detail || 'Registration failed');
+  }
+  
   return res.json();
 }
 

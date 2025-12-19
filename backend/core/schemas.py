@@ -170,3 +170,27 @@ class SignalCreate(BaseModel):
     rationale: Optional[str] = Field(None, description="Justificación breve")
     source: str = Field(..., description="Origen de la señal", max_length=50)
     extra: Optional[Dict[str, Any]] = Field(None, description="Metadatos adicionales")
+
+
+class UserCreate(BaseModel):
+    """
+    Schema for user registration request.
+    """
+    email: str = Field(..., description="User email (unique)")
+    password: str = Field(..., description="Password (min 8 chars)", min_length=8)
+    name: str = Field("Trader", description="User display name")
+
+
+class UserResponse(BaseModel):
+    """
+    Schema for user response (safe DTO, no password).
+    """
+    id: int
+    email: str
+    name: str
+    role: str
+    plan: str
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
