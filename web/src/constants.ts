@@ -8,7 +8,8 @@ const getBaseUrl = () => {
   }
 
   // 2. FORCE Production (Railway)
-  return "https://tradercopilot-mvpfinal-production.up.railway.app";
+  // 2. FORCE Production (Railway)
+  return "https://saleready-production.up.railway.app";
 };
 
 export const API_BASE_URL: string = getBaseUrl();
