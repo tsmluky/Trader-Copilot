@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../constants';
 import {
   Send,
   Check,
@@ -18,31 +19,66 @@ import {
   Bell,
   Calendar,
   Zap,
+  Save
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export const SettingsPage: React.FC = () => {
   const [pingMsg, setPingMsg] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>(
-    'idle'
-  );
-  const { userProfile, logout } = useAuth();
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const { userProfile, logout, refreshProfile } = useAuth();
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  // Telegram State
+  const [chatId, setChatId] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (userProfile?.user?.telegram_chat_id) {
+      setChatId(userProfile.user.telegram_chat_id);
+    }
+  }, [userProfile]);
+
+  const handleSaveTelegram = async () => {
+    setIsSaving(true);
+    try {
+      await api.updateTelegramId(chatId);
+      toast.success('Telegram Chat ID saved!');
+      await refreshProfile(); // reload profile to confirm syncing
+    } catch (e) {
+      toast.error('Failed to save Chat ID');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handlePing = async () => {
     setStatus('loading');
     try {
-      await api.notifyTelegram(pingMsg || '🚀 TraderCopilot · Test Ping');
+      // Backend now sends to the saved ID (or custom if we wanted, but logic is user-centric now)
+      if (!userProfile?.user?.telegram_chat_id) {
+        toast.error("Please save your Chat ID first.");
+        setStatus('idle');
+        return;
+      }
+
+      await api.notifyTelegram(pingMsg || '🚀 Scanner · Test Ping');
       setStatus('success');
+      toast.success('Test message sent!');
       setTimeout(() => setStatus('idle'), 3000);
     } catch (e) {
       setStatus('error');
+      toast.error('Failed to send test message');
     }
   };
 
   if (!userProfile) return null;
 
+  const plan = userProfile.user.plan || "Free";
+  const isPaid = ["Trader", "Pro", "Owner"].includes(plan) || plan.toUpperCase() === "TRADER" || plan.toUpperCase() === "PRO";
+
   return (
-    <div className="p-4 md:p-8 max-w-5xl mx-auto pb-24 md:pb-8 animate-fade-in">
+    <div className="p-4 md:p-8 max-w-5xl mx-auto pb-24 md:pb-8 animate-fade-in text-slate-100">
       {/* Header / Hero */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-10 gap-6">
         <div>
@@ -75,9 +111,9 @@ export const SettingsPage: React.FC = () => {
                 <img
                   src={
                     userProfile.user.avatar_url ||
-                    'https://api.dicebear.com/7.x/identicon/svg?seed=trader'
+                    `https://api.dicebear.com/7.x/identicon/svg?seed=${userProfile.user.email}`
                   }
-                  className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-slate-800 shadow-2xl object-cover"
+                  className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-slate-800 shadow-2xl object-cover bg-slate-800"
                   alt="Profile"
                 />
                 <div className="absolute bottom-1 right-1 w-6 h-6 bg-emerald-500 border-4 border-slate-900 rounded-full" title="Active"></div>
@@ -94,14 +130,14 @@ export const SettingsPage: React.FC = () => {
                     {userProfile.user.role}
                   </span>
                   <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-                    <CreditCard size={12} /> {userProfile.user.subscription_status} Plan
+                    <CreditCard size={12} /> {plan} Plan
                   </span>
 
-                  {/* Upgrade CTA */}
-                  {userProfile.user.subscription_status !== 'pro' && (
-                    <a href="/membership" className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-amber-500/20 transition-colors">
+                  {/* Upgrade CTA - Only if NOT paid */}
+                  {!isPaid && (
+                    <Link to="/membership" className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 hover:bg-amber-500/20 transition-colors">
                       <Zap size={12} /> Upgrade
-                    </a>
+                    </Link>
                   )}
                 </div>
               </div>
@@ -116,8 +152,10 @@ export const SettingsPage: React.FC = () => {
                   <Calendar size={18} />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Member Since</label>
-                  <div className="text-slate-200 font-medium text-sm">December 2025</div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Joined</label>
+                  <div className="text-slate-200 font-medium text-sm">
+                    {new Date(userProfile.user.created_at).toLocaleDateString()}
+                  </div>
                 </div>
               </div>
             </div>
@@ -127,21 +165,45 @@ export const SettingsPage: React.FC = () => {
                   <Shield size={18} />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Security Level</label>
-                  <div className="text-emerald-400 font-medium text-sm">High (2FA Enabled)</div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase">Account Status</label>
+                  <div className="text-emerald-400 font-medium text-sm">Active & Secure</div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Notification Settings */}
+          {/* Notification Settings (Telegram) */}
           <div className="bg-slate-900 rounded-xl border border-slate-800 p-5 md:p-6">
             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <Bell size={20} className="text-amber-400" /> Notifications
+              <Bell size={20} className="text-blue-400" /> Telegram Notifications
             </h3>
-            <p className="text-slate-400 text-sm mb-6">
-              Connect your Telegram account to verify you can receive real-time signals from your agents.
-            </p>
+
+            <div className="p-4 bg-slate-950/50 rounded-lg border border-slate-800 mb-6">
+              <p className="text-slate-400 text-sm mb-3">
+                1. Start our bot: <a href="https://t.me/TraderCopilotBot" target="_blank" className="text-blue-400 hover:underline">@TraderCopilotBot</a> (or your instance bot).
+                <br />
+                2. Type <code>/myid</code> to get your Chat ID.
+                <br />
+                3. Paste it below to link your account.
+              </p>
+
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="e.g. 123456789"
+                  value={chatId}
+                  onChange={(e) => setChatId(e.target.value)}
+                  className="flex-1 bg-slate-900 border border-slate-700 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+                <button
+                  onClick={handleSaveTelegram}
+                  disabled={isSaving}
+                  className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors disabled:opacity-50"
+                >
+                  {isSaving ? "Saving..." : <><Save size={16} /> Save</>}
+                </button>
+              </div>
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-3">
               <input
@@ -158,7 +220,7 @@ export const SettingsPage: React.FC = () => {
                   ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]'
                   : status === 'error'
                     ? 'bg-rose-500 text-white'
-                    : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-900/20'
+                    : 'bg-slate-700 hover:bg-slate-600 text-white'
                   }`}
               >
                 {status === 'loading' ? (
@@ -173,7 +235,7 @@ export const SettingsPage: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <Send size={18} /> Test Telegram
+                    <Send size={18} /> Test Connectivity
                   </>
                 )}
               </button>
@@ -233,15 +295,17 @@ export const SettingsPage: React.FC = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-500">API Endpoint</span>
-                    <code className="bg-slate-900 px-2 py-1 rounded text-emerald-500">http://localhost:8010</code>
+                    <code className="bg-slate-900 px-2 py-1 rounded text-emerald-500 overflow-hidden max-w-[150px] text-ellipsis whitespace-nowrap" title={API_BASE_URL}>
+                      {API_BASE_URL}
+                    </code>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-500">Version</span>
-                    <span className="text-slate-300">v0.7.3-beta</span>
+                    <span className="text-slate-300">v1.0.0-beta</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-500">Environment</span>
-                    <span className="text-amber-500">Development</span>
+                    <span className="text-amber-500">Production</span>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-slate-500">Timezone</span>

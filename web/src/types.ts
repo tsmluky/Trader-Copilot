@@ -102,6 +102,8 @@ export interface User {
   plan_status?: string;
   onboarding_completed?: boolean;
   allowed_tokens?: string[];
+  telegram_chat_id?: string;
+  created_at?: string; // ISO Date string
 }
 
 export interface FollowedSignal extends SignalLite {

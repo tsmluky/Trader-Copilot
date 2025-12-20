@@ -191,6 +191,7 @@ class UserResponse(BaseModel):
     role: str
     plan: str
     allowed_tokens: Optional[List[str]] = []
+    telegram_chat_id: Optional[str] = None
     created_at: datetime
     
     class Config:

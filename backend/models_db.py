@@ -63,6 +63,9 @@ class User(Base):
     plan_status = Column(String, default="active") # active, inactive
     plan_expires_at = Column(DateTime, nullable=True)
 
+    # Notifications
+    telegram_chat_id = Column(String, nullable=True) # User's personal Chat ID
+
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
@@ -77,10 +80,19 @@ class StrategyConfig(Base):
     __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True)
-    strategy_id = Column(String, unique=True)  # ej: "rsi_macd_v1"
+    strategy_id = Column(String)  # ej: "rsi_macd_v1" (Logic Class ID) - NOT UNIQUE anymore
+    persona_id = Column(String, unique=True, nullable=True) # ej: "trend_king_sol" (Instance ID)
+    
     name = Column(String)  # Nombre legible
     description = Column(Text, nullable=True)
     version = Column(String, default="1.0.0")
+    
+    # Ownership & Marketplace
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True) # None = System
+    is_public = Column(Integer, default=0) # 0=Private, 1=Public
+    color = Column(String, default="indigo")
+    icon = Column(String, default="Cpu")
+    expected_roi = Column(String, nullable=True)
     
     # Configuración operativa
     enabled = Column(Integer, default=1)  # 1 = activa, 0 = pausada

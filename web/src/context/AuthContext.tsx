@@ -13,6 +13,7 @@ interface AuthContextType {
     updateSignalNote: (timestamp: string, token: string, note: string) => Promise<void>;
     toggleFollow: (signal: any) => void;
     upgradeSubscription: (planId: 'free' | 'trader' | 'pro') => Promise<void>;
+    refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -215,6 +216,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(false);
     };
 
+    const refreshProfile = async () => {
+        // Re-runs the checkAuth logic essentially (fetching /me)
+        const token = localStorage.getItem('auth_token');
+        if (!token) return;
+
+        try {
+            const data = await api.getMe();
+            // Fetch Entitlements (Permissions/Tokens)
+            let allowedTokens = ['BTC', 'ETH', 'SOL'];
+            try {
+                const ent = await api.get('/auth/me/entitlements');
+                if (ent && ent.allowed_tokens) {
+                    allowedTokens = ent.allowed_tokens;
+                }
+            } catch (e) {
+                console.warn('Failed to fetch entitlements', e);
+            }
+
+            const backendPlan = data.plan?.toUpperCase() || 'FREE';
+            let frontendPlan: 'free' | 'trader' | 'pro' = 'free';
+            if (backendPlan === 'PRO') frontendPlan = 'trader';
+            if (backendPlan === 'OWNER') frontendPlan = 'pro';
+
+            setUserProfile({
+                user: {
+                    ...data,
+                    role: data.role,
+                    subscription_status: frontendPlan,
+                    onboarding_completed: localStorage.getItem('onboarding_completed') === 'true',
+                    avatar_url: data.avatar_url || `https://ui-avatars.com/api/?name=${data.name}&background=10b981&color=fff`,
+                    allowed_tokens: allowedTokens
+                },
+                preferences: userProfile?.preferences || {
+                    favorite_tokens: ['eth', 'btc'],
+                    default_timeframe: '30m',
+                    notifications: { trade_updates: true, market_volatility: true, system_status: true }
+                },
+                portfolio: userProfile?.portfolio || { followed_signals: JSON.parse(localStorage.getItem('followed_signals') || '[]') }
+            });
+        } catch (err) {
+            console.error('Refresh profile failed', err);
+        }
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -228,6 +273,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 updateSignalNote,
                 toggleFollow,
                 upgradeSubscription,
+                refreshProfile,
             }}
         >
             {children}

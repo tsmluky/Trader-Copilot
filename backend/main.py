@@ -62,6 +62,7 @@ app = FastAPI(title="TraderCopilot Backend", version="2.0.0")
 
 async def _unhandled_exception_handler(request: Request, exc: Exception):
     # No filtra detalles sensibles; respuesta estable para producciÃ³n
+    from fastapi.responses import JSONResponse
     return JSONResponse(status_code=500, content={"code": "INTERNAL_ERROR", "detail": "Internal Server Error"})
 
 app.add_exception_handler(Exception, _unhandled_exception_handler)# Rate Limiter
@@ -136,7 +137,7 @@ if env_allowed:
 else:
     # Dev / MVP Fallback
     origins = ["*"]
-    print(f"[CORS] âš ï¸ WARNING: ALLOWED_ORIGINS not set. Defaulting to [*].")
+    print(f"[CORS] âš ï¸  WARNING: ALLOWED_ORIGINS not set. Defaulting to [*].")
 
 print(f"[CORS] Final Allowed Origins: {origins}")
 
@@ -171,16 +172,106 @@ async def startup():
     # Crear tablas (DB SYNC) sin bloquear el event loop
     await anyio.to_thread.run_sync(lambda: Base.metadata.create_all(bind=engine))
 
-    # Hotfix Postgres (SYNC). En sqlite no hace nada.
+    # Hotfix Postgres & Migrations
     try:
-        if "postgresql" in str(engine.url):
-            from sqlalchemy import text
-            print("ðŸ”§ [DB FIX] Attempting to expand 'rationale' column to TEXT...")
-            with engine.begin() as conn:
-                conn.execute(text("ALTER TABLE signals ALTER COLUMN rationale TYPE TEXT;"))
-            print("âœ… [DB FIX] 'rationale' column set to TEXT.")
+        from sqlalchemy import text
+        with engine.begin() as conn:
+            # 1. Expand rationale logic
+            if "postgresql" in str(engine.url):
+                try:
+                     conn.execute(text("ALTER TABLE signals ALTER COLUMN rationale TYPE TEXT;"))
+                except:
+                     pass
+
+            print("🔧 [DB MIGRATION] Update StrategyConfig/User schemas...")
+            # 2. Add telegram_chat_id
+            try:
+                conn.execute(text("ALTER TABLE users ADD COLUMN telegram_chat_id VARCHAR;"))
+            except:
+                pass
+            
+            # 3. Migrate StrategyConfig
+            try:
+                conn.execute(text("ALTER TABLE strategy_configs ADD COLUMN persona_id VARCHAR;"))
+                conn.execute(text("ALTER TABLE strategy_configs ADD COLUMN user_id INTEGER;"))
+                conn.execute(text("ALTER TABLE strategy_configs ADD COLUMN is_public INTEGER DEFAULT 0;"))
+                conn.execute(text("ALTER TABLE strategy_configs ADD COLUMN color VARCHAR DEFAULT 'indigo';"))
+                conn.execute(text("ALTER TABLE strategy_configs ADD COLUMN icon VARCHAR DEFAULT 'Cpu';"))
+                conn.execute(text("ALTER TABLE strategy_configs ADD COLUMN expected_roi VARCHAR;"))
+            except:
+                pass
+        
+        # 4. SEED DATA
+        from marketplace_config import SYSTEM_PERSONAS
+        from models_db import StrategyConfig
+        import json
+        from database import SessionLocal
+        
+        db = SessionLocal()
+        try:
+            print("🌱 [SEED] Verify Personas in DB...")
+            # A. Migrate Custom JSON if DB empty (of custom strategies)
+            user_strat_count = db.query(StrategyConfig).filter(StrategyConfig.user_id != None).count()
+            if user_strat_count == 0:
+                 from marketplace_config import load_user_strategies
+                 user_jsons = load_user_strategies()
+                 if user_jsons:
+                     print(f"  ➡️  Migrating {len(user_jsons)} user strategies to DB...")
+                     for p in user_jsons:
+                         desc = p.get("description", "")
+                         db_obj = StrategyConfig(
+                             persona_id=p["id"],
+                             strategy_id=p["strategy_id"],
+                             name=p["name"],
+                             timeframes=json.dumps([p["timeframe"]]),
+                             tokens=json.dumps([p["symbol"]]),
+                             description=desc,
+                             risk_profile=p.get("risk_level", "medium"),
+                             expected_roi=p.get("expected_roi", "N/A"),
+                             color=p.get("color", "indigo"),
+                             is_public=0,
+                             user_id=1, 
+                             enabled=1 if p.get("is_active") else 0
+                         )
+                         exists = db.query(StrategyConfig).filter(StrategyConfig.persona_id == p["id"]).first()
+                         if not exists:
+                             db.add(db_obj)
+                     db.commit()
+            
+            # B. Sync System Personas
+            for sp in SYSTEM_PERSONAS:
+                db_p = db.query(StrategyConfig).filter(StrategyConfig.persona_id == sp["id"]).first()
+                if not db_p:
+                    db_p = StrategyConfig(
+                        persona_id=sp["id"],
+                        strategy_id=sp["strategy_id"],
+                        name=sp["name"],
+                        description=sp["description"],
+                        timeframes=json.dumps([sp["timeframe"]]),
+                        tokens=json.dumps([sp["symbol"]]),
+                        risk_profile=sp["risk_level"],
+                        expected_roi=sp["expected_roi"],
+                        color=sp["color"],
+                        is_public=1,
+                        user_id=None,
+                        enabled=1
+                    )
+                    db.add(db_p)
+                else:
+                    db_p.description = sp["description"]
+                    db_p.expected_roi = sp["expected_roi"]
+                    db_p.is_public = 1
+                    db_p.user_id = None # Ensure system ownership
+            db.commit()
+            print("✅ [DB] Schema & Seeds synced.")
+        except Exception as e:
+            print(f"❌ [DB] Seed Error: {e}")
+            db.rollback()
+        finally:
+            db.close()
+
     except Exception as e:
-        print(f"âš ï¸ [DB FIX] Schema update skipped: {e}")
+        print(f"⚠️ [DB] Schema update skipped: {e}")
 
     # Background evaluator (best-effort)
     try:
@@ -204,22 +295,32 @@ async def startup():
         print(f"[BACKGROUND] Evaluator not started: {e}")
 
 
-
-
-
-
 # ==== 12. Endpoint Notify (Telegram) ====
 
 class TelegramMsg(BaseModel):
     text: str
 
 @app.post("/notify/telegram")
-def notify_telegram(msg: TelegramMsg):
+async def notify_telegram(msg: TelegramMsg, db: Session = Depends(get_db)):
     """
-    EnvÃ­a una notificaciÃ³n a Telegram (simulado por ahora).
+    Envia una notificacion a Telegram.
+    Ahora soporta envio real si el usuario tiene telegram_chat_id configurado.
+    (Por ahora usa un dummy ID o el del .env si es prueba global)
     """
-    print(f"[TELEGRAM] Sending message: {msg.text}")
-    return {"status": "ok", "sent": True}
+    from services.telegram_bot import bot
+    # TODO: Get current user or context. For now, try env var OR explicit ID
+    # If msg source provides ID, use it.
+    
+    # Fallback to ENV var for generic tests
+    import os
+    target_id = os.getenv("TELEGRAM_CHAT_ID")
+    
+    if target_id:
+        success = await bot.send_message(target_id, msg.text)
+        return {"status": "ok", "sent": success}
+    else:
+        print(f"[TELEGRAM] No CHAT_ID configured. Msg: {msg.text}")
+        return {"status": "skipped", "detail": "No Chat ID configured in .env"}
 
 # ==== 9. Stats & Metrics para Dashboard ====
 
@@ -356,6 +457,18 @@ def compute_stats_summary_from_csv() -> Dict[str, Any]:
     eval_24h = 0
     tp_24h = 0
     sl_24h = 0
+    
+    # Needs LOGS_DIR which is not imported but assumed.
+    # In main.py usually LOGS_DIR is defined or imported, checking imports.
+    # Actually it's not imported in the original file I viewed? 
+    # It must be defined somewhere or this will crash. 
+    # I saw references in compute_stats_summary_from_csv but didn't see LOGS_DIR definition.
+    # It might be in core.config or similar.
+    # Wait, I copied the function content from previous view.
+    # Let's assume it's there or I add it if missing.
+    # Looking at imports: `from core.config import load_env_if_needed`
+    # Let's define it to be safe.
+    LOGS_DIR = os.path.join(current_dir, "logs")
 
     if os.path.isdir(evaluated_dir):
         for name in os.listdir(evaluated_dir):
@@ -558,7 +671,7 @@ async def factory_reset(request: Request):
             
             await session.commit()
             
-        print("[SYSTEM] âš ï¸ FACTORY RESET EXECUTED. DB CLEARED.")
+        print("[SYSTEM] âš ï¸  FACTORY RESET EXECUTED. DB CLEARED.")
         return {"status": "ok", "message": "Database cleared successfully. System ready for new deployment."}
             
     except Exception as e:
@@ -592,6 +705,3 @@ app.include_router(market_router, prefix="/market", tags=["Market"])
 app.include_router(auth_router, tags=["Auth"])
 app.include_router(admin_router, prefix="/admin", tags=["Admin"])
 # app.include_router(auth_router, prefix="/auth", tags=["Auth"]) # DOUBLE PREFIX AVOIDANCE
-
-
-

@@ -632,5 +632,15 @@ export const api = {
     const res = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, { method: 'GET' });
     if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
     return res.json();
+  },
+
+  updateTelegramId: async (chatId: string) => {
+    const res = await fetchWithTimeout(`${API_BASE_URL}/auth/users/me/telegram`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId }),
+    });
+    if (!res.ok) throw new Error("Failed to update Telegram ID");
+    return res.json();
   }
 };

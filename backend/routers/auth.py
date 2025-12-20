@@ -198,3 +198,19 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
     }
     return user_dict
 
+class TelegramUpdate(BaseModel):
+    chat_id: str
+
+@router.patch("/users/me/telegram")
+async def update_telegram_id(
+    payload: TelegramUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Updates the connected Telegram Chat ID for the current user.
+    """
+    current_user.telegram_chat_id = payload.chat_id
+    db.commit()
+    return {"status": "ok", "telegram_chat_id": current_user.telegram_chat_id}
+

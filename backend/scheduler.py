@@ -11,6 +11,7 @@ import sys
 import os
 import time
 import json
+import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 import uuid
@@ -24,8 +25,65 @@ sys.path.insert(0, str(current_dir))
 from database import SessionLocal
 from strategies.registry import get_registry
 from core.signal_logger import log_signal
-from marketplace_config import get_active_strategies
 from core.signal_evaluator import evaluate_pending_signals
+from models_db import StrategyConfig
+
+# Configuración de Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - [SCHEDULER] - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
+
+def get_active_strategies_from_db():
+    """
+    Recupera las estrategias activas directamente de PostgreSQL (StrategyConfig).
+    Retorna una lista de diccionarios compatibles con el formato esperado por el scheduler.
+    """
+    db = SessionLocal()
+    try:
+        active_configs = db.query(StrategyConfig).filter(StrategyConfig.enabled == 1).all()
+        strategies = []
+        for c in active_configs:
+            # Parse JSON fields safely
+            try:
+                tokens_list = json.loads(c.tokens) if c.tokens else []
+            except:
+                tokens_list = []
+                
+            try:
+                tf_list = json.loads(c.timeframes) if c.timeframes else []
+            except:
+                tf_list = []
+                
+            # Flatten to single token/tf for now (Scheduler logic might need loop if multiple)
+            # Assuming 1 strategy config = 1 persona with 1 main symbol/tf usually, 
+            # but DB supports lists. 
+            
+            # For this MVP Scheduler, we treat each token in the list as a target?
+            # Or just take the first one?
+            # StrategyConfig usually mirrors the Persona JSON which had single symbol/tf.
+            # But the new schema supports lists.
+            # Let's support the first one for now or iterate.
+            
+            target_symbol = tokens_list[0] if tokens_list else "BTC"
+            target_tf = tf_list[0] if tf_list else "1h"
+            
+            strategies.append({
+                "id": c.persona_id, # "trend_king_sol"
+                "strategy_id": c.strategy_id, # "donchian_v2"
+                "symbol": target_symbol,
+                "timeframe": target_tf,
+                "name": c.name
+            })
+            
+        return strategies
+    except Exception as e:
+        logger.error(f"Error fetching strategies from DB: {e}")
+        return []
+    finally:
+        db.close()
 
 class StrategyScheduler:
     """
@@ -39,7 +97,7 @@ class StrategyScheduler:
         self.registry = get_registry()
         
         print("="*60)
-        print("🚀 TraderCopilot - Marketplace Scheduler")
+        print("🚀 TraderCopilot - Marketplace Scheduler (DB Powered)")
         print("="*60)
         
         # Registrar estrategias built-in
@@ -113,6 +171,9 @@ class StrategyScheduler:
                 # Cada iteración intentamos renovar. Si perdemos el lock, esperamos.
                 db = SessionLocal()
                 try:
+                    # Ensure table exists? Assume migration did it.
+                    # On SQLite simple check helps avoid initial crash if table missing
+                    # but main.py should have created it.
                     if not self.acquire_lock(db):
                         print("⏳ Waiting for lock...")
                         time.sleep(10)
@@ -130,8 +191,8 @@ class StrategyScheduler:
                 ba_time = now - timedelta(hours=3)
                 print(f"\n[{ba_time.strftime('%H:%M:%S')}] Iteration #{iteration}")
                 
-                # 1. Obtener Personas Activas
-                personas = get_active_strategies()
+                # 1. Obtener Personas Activas (DB)
+                personas = get_active_strategies_from_db()
                 print(f"  ℹ️  Active Personas: {len(personas)}")
                 
                 # 2. Ejecutar cada Persona
@@ -179,10 +240,9 @@ class StrategyScheduler:
                             self.last_signal_direction[ts_key] = sig.direction
                             
                             # Enriquecer source con el ID de la persona
-                            # sig.source = f"Marketplace:{p_id}" 
-                            # FIX user confusion: Use the Human Readable Name (e.g. "The Scalper")
+                            # Fix user confusion: Use the Human Readable Name? No, Marketplace:{ID} is safer for filtering.
                             sig.source = f"Marketplace:{p_id}"
-                            # sig.source = persona['name'] # Reverted to ID for consistent analytics
+                            
                             log_signal(sig)
                             count += 1
                             print(f"    ⭐ SIGNAL: {sig.direction} @ {sig.entry}")
@@ -198,12 +258,9 @@ class StrategyScheduler:
                 # 3. Evaluador PnL (Critico para mostrar profit real)
                 # print("  ⚖️  Evaluating Pending Signals...") # Less verbose
                 try:
-                    # Pass the DB session used for locking? No, create new one or pass valid one.
-                    # evaluate_pending_signals(db) -> wait, DB is closed in finally block above!
-                    # Need New Session.
-                    
                     eval_db = SessionLocal()
                     try:
+                        # Ensure we use a fresh session to avoid transaction issues
                         new_evals = evaluate_pending_signals(eval_db)
                         if new_evals > 0:
                             print(f"  ✅ Evaluated {new_evals} signals")
@@ -224,5 +281,3 @@ scheduler_instance = StrategyScheduler(loop_interval=60)
 
 if __name__ == "__main__":
     scheduler_instance.run()
-
-
