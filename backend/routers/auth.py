@@ -74,6 +74,10 @@ async def login_for_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
     
+    # Logic for entitlements
+    plan_upper = user.plan.upper() if user.plan else "FREE"
+    is_premium = plan_upper in ["TRADER", "PRO", "OWNER"]
+
     return {
         "access_token": access_token, 
         "token_type": "bearer",
@@ -81,12 +85,10 @@ async def login_for_access_token(
             "id": user.id,
             "email": user.email,
             "name": user.name,
-            "name": user.name,
             "role": user.role,
-            "plan": user.plan,
-            "plan": user.plan,
+            "plan": user.plan.capitalize() if user.plan else "Free",
             "plan_status": user.plan_status,
-            "allowed_tokens": ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE", "ADA", "AVAX", "DOT", "LINK"] if user.plan in ["PRO", "OWNER"] else ["BTC", "ETH", "SOL"]
+            "allowed_tokens": ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE", "ADA", "AVAX", "DOT", "LINK"] if is_premium else ["BTC", "ETH", "SOL"]
         }
     }
 
@@ -182,14 +184,17 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
     """
     Get current user profile (synced with frontend requirements).
     """
+    plan_upper = current_user.plan.upper() if current_user.plan else "FREE"
+    is_premium = plan_upper in ["TRADER", "PRO", "OWNER"]
+
     user_dict = {
         "id": current_user.id,
         "email": current_user.email,
         "name": current_user.name,
         "role": current_user.role,
-        "plan": current_user.plan,
+        "plan": current_user.plan.capitalize() if current_user.plan else "Free", # Fix UI lowercase
         "created_at": current_user.created_at,
-        "allowed_tokens": ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE", "ADA", "AVAX", "DOT", "LINK"] if current_user.plan in ["PRO", "OWNER"] else ["BTC", "ETH", "SOL"]
+        "allowed_tokens": ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE", "ADA", "AVAX", "DOT", "LINK"] if is_premium else ["BTC", "ETH", "SOL"]
     }
     return user_dict
 

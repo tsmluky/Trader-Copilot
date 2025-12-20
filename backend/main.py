@@ -578,6 +578,7 @@ from routers.strategies import router as strategies_router
 from routers.admin import router as admin_router
 
 from routers.logs import router as logs_router
+from routers.backtest import router as backtest_router  # Fix 404 logic
 
 from routers.market import router as market_router
 
@@ -585,6 +586,7 @@ app.include_router(advisor_router, prefix="/advisor", tags=["Advisor"])
 app.include_router(advisor_router, prefix="/analyze/advisor", include_in_schema=False)
 app.include_router(analysis_router, prefix="/analyze", tags=["Analysis"])
 app.include_router(strategies_router, prefix="/strategies", tags=["Strategies"])
+app.include_router(backtest_router) # Fix Strategy Lab 404
 app.include_router(logs_router, prefix="/logs", tags=["Logs"])
 app.include_router(market_router, prefix="/market", tags=["Market"])
 app.include_router(auth_router, tags=["Auth"])
