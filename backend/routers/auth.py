@@ -175,3 +175,10 @@ def read_my_entitlements(
     """
     return get_user_entitlements(db, current_user)
 
+@router.get("/users/me", response_model=UserResponse)
+async def read_users_me(current_user: User = Depends(get_current_user)):
+    """
+    Get current user profile (synced with frontend requirements).
+    """
+    return current_user
+

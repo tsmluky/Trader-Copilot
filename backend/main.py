@@ -523,6 +523,21 @@ def toggle_strategy_active(id: str):
 
 # ==== 10. System Tools ====
 
+@app.get("/system/config")
+def system_config():
+    """
+    Public system configuration.
+    """
+    return {
+        "status": "active",
+        "maintenance_mode": False,
+        "version": "2.0.3",
+        "features": {
+            "signup": False, # Disabled for public
+            "beta": True
+        }
+    }
+
 @app.post("/system/reset")
 async def factory_reset(request: Request):
     """
@@ -562,10 +577,16 @@ from routers.analysis import router as analysis_router
 from routers.strategies import router as strategies_router
 from routers.admin import router as admin_router
 
+from routers.logs import router as logs_router
+
+from routers.market import router as market_router
+
 app.include_router(advisor_router, prefix="/advisor", tags=["Advisor"])
 app.include_router(advisor_router, prefix="/analyze/advisor", include_in_schema=False)
 app.include_router(analysis_router, prefix="/analyze", tags=["Analysis"])
 app.include_router(strategies_router, prefix="/strategies", tags=["Strategies"])
+app.include_router(logs_router, prefix="/logs", tags=["Logs"])
+app.include_router(market_router, prefix="/market", tags=["Market"])
 app.include_router(auth_router, tags=["Auth"])
 app.include_router(admin_router, prefix="/admin", tags=["Admin"])
 # app.include_router(auth_router, prefix="/auth", tags=["Auth"]) # DOUBLE PREFIX AVOIDANCE
