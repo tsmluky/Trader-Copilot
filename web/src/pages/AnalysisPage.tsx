@@ -129,7 +129,7 @@ export const AnalysisPage: React.FC = () => {
       </div>
 
       {/* Config Card */}
-      <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 flex flex-col gap-4 shadow-xl backdrop-blur-sm">
+      <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-5 flex flex-col gap-4 shadow-xl backdrop-blur-sm relative z-30">
         {/* Mode toggle */}
         <div className="flex gap-3">
           {(["LITE", "PRO"] as Mode[]).map((m) => (

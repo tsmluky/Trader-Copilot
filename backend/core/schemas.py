@@ -190,6 +190,7 @@ class UserResponse(BaseModel):
     name: str
     role: str
     plan: str
+    allowed_tokens: Optional[List[str]] = []
     created_at: datetime
     
     class Config:

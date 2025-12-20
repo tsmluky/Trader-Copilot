@@ -84,7 +84,9 @@ async def login_for_access_token(
             "name": user.name,
             "role": user.role,
             "plan": user.plan,
-            "plan_status": user.plan_status
+            "plan": user.plan,
+            "plan_status": user.plan_status,
+            "allowed_tokens": ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE", "ADA", "AVAX", "DOT", "LINK"] if user.plan in ["PRO", "OWNER"] else ["BTC", "ETH", "SOL"]
         }
     }
 
@@ -180,5 +182,14 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
     """
     Get current user profile (synced with frontend requirements).
     """
-    return current_user
+    user_dict = {
+        "id": current_user.id,
+        "email": current_user.email,
+        "name": current_user.name,
+        "role": current_user.role,
+        "plan": current_user.plan,
+        "created_at": current_user.created_at,
+        "allowed_tokens": ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE", "ADA", "AVAX", "DOT", "LINK"] if current_user.plan in ["PRO", "OWNER"] else ["BTC", "ETH", "SOL"]
+    }
+    return user_dict
 

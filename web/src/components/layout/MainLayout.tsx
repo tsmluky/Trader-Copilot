@@ -142,7 +142,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-xs font-medium text-slate-300">{user?.name || 'Trader'}</span>
-                                    <span className="text-[10px] text-slate-500">Pro Plan</span>
+                                    <span className="text-[10px] text-slate-500">{user?.plan ? `${user.plan} Plan` : 'Free Plan'}</span>
                                 </div>
                             </div>
                             <button onClick={logout} className="text-slate-500 hover:text-rose-400 transition-colors">

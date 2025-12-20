@@ -13,7 +13,7 @@ def market_summary_endpoint(symbols: Optional[List[str]] = Query(None)):
         # Default watchlist if none provided
         symbols = ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE", "ADA", "AVAX", "DOT", "LINK"]
     
-    return get_market_summary(symbols)
+    return {"current_prices": get_market_summary(symbols)}
 
 
 @router.get("/ohlcv/{token}")
