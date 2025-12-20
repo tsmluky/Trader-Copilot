@@ -87,16 +87,22 @@ async def login_for_access_token(
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register_user(
-    user_data: UserCreate, 
+    request: Request,
     db: Session = Depends(get_db)
 ):
     """
     Registra un nuevo usuario en la plataforma.
-    
-    - Valida email único (409 Conflict)
-    - Hashing seguro de contraseña (bcrypt)
-    - Retorna el usuario creado (DTO seguro sin password)
+    (Debug Mode: Reads raw JSON to debug validation errors)
     """
+    try:
+        data = await request.json()
+        print(f"[DEBUG REGISTER] Raw Payload: {data}")
+        # Manually validate to trigger Pydantic
+        user_data = UserCreate(**data)
+    except Exception as e:
+        print(f"[DEBUG REGISTER] JSON Parse/Validation Error: {e}")
+        raise HTTPException(status_code=422, detail=str(e))
+
     # 1. Normalizar email
     email_norm = user_data.email.strip().lower()
     
