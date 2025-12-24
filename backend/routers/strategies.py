@@ -16,7 +16,7 @@ from models_db import StrategyConfig, User, Signal, SignalEvaluation
 from strategies.registry import get_registry
 from core.signal_logger import log_signal
 from pydantic import BaseModel
-from routers.auth import get_current_user
+from routers.auth_new import get_current_user
 from dependencies import require_plan, require_pro
 
 # === Dependency ===
@@ -64,7 +64,7 @@ class PersonaResponse(BaseModel):
 @router.get("/marketplace", response_model=List[Dict[str, Any]])
 async def get_marketplace(
     db: Session = Depends(get_db),
-    # current_user: User = Depends(get_current_user) # Optional auth for public view?
+    current_user: User = Depends(get_current_user)
 ):
     """
     Retorna todas las estrategias visualizables (Personas).
@@ -75,10 +75,21 @@ async def get_marketplace(
     # For now, return ALL Public + ALL Private (Admin view) or just Public?
     # Let's fetch all Public + User's own.
     # Since we might not have user context if public page...
-    # queries = [StrategyConfig.is_public == 1]
+    # Filter: System Strategies (user_id is None) OR User's own strategies
+    # Need to handle case where current_user might be implicit if we want public access, 
+    # but for consistent dashboard, we likely have a user.
+    # To be safe, we'll fetch all public (system) + private if user matches.
     
-    # Fetch all
-    configs = db.query(StrategyConfig).all()
+    from sqlalchemy import or_
+    
+    query = db.query(StrategyConfig).filter(
+        or_(
+            StrategyConfig.user_id == None,  # System/Public
+            StrategyConfig.user_id == current_user.id  # User's own
+        )
+    )
+    
+    configs = query.all()
     
     personas = []
     for c in configs:
@@ -97,10 +108,46 @@ async def get_marketplace(
             tf = c.timeframes
             
         # Stats Real (if signals exist)
-        # We can calculate Win Rate dynamically or use the one stored in DB
-        # For Marketplace view, stored stats are faster.
-        # But we need to format them nicely.
+        # Fix: Calculate Win Rate dynamically to ensure accuracy
+        target_source = f"Marketplace:{c.persona_id}"
+        real_wr = 0.0
+        try:
+            # Count evaluated wins
+            wins = db.query(SignalEvaluation).join(Signal).filter(
+                Signal.source == target_source,
+                SignalEvaluation.result == 'WIN'
+            ).count()
+            
+            # Count total evaluations
+            total_evals = db.query(SignalEvaluation).join(Signal).filter(
+                Signal.source == target_source
+            ).count()
+            
+            if total_evals > 0:
+                real_wr = (wins / total_evals) * 100
+                
+            # Valid commit happens outside loop if we want, or transient update
+            c.win_rate = real_wr
+            c.total_signals = total_evals
+        except Exception as e:
+            print(f"[STATS] Error calculating stats for {c.persona_id}: {e}")
+            real_wr = c.win_rate or 0.0
         
+
+        # Frequency (Static if in config, else inferred)
+        freq_label = "Medium"
+        if c.interval_seconds < 900: freq_label = "High"
+        elif c.interval_seconds > 14400: freq_label = "Low"
+        
+        if c.config_json:
+            try:
+                import json
+                conf = json.loads(c.config_json)
+                if "frequency" in conf:
+                    freq_label = conf["frequency"]
+            except:
+                pass
+
         personas.append({
             "id": c.persona_id,
             "name": c.name,
@@ -110,8 +157,8 @@ async def get_marketplace(
             "description": c.description,
             "risk_level": c.risk_profile,
             "expected_roi": c.expected_roi or "N/A",
-            "win_rate": f"{int(c.win_rate)}%" if c.win_rate else "N/A", # Formatted
-            "frequency": "Medium", # TODO: Store this or calc it
+            "win_rate": f"{int(real_wr)}%", # Calculated Live
+            "frequency": freq_label,
             "color": c.color,
             "is_active": c.enabled == 1,
             "is_custom": is_custom,
@@ -131,7 +178,7 @@ async def create_persona(
     """Crea una nueva estrategia personalizada en DB."""
     
     # 1. Generate ID
-    safe_name = re.sub(r'[^a-z0-9]', '_', config.name.lower())
+    safe_name = re.sub(r'[^a-z0-9]+', '_', config.name.lower()).strip('_')
     new_id = f"{safe_name}_{config.symbol.lower()}"
     
     # Check duplication
@@ -169,14 +216,25 @@ async def create_persona(
 @router.patch("/marketplace/{persona_id}/toggle")
 async def toggle_strategy(
     persona_id: str, 
-    db: Session = Depends(get_db)
-    # user check?
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """Activa/Desactiva una estrategia."""
     strat = db.query(StrategyConfig).filter(StrategyConfig.persona_id == persona_id).first()
     if not strat:
         raise HTTPException(status_code=404, detail="Strategy not found")
         
+    # Security Check: Owner or Admin
+    if strat.user_id != current_user.id and current_user.role != "admin":
+         # Allow users to toggle System strategies? Usually no, unless they clone it.
+         # For now, simplistic approach: "If user_id is None (System), only Admin can toggle globally?"
+         # Or maybe "Toggle" on system strat means "Enable for ME"?
+         # The current Schema handles global toggle. So restrict to Admin for System Strats.
+         if strat.user_id is None:
+             raise HTTPException(status_code=403, detail="Only Admins can toggle System Strategies")
+         
+         raise HTTPException(status_code=403, detail="Not authorized to toggle this strategy")
+
     # Toggle (0 -> 1, 1 -> 0)
     strat.enabled = 0 if strat.enabled == 1 else 1
     db.commit()
@@ -203,9 +261,31 @@ async def delete_persona(
     if strat.user_id is None and current_user.role != "admin":
          raise HTTPException(status_code=403, detail="Cannot delete System strategies")
 
+    # --- CASCADE DELETE SIGNALS & EVALUATIONS ---
+    # Delete signals generated by this specific persona instance
+    target_source = f"Marketplace:{persona_id}"
+    
+    # First delete evaluations linked to these signals
+    # We do a subquery deletion or fetch-then-delete. 
+    # For SQLite compatibility/simplicity:
+    signals_to_delete = db.query(Signal.id).filter(Signal.source == target_source).all()
+    sig_ids = [s[0] for s in signals_to_delete]
+    
+    deleted_evals = 0
+    if sig_ids:
+        deleted_evals = db.query(SignalEvaluation).filter(SignalEvaluation.signal_id.in_(sig_ids)).delete(synchronize_session=False)
+
+    deleted_signals = db.query(Signal).filter(Signal.source == target_source).delete(synchronize_session=False)
+    
+    # Also delete any signals that might have been attributed directly to the strategy_id 
+    # IF this is a custom strategy and we want to be aggressive about cleanup.
+    # However, 'target_source' is the strict link for persona execution.
+    
+    print(f"🗑️ Deleting Persona {persona_id}: Metadata + {deleted_signals} Signals + {deleted_evals} Evaluations.")
+
     db.delete(strat)
     db.commit()
-    return {"status": "ok", "msg": "Strategy deleted"}
+    return {"status": "ok", "msg": f"Strategy deleted. Cleared {deleted_signals} signals."}
 
 
 @router.get("/marketplace/{persona_id}/history")
@@ -229,7 +309,8 @@ async def get_persona_history(persona_id: str, db: Session = Depends(get_db)):
             eval_data = {
                 "result": sig.evaluation.result,
                 "pnl_r": sig.evaluation.pnl_r,
-                "exit_price": sig.evaluation.exit_price
+                "exit_price": sig.evaluation.exit_price,
+                "closed_at": sig.evaluation.evaluated_at
             }
             
         history.append({
@@ -240,6 +321,9 @@ async def get_persona_history(persona_id: str, db: Session = Depends(get_db)):
             "entry": sig.entry,
             "tp": sig.tp,
             "sl": sig.sl,
+            "mode": sig.mode,
+            "confidence": sig.confidence,
+            "rationale": sig.rationale,
             "result": eval_data
         })
         

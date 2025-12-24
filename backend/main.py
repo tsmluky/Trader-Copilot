@@ -7,6 +7,7 @@ from datetime import datetime, timezone, timedelta
 from typing import Optional, List, Dict, Any, Tuple
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Request, UploadFile, File, BackgroundTasks, WebSocket, WebSocketDisconnect, Response
+import fastapi
 from dotenv import load_dotenv
 
 # ==== 1. ConfiguraciÃ³n de entorno (Deterministic Loading) ====
@@ -19,7 +20,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 from core.config import load_env_if_needed
 load_env_if_needed()
-from routers.auth import router as auth_router
+from routers.auth_new import router as auth_router
 # Startup Banner (Single Source of Truth Check)
 db_url = os.getenv("DATABASE_URL", "sqlite:///./dev_local.db")
 db_dialect = db_url.split(":")[0]
@@ -59,14 +60,37 @@ from slowapi.middleware import SlowAPIMiddleware
 # === App Initialization ===
 app = FastAPI(title="TraderCopilot Backend", version="2.0.0")
 
+# --- Telegram Bot Lifecycle ---
+from telegram_listener import start_telegram_bot, stop_telegram_bot
+
+@app.on_event("startup")
+async def startup_event():
+    # Start Telegram Bot in background
+    asyncio.create_task(start_telegram_bot())
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    # Stop Telegram Bot
+    await stop_telegram_bot()
 
 
+
+from fastapi.exceptions import ResponseValidationError
 async def _unhandled_exception_handler(request: Request, exc: Exception):
-    # No filtra detalles sensibles; respuesta estable para producciÃ³n
+    import traceback
+    from datetime import datetime
+    traceback.print_exc()
+    try:
+        with open("crash.log", "a") as f:
+            f.write(f"\n[{datetime.utcnow()}] CRASH: {str(exc)}\n")
+            f.write(traceback.format_exc())
+    except:
+        pass
     from fastapi.responses import JSONResponse
-    return JSONResponse(status_code=500, content={"code": "INTERNAL_ERROR", "detail": "Internal Server Error"})
+    return JSONResponse(status_code=500, content={"code": "INTERNAL_ERROR", "detail": str(exc), "trace": traceback.format_exc()})
 
-app.add_exception_handler(Exception, _unhandled_exception_handler)# Rate Limiter
+app.add_exception_handler(Exception, _unhandled_exception_handler)
+app.add_exception_handler(ResponseValidationError, _unhandled_exception_handler)# Rate Limiter
 app.state.limiter = limiter
 from fastapi.responses import JSONResponse
 from starlette.requests import Request
@@ -132,13 +156,26 @@ async def add_process_time_header(request: Request, call_next):
 # === CORS Configuration ===
 # Production: Use ALLOWED_ORIGINS env var. Dev: Default to * if not set.
 env_allowed = os.getenv("ALLOWED_ORIGINS", "")
+print(f"[DEBUG CORS] env_allowed raw: '{env_allowed}'")
+
+# Start with robust defaults for all local dev scenarios
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:4173",
+    "https://saleready.up.railway.app",
+    "https://saleready-production.up.railway.app"
+]
+
 if env_allowed:
-    origins = env_allowed.split(",")
-    print(f"[CORS] âœ… Restricted Origins: {origins}")
-else:
-    # Dev / MVP Fallback
-    origins = ["*"]
-    print(f"[CORS] âš ï¸  WARNING: ALLOWED_ORIGINS not set. Defaulting to [*].")
+    extra_origins = env_allowed.split(",")
+    origins.extend(extra_origins)
+    print(f"[CORS] ➕ Extended Origins with env: {extra_origins}")
+    print(f"[CORS] âš ï¸ Using Default Origins: {origins}")
 
 print(f"[CORS] Final Allowed Origins: {origins}")
 
@@ -151,7 +188,8 @@ app.add_middleware(
 )
 
 # ==== DB Init ====
-from database import engine, Base
+from database import engine, Base, get_db
+from sqlalchemy.orm import Session
 from models_db import Signal as SignalDB, SignalEvaluation, User, StrategyConfig, PushSubscription  # Import models to register them
 
 @app.on_event("startup")
@@ -199,7 +237,8 @@ async def startup():
                 conn.execute(text("ALTER TABLE strategy_configs ADD COLUMN color VARCHAR DEFAULT 'indigo';"))
                 conn.execute(text("ALTER TABLE strategy_configs ADD COLUMN icon VARCHAR DEFAULT 'Cpu';"))
                 conn.execute(text("ALTER TABLE strategy_configs ADD COLUMN expected_roi VARCHAR;"))
-            except:
+            except Exception as e:
+                print(f"⚠️ [DB MIGRATION] StrategyConfig migration warning: {e}")
                 pass
         
         # 4. SEED DATA
@@ -241,8 +280,11 @@ async def startup():
             
             # B. Sync System Personas
             for sp in SYSTEM_PERSONAS:
+                # Check by persona_id (This is the unique ID for the Marketplace Item)
                 db_p = db.query(StrategyConfig).filter(StrategyConfig.persona_id == sp["id"]).first()
+                
                 if not db_p:
+                    print(f"   [SEED] Creating {sp['name']}...")
                     db_p = StrategyConfig(
                         persona_id=sp["id"],
                         strategy_id=sp["strategy_id"],
@@ -259,10 +301,14 @@ async def startup():
                     )
                     db.add(db_p)
                 else:
+                    # Update existing system strategy (Sync definitions)
+                    db_p.name = sp["name"]
                     db_p.description = sp["description"]
+                    db_p.persona_id = sp["id"] # Ensure persona_id matches
                     db_p.expected_roi = sp["expected_roi"]
                     db_p.is_public = 1
-                    db_p.user_id = None # Ensure system ownership
+                    db_p.user_id = None
+            
             db.commit()
             print("✅ [DB] Schema & Seeds synced.")
         except Exception as e:
@@ -300,28 +346,37 @@ async def startup():
 
 class TelegramMsg(BaseModel):
     text: str
+    chat_id: Optional[str] = None
 
 @app.post("/notify/telegram")
-async def notify_telegram(msg: TelegramMsg, db: Session = Depends(get_db)):
+async def notify_telegram(
+    msg: TelegramMsg, 
+    db: Session = fastapi.Depends(get_db)
+    # Could add current_user here if we want to auto-fetch from DB, 
+    # but explicit chat_id in body is better for "Test Ping".
+):
     """
     Envia una notificacion a Telegram.
-    Ahora soporta envio real si el usuario tiene telegram_chat_id configurado.
-    (Por ahora usa un dummy ID o el del .env si es prueba global)
+    Soporta envio dinamico si se provee chat_id, o fallback a env var.
     """
-    from services.telegram_bot import bot
-    # TODO: Get current user or context. For now, try env var OR explicit ID
-    # If msg source provides ID, use it.
+    from services.telegram_bot import bot as sender_bot
     
-    # Fallback to ENV var for generic tests
-    import os
-    target_id = os.getenv("TELEGRAM_CHAT_ID")
+    target_id = msg.chat_id
+    
+    # Fallback to ENV var
+    if not target_id:
+        import os
+        target_id = os.getenv("TELEGRAM_CHAT_ID")
     
     if target_id:
-        success = await bot.send_message(target_id, msg.text)
-        return {"status": "ok", "sent": success}
+        success = await sender_bot.send_message(target_id, msg.text)
+        if success:
+            return {"status": "ok", "sent": True, "target": target_id}
+        else:
+             return {"status": "error", "detail": "Telegram API failed (check logs)"}
     else:
         print(f"[TELEGRAM] No CHAT_ID configured. Msg: {msg.text}")
-        return {"status": "skipped", "detail": "No Chat ID configured in .env"}
+        return {"status": "skipped", "detail": "No Chat ID provided or configured in .env"}
 
 # ==== 9. Stats & Metrics para Dashboard ====
 
@@ -409,9 +464,29 @@ def compute_stats_summary() -> Dict[str, Any]:
                 Signal.source.notin_(test_sources)
             ).scalar() or 0
             
-            # Calculate win rate
-            decided = tp_24h + sl_24h
-            win_rate_24h = tp_24h / decided if decided > 0 else None
+            # Calculate win rate (Real)
+            # decided = tp_24h + sl_24h
+            # win_rate_24h = tp_24h / decided if decided > 0 else None
+            
+            # Robust logic (mirrors strategies.py)
+            # Count ALL WINs in last 24h
+            wins_all = db.query(func.count(SignalEvaluation.id)).join(Signal).filter(
+                SignalEvaluation.evaluated_at >= day_ago,
+                SignalEvaluation.result == 'WIN',
+                Signal.source.notin_(test_sources)
+            ).scalar() or 0
+            
+            # Count ALL Evaluated in last 24h
+            evals_all = db.query(func.count(SignalEvaluation.id)).join(Signal).filter(
+                SignalEvaluation.evaluated_at >= day_ago,
+                Signal.source.notin_(test_sources)
+            ).scalar() or 0
+            
+            if evals_all > 0:
+                win_rate_24h = (wins_all / evals_all) * 100
+            else:
+                win_rate_24h = 0
+
             
             # Open signals (LITE signals not yet evaluated)
             open_signals_est = max(lite_24h - eval_24h_count, 0)
@@ -567,117 +642,101 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # ==== 13. Endpoint Strategy Management (Toggle) ====
 
-@app.patch("/strategies/marketplace/{id}/toggle")
-def toggle_strategy_active(id: str):
+# [SECURED] Factory reset and main-level toggle removed for Sale-Ready build.
+# Use routers/strategies.py for authorized toggles.
+
+# === Telegram Bot Webhook ===
+@app.post("/telegram/webhook")
+async def telegram_webhook(request: Request):
     """
-    Toggles the is_active state of a strategy persona.
-    Supports both Custom (user_strategies.json) and System (system_overrides.json) personas.
-    """
-    try:
-        # Import config helpers locally to avoid circulars if any
-        from marketplace_config import (
-            load_user_strategies, save_user_strategies,
-            load_system_overrides, save_system_overrides,
-            SYSTEM_PERSONAS, refresh_personas
-        )
-
-        target_id = id
-        
-        # 1. Check if it's a User Strategy
-        user_strategies = load_user_strategies()
-        found_in_user = False
-        
-        for p in user_strategies:
-            if p["id"] == target_id:
-                # Toggle
-                current = p.get("is_active", True)
-                p["is_active"] = not current
-                found_in_user = True
-                save_user_strategies(user_strategies)
-                break
-        
-        if found_in_user:
-            refresh_personas()
-            return {"status": "ok", "message": f"Strategy {target_id} toggled."}
-
-        # 2. Check if it's a System Strategy
-        is_system = any(p["id"] == target_id for p in SYSTEM_PERSONAS)
-        
-        if is_system:
-            overrides = load_system_overrides()
-            # If not in overrides, assume active (default for system is True)
-            # Find default first to be sure
-            default_state = True
-            for sp in SYSTEM_PERSONAS:
-                if sp["id"] == target_id:
-                    default_state = sp.get("is_active", True)
-                    break
-            
-            # Determine current state
-            current_override = overrides.get(target_id, {}).get("is_active")
-            current_state = current_override if current_override is not None else default_state
-            
-            # Toggle
-            new_state = not current_state
-            
-            # Save override
-            if target_id not in overrides:
-                overrides[target_id] = {}
-            overrides[target_id]["is_active"] = new_state
-            
-            save_system_overrides(overrides)
-            refresh_personas()
-            return {"status": "ok", "message": f"System Strategy {target_id} toggled to {new_state}."}
-
-        raise HTTPException(status_code=404, detail="Strategy not found")
-        
-    except Exception as e:
-        print(f"Error toggling strategy: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-# ==== 10. System Tools ====
-
-@app.get("/system/config")
-def system_config():
-    """
-    Public system configuration.
-    """
-    return {
-        "status": "active",
-        "maintenance_mode": False,
-        "version": "2.0.3",
-        "features": {
-            "signup": False, # Disabled for public
-            "beta": True
-        }
-    }
-
-@app.post("/system/reset")
-async def factory_reset(request: Request):
-    """
-    FACTORY RESET PROTECCION CIVIL
-    Borra TODAS las seÃ±ales y datos de la base de datos.
-    Se usa para demos limpias o reiniciar el entorno.
+    Telegram Webhook Handler.
+    Processes /myid and /start commands.
     """
     try:
-        from database import AsyncSessionLocal
-        from sqlalchemy import text
+        data = await request.json()
         
-        async with AsyncSessionLocal() as session:
-            # 1. Truncate Dependent Tables First (Foreign Key Constraints)
-            await session.execute(text("DELETE FROM signal_evaluations"))
+        # Extract message data
+        message = data.get("message", {})
+        chat_id = message.get("chat", {}).get("id")
+        text = message.get("text", "")
+        user = message.get("from", {})
+        
+        if not chat_id:
+            return {"ok": True}
+        
+        # Handle /myid command
+        if text.strip().lower() == "/myid":
+            response = (
+                f"🆔 **Your Telegram Details**\n\n"
+                f"**Chat ID:** `{chat_id}`\n"
+                f"**User ID:** `{user.get('id', 'N/A')}`\n"
+                f"**Username:** @{user.get('username', 'N/A')}\n"
+                f"**Name:** {user.get('first_name', '')} {user.get('last_name', '')}\n\n"
+                f"Copy your Chat ID and paste it in TraderCopilot Settings to enable notifications!"
+            )
             
-            # 2. Truncate Signals Table
-            await session.execute(text("DELETE FROM signals"))
+            # Send response via Telegram API
+            import os
+            import httpx
+            bot_token = os.getenv("TELEGRAM_BOT_TOKEN", "")
+            if bot_token:
+                url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+                payload = {
+                    "chat_id": chat_id,
+                    "text": response,
+                    "parse_mode": "Markdown"
+                }
+                async with httpx.AsyncClient() as client:
+                    await client.post(url, json=payload, timeout=10.0)
+        
+        # Handle /start command
+        elif text.strip().lower() == "/start":
+            response = (
+                "Welcome to TraderCopilot Bot!\n\n"
+                "Commands:\n"
+                "/myid - Get your Chat ID\n"
+                "/start - Show this help"
+            )
             
-            await session.commit()
-            
-        print("[SYSTEM] âš ï¸  FACTORY RESET EXECUTED. DB CLEARED.")
-        return {"status": "ok", "message": "Database cleared successfully. System ready for new deployment."}
-            
+            import os
+            import httpx
+            bot_token = os.getenv("TELEGRAM_BOT_TOKEN", "")
+            if bot_token:
+                url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+                payload = {
+                    "chat_id": chat_id,
+                    "text": response
+                }
+                async with httpx.AsyncClient() as client:
+                    await client.post(url, json=payload, timeout=10.0)
+        
+        return {"ok": True}
+    
     except Exception as e:
-        print(f"[SYSTEM] Reset Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"[TELEGRAM WEBHOOK] Error: {e}")
+        return {"ok": False}
+
+
+# ==== SCHEDULER AUTO-START ====
+import threading
+from scheduler import scheduler_instance
+from strategies.registry import load_default_strategies
+
+@app.on_event("startup")
+def start_scheduler_thread():
+    """
+    Arranca el Scheduler en un hilo secundario (Daemon).
+    Esto asegura que las estrategias se ejecuten automÃ¡ticamente
+    sin bloquear el servidor principal y sin necesitar 'python scheduler.py'.
+    """
+    # 1. Load Strategies into Registry (Shared Memory)
+    load_default_strategies()
+    
+    # 2. Launch Scheduler
+    print("🚀 [STARTUP] Launching Strategy Scheduler Thread...")
+    t = threading.Thread(target=scheduler_instance.run, daemon=True)
+    t.start()
+
 
 if __name__ == "__main__":
     import uvicorn
@@ -705,4 +764,6 @@ app.include_router(logs_router, prefix="/logs", tags=["Logs"])
 app.include_router(market_router, prefix="/market", tags=["Market"])
 app.include_router(auth_router, tags=["Auth"])
 app.include_router(admin_router, prefix="/admin", tags=["Admin"])
+from routers.system import router as system_router
+app.include_router(system_router, prefix="/system", tags=["System"])
 # app.include_router(auth_router, prefix="/auth", tags=["Auth"]) # DOUBLE PREFIX AVOIDANCE

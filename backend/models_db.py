@@ -25,8 +25,8 @@ class Signal(Base):
     # Validation / Isolation
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     
-    # Idempotency constraint
-    idempotency_key = Column(String, unique=True)
+    # Idempotency constraint (Strict)
+    idempotency_key = Column(String, unique=True, index=True, nullable=True)
     
     # Relationship to evaluation
     evaluation = relationship(lambda: SignalEvaluation, back_populates="signal", uselist=False, viewonly=True)
@@ -65,6 +65,7 @@ class User(Base):
 
     # Notifications
     telegram_chat_id = Column(String, nullable=True) # User's personal Chat ID
+    timezone = Column(String, default="UTC") # User's preferred timezone
 
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -174,7 +175,34 @@ class DailyUsage(Base):
     date = Column(String)     # YYYY-MM-DD
     count = Column(Integer, default=0)
 
+
     # Unique constraint to prevent race conditions (handled by DB logic usually, 
     # but index helps). In Postgres we'd use a UniqueConstraint.
     # For now, we rely on the application logic 'check_and_increment' doing a localized lock
+
+
+class CopilotProfile(Base):
+    """
+    Perfil de preferencias del Copilot para personalización.
+    Relación 1:1 con User.
+    """
+    __tablename__ = "copilot_profiles"
+    __table_args__ = {'extend_existing': True}
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    
+    # Preferencias
+    trader_style = Column(String, default="BALANCED") # SCALPER, SWING, DAY, BALANCED
+    risk_tolerance = Column(String, default="MEDIUM") # LOW, MEDIUM, HIGH, DEGEN
+    time_horizon = Column(String, default="INTRADAY") # SCALP, INTRADAY, SWING, LONG_TERM
+    
+    # Contexto libre
+    custom_instructions = Column(Text, nullable=True) # "Prefiero evitar meme coins..."
+    
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relación simple
+    user = relationship("User")
+
 

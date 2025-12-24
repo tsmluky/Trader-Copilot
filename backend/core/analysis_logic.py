@@ -4,11 +4,11 @@ import asyncio
 
 # Imports from project
 from models import LiteSignal, ProReq
-from format_prompt_lite import format_lite_prompt
-from format_prompt_pro import format_pro_prompt_v2
+from .format_prompt_lite import format_lite_prompt
+from .format_prompt_pro import format_pro_prompt_v2
 from strategies.registry import get_registry
 from rag_context import build_token_context
-from deepseek_client import generate_pro_analysis
+# from deepseek_client import generate_pro_analysis # REMOVED (Legacy)
 # from narrative_engine import generate_dynamic_rationale
 from indicators.market import get_market_data # Re-export if needed or used directly
 
@@ -250,6 +250,7 @@ async def _build_pro_markdown(
         "#ANALYSIS_START y #ANALYSIS_END, manteniendo las secciones requeridas: "
         "#CTXT# (Contexto de mercado), #TA# (Análisis Técnico Institucional), #PLAN# (Estrategia precisa), "
         "#INSIGHT# (Dato clave OnChain/Fundamental), #PARAMS# (Niveles exactos).\n"
+        "IMPORTANTE: NO uses negritas ni markdown en los tags. Usa exactamente #TAG# (ej: #CTXT#, no **#CTXT#**).\n"
         "El idioma de respuesta debe ser SIEMPRE ESPAÑOL (Castellano) de España, tono profesional, serio y directo al grano.\n"
         "Usa terminología técnica correcta (Order Blocks, FVG, Liquidez, Estructura de Mercado)."
     )

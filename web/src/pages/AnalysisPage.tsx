@@ -231,9 +231,10 @@ export const AnalysisPage: React.FC = () => {
           {mode === "LITE" && liteResult && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
-              {/* 1. Chart (Context) - Kept separate as SignalCard doesn't have it */}
-              {chartData.length > 0 && (
-                <div className="p-4 bg-slate-950/30 rounded-2xl border border-slate-800">
+              {/* Signal Card now wraps the Chart internally */}
+              <SignalCard
+                signal={liteResult}
+                chartNode={chartData.length > 0 ? (
                   <SignalChart
                     data={chartData}
                     entry={liteResult.entry}
@@ -241,11 +242,8 @@ export const AnalysisPage: React.FC = () => {
                     sl={liteResult.sl}
                     direction={liteResult.direction}
                   />
-                </div>
-              )}
-
-              {/* 2. Signal Card (Replaces the custom table/grid) - contains Track, Metrics, Rationale */}
-              <SignalCard signal={liteResult} />
+                ) : undefined}
+              />
 
             </div>
           )}

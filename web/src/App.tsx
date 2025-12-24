@@ -17,8 +17,11 @@ import { RegisterPage } from './pages/RegisterPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastContainer } from './components/Toast';
+import { CopilotProvider } from './context/CopilotContext';
 import { Loader2 } from 'lucide-react';
 import { AdvisorChat } from './components/AdvisorChat';
+import { CopilotModal } from './components/copilot/CopilotModal';
+import { CopilotFAB } from './components/copilot/CopilotFAB';
 
 // Wrapper for Protected Routes
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -43,42 +46,46 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <Router>
-          <ToastContainer />
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+        <CopilotProvider>
+          <Router>
+            <ToastContainer />
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
 
-            {/* Protected Routes */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <DashboardHome />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/scanner" element={<ProtectedRoute><ScannerPage /></ProtectedRoute>} />
-            <Route path="/strategies" element={<ProtectedRoute><StrategiesPage /></ProtectedRoute>} />
-            <Route path="/strategies/:id" element={<ProtectedRoute><StrategyDetailsPage /></ProtectedRoute>} />
-            {/* Mapping old signals path effectively to scanner in case of bookmarks, or just replacing it entirely */}
-            <Route path="/signals" element={<Navigate to="/scanner" replace />} />
-            <Route path="/analysis" element={<ProtectedRoute><AnalysisPage /></ProtectedRoute>} />
-            <Route path="/advisor" element={<ProtectedRoute><AdvisorPage /></ProtectedRoute>} />
-            <Route path="/logs" element={<ProtectedRoute><LogsPage /></ProtectedRoute>} />
-            <Route path="/backtest" element={<ProtectedRoute><BacktestPage /></ProtectedRoute>} />
-            <Route path="/pricing" element={<ProtectedRoute><PricingPage /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} /> {/* Added AdminPage route */}
+              {/* Protected Routes */}
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <DashboardHome />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/scanner" element={<ProtectedRoute><ScannerPage /></ProtectedRoute>} />
+              <Route path="/strategies" element={<ProtectedRoute><StrategiesPage /></ProtectedRoute>} />
+              <Route path="/strategies/:id" element={<ProtectedRoute><StrategyDetailsPage /></ProtectedRoute>} />
+              {/* Mapping old signals path effectively to scanner in case of bookmarks, or just replacing it entirely */}
+              <Route path="/signals" element={<Navigate to="/scanner" replace />} />
+              <Route path="/analysis" element={<ProtectedRoute><AnalysisPage /></ProtectedRoute>} />
+              <Route path="/advisor" element={<ProtectedRoute><AdvisorPage /></ProtectedRoute>} />
 
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+              <Route path="/backtest" element={<ProtectedRoute><BacktestPage /></ProtectedRoute>} />
+              <Route path="/pricing" element={<ProtectedRoute><PricingPage /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} /> {/* Added AdminPage route */}
+
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+            <CopilotModal />
+            <CopilotFAB />
 
 
 
-        </Router>
+          </Router>
+        </CopilotProvider>
       </ThemeProvider>
     </AuthProvider>
   );

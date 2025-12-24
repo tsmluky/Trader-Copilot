@@ -37,6 +37,9 @@ async function fetchWithTimeout(
   try {
     const res = await fetch(url, { ...init, headers, signal: controller.signal });
     return res;
+  } catch (err: any) {
+    console.error(`[API] 💥 Error ${url}`, err);
+    throw err;
   } finally {
     clearTimeout(id);
   }
@@ -317,22 +320,31 @@ export async function getSignalEvaluation(
 // Telegram / Leaderboard / AdvisorChat
 // =========================
 
-export async function notifyTelegram(message: string): Promise<boolean> {
+export async function notifyTelegram(message: string, chatId?: string): Promise<boolean> {
   try {
+    const body: any = { text: message };
+    if (chatId) body.chat_id = chatId;
+
     const res = await fetchWithTimeout(`${API_BASE_URL}/notify/telegram`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: message }),
+      body: JSON.stringify(body),
     });
 
     if (!res.ok) {
       throw new Error(`HTTP ${res.status} ${res.statusText}`);
     }
 
+    const data = await res.json();
+    if (data.status === 'skipped' || data.status === 'error') {
+      console.warn('Telegram API skipped:', data.detail);
+      throw new Error(data.detail || 'Telegram sending failed/skipped');
+    }
+
     return true;
-  } catch (err) {
+  } catch (err: any) {
     console.warn("notifyTelegram failed", err);
-    return false;
+    throw err; // Propagate error so UI knows
   }
 }
 
@@ -359,7 +371,7 @@ export async function sendAdvisorChat(
   // Mensajes siguientes: endpoint de chat real
   try {
     const body = {
-      history: history.map((m) => ({ role: m.role, content: m.content })),
+      messages: history.map((m) => ({ role: m.role, content: m.content })),
       context,
     };
 
@@ -564,11 +576,11 @@ export async function fetchAdminUsers(page = 1, search = ""): Promise<any> {
   return res.json();
 }
 
-export async function updateUserPlan(userId: number, plan: string): Promise<any> {
-  const res = await fetchWithTimeout(`${API_BASE_URL}/admin/users/${userId}/plan`, {
+export async function updateUserPlan(userId: number | string, plan: string): Promise<any> {
+  // Use self-service endpoint for own plan update
+  const res = await fetchWithTimeout(`${API_BASE_URL}/auth/users/me/plan?new_plan=${plan}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ plan })
+    headers: { "Content-Type": "application/json" }
   });
   if (!res.ok) throw new Error("Failed to update plan");
   return res.json();
@@ -642,5 +654,52 @@ export const api = {
     });
     if (!res.ok) throw new Error("Failed to update Telegram ID");
     return res.json();
-  }
+  },
+
+  updateTimezone: async (timezone: string) => {
+    const token = localStorage.getItem('auth_token');
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const response = await fetch(`${API_BASE_URL}/auth/users/me/timezone`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ timezone }),
+    });
+    if (!response.ok) throw new Error('Failed to update timezone');
+    return response.json();
+  },
+
+  changePassword: async (oldPassword: string, newPassword: string) => {
+    const token = localStorage.getItem('auth_token');
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    const response = await fetch(`${API_BASE_URL}/auth/users/me/password`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
+    });
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.detail || 'Failed to update password');
+    }
+    return response.json();
+  },
+
+  getAdvisorProfile: async () => {
+    const res = await fetchWithTimeout(`${API_BASE_URL}/advisor/profile`, { method: "GET" });
+    if (!res.ok) throw new Error("Failed to fetch profile");
+    return res.json();
+  },
+
+  updateAdvisorProfile: async (data: any) => {
+    const res = await fetchWithTimeout(`${API_BASE_URL}/advisor/profile`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Failed to update profile");
+    return res.json();
+  },
 };

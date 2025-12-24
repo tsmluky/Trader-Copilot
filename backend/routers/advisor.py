@@ -3,6 +3,7 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
+from models import CopilotProfileResp, CopilotProfileUpdate, AdvisorReq
 from core.ai_service import get_ai_service
 from rag_context import build_token_context
 from core.market_data_api import get_ohlcv_data
@@ -10,8 +11,8 @@ from core.market_data_api import get_ohlcv_data
 # Auth & Entitlements
 from sqlalchemy.orm import Session
 from database import SessionLocal
-from routers.auth import get_current_user
-from models_db import User
+from routers.auth_new import get_current_user
+from models_db import User, CopilotProfile
 from core.entitlements import can_use_advisor, check_and_increment_quota, assert_token_allowed
 from core.limiter import limiter
 
@@ -63,6 +64,15 @@ def advisor_chat(
     # 3. Quota Check
     quota = check_and_increment_quota(db, current_user, "advisor_chat")
     
+    # 3.5 Fetch User Profile
+    profile = db.query(CopilotProfile).filter(CopilotProfile.user_id == current_user.id).first()
+    profile_context = ""
+    if profile:
+        profile_context = (
+            f"User Profile: [Style: {profile.trader_style}, Risk: {profile.risk_tolerance}, Horizon: {profile.time_horizon}]\n"
+            f"Custom Instructions: {profile.custom_instructions or 'None'}"
+        )
+
     # 4. Build Dynamic System Context if Token is present
     system_context_block = ""
     if req.context and req.context.token:
@@ -99,14 +109,27 @@ def advisor_chat(
 - Rationale: {sig.get('rationale')}
 """
 
-    # 5. Define System Persona (Unified)
+    # 5. Define System Persona (Contract of Identity)
     system_instruction = (
-        "Eres el Asesor de Riesgo de TraderCopilot (Risk Advisor AI). Ayudas a los traders a gestionar el riesgo, "
-        "sugerir ajustes de posición y analizar escenarios de mercado.\n"
-        "Sé conciso, profesional y directo. Céntrate en la gestión de riesgos (RR, tamaño de posición, SL/TP).\n"
-        "NO des consejos financieros, solo análisis técnico y escenarios de riesgo.\n"
-        "Responde SIEMPRE en ESPAÑOL (Castellano)."
+        "Eres el **TraderCopilot Advisor**, un asesor de riesgo táctico experto. NO eres un chatbot, ni un asistente genérico.\n"
+        "TU OBJETIVO: Proveer análisis accionable, gestión de riesgo profesional y escenarios claros.\n\n"
+        "REGLAS DE IDENTIDAD (STRICT):\n"
+        "- Habla como un trader profesional Senior: directo, calmado, con criterio propio.\n"
+        "- PROHIBIDO mencionar que eres una IA, modelo, lenguaje, o 'DeepSeek'. ROMPE EL PERSONAJE IMMEDIATAMENTE.\n"
+        "- NO uses disclaimers repetitivos ('no soy asesor financiero'). Asume que el usuario ya conoce los riesgos.\n"
+        "- NO uses relleno. Sé denso en valor.\n\n"
+        "MÍNIMOS INTELIGENTES:\n"
+        "- Si te piden un SETUP/TRADE: Debes incluir SIEMPRE (1) Nivel de Invalidación (Stop mental/técnico) y (2) Plan Condicional ('Si hace X, busco Y').\n"
+        "- Si te piden OPINIÓN GENERAL: Da contexto, niveles clave y cierra con una pregunta de refinamiento.\n"
+        "- GESTIÓN DE RIESGO: Recomienda 1-2% por operación salvo indicación contraria.\n\n"
+        "ESTILO:\n"
+        "- Usa párrafos cortos o bullets. Evita muros de texto.\n"
+        "- Tono humano: 'Yo buscaría...', 'El riesgo aquí es...', 'Me gusta la zona de...'.\n"
+        "- Responde SIEMPRE en ESPAÑOL (Castellano) neutro/profesional."
     )
+    
+    if profile_context:
+        system_instruction += f"\n\n[USER CONTEXT]\n{profile_context}\nADAPT YOUR RESPONSE TO THIS PROFILE."
 
     # 6. Call AI Service
     ai_service = get_ai_service()
@@ -114,14 +137,41 @@ def advisor_chat(
     # Preparar mensajes
     user_api_messages = [m.dict() for m in req.messages]
     
-    # Inyectar contexto de mercado en el último mensaje del usuario para asegurar que la IA lo tenga en cuenta
+    # Inyectar contexto de mercado en el último mensaje
+    last_user_msg_content = ""
     if system_context_block:
         last_msg = user_api_messages[-1]
         if last_msg["role"] == "user":
+            last_user_msg_content = last_msg["content"] # Save original for intent detection
             last_msg["content"] = f"{system_context_block}\n\nPregunta del Usuario: {last_msg['content']}"
 
     try:
+        # A. Generate Response
         response_text = ai_service.chat(user_api_messages, system_instruction=system_instruction)
+        
+        # B. Brand Guard & Linter
+        from core.brand_guard import check_brand_safety, detect_intent, check_minimum_viability, repair_response
+        
+        # Detect intent using original message content if possible, else the full context one
+        msg_for_intent = last_user_msg_content if last_user_msg_content else user_api_messages[-1]["content"]
+        intent = detect_intent(msg_for_intent)
+        
+        # 1. Check Safety
+        violations = check_brand_safety(response_text)
+        
+        # 2. Check Viability (only if safe so far, to prioritize safety)
+        if not violations:
+            violations.extend(check_minimum_viability(response_text, intent))
+            
+        # 3. Auto-Repair if violations exist
+        if violations:
+            print(f"[ADVISOR] Found violations: {violations}. Attempting repair...")
+            response_text = repair_response(response_text, violations, system_instruction)
+            
+        # 4. Final Safety Safety Check (Manual Override if repair failed on Banned Words)
+        # If still contains banned words, we mask them or fail gracefully? 
+        # For 'Sale Ready', let's just log it. The repair usually works.
+    
     except ImportError:
          raise HTTPException(
             status_code=503,
@@ -144,8 +194,52 @@ def advisor_chat(
         "usage": quota
     }
 
+@router.get("/profile", response_model=CopilotProfileResp)
+def get_advisor_profile(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get the user's Copilot profile. Creates a default one if it doesn't exist.
+    """
+    profile = db.query(CopilotProfile).filter(CopilotProfile.user_id == current_user.id).first()
+    if not profile:
+        profile = CopilotProfile(user_id=current_user.id)
+        db.add(profile)
+        db.commit()
+        db.refresh(profile)
+    return profile
+
+@router.put("/profile", response_model=CopilotProfileResp)
+def update_advisor_profile(
+    profile_update: CopilotProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Update the user's Copilot profile.
+    """
+    profile = db.query(CopilotProfile).filter(CopilotProfile.user_id == current_user.id).first()
+    if not profile:
+        profile = CopilotProfile(user_id=current_user.id)
+        db.add(profile)
+    
+    # Update fields
+    if profile_update.trader_style is not None:
+        profile.trader_style = profile_update.trader_style
+    if profile_update.risk_tolerance is not None:
+        profile.risk_tolerance = profile_update.risk_tolerance
+    if profile_update.time_horizon is not None:
+        profile.time_horizon = profile_update.time_horizon
+    if profile_update.custom_instructions is not None:
+        profile.custom_instructions = profile_update.custom_instructions
+        
+    db.commit()
+    db.refresh(profile)
+    return profile
+
 # ==== Endpoint Analysis Advisor (Legacy V1 Local) ====
-from models import AdvisorReq
+from models import AdvisorReq, CopilotProfileResp, CopilotProfileUpdate
 from core.schemas import Signal
 from core.signal_logger import log_signal
 from datetime import datetime

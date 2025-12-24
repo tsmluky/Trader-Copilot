@@ -1,0 +1,90 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-6.2.5, py-1.11.0, pluggy-1.6.0
+rootdir: C:\Users\lukx\Desktop\TraderCopilot-freshsale
+plugins: anyio-4.9.0
+collected 0 items / 1 error
+
+=================================== ERRORS ====================================
+_____________ ERROR collecting backend/tests/test_copilot_core.py _____________
+backend\tests\test_copilot_core.py:14: in <module>
+    from main import app, get_db
+backend\main.py:726: in <module>
+    from routers.advisor import router as advisor_router
+backend\routers\advisor.py:196: in <module>
+    ???
+E   NameError: name 'CopilotProfileResp' is not defined
+------------------------------- Captured stdout -------------------------------
+[CACHE] runs in In-Memory mode (No REDIS_URL).
+[DEBUG] LOADING MARKET_DATA_API (Scale-Ready Fix)
+[DB DEBUG] Original URL starts with: sqlite:///./dev_...
+[DB DEBUG] Final URL starts with: sqlite:///./dev_local.db...
+[DB] Using Configured Database
+[CONFIG] Loading environment from: c:\Users\lukx\Desktop\TraderCopilot-freshsale\backend\.env
+==================================================
+ TRADERCOPILOT BACKEND v2.0.1 (Sale-Ready + Fix)
+==================================================
+ [BOOT] DB_DIALECT: sqlite
+ [BOOT] DB_URL_MASKED: ./dev_local.db
+==================================================
+[DEBUG CORS] env_allowed raw: ''
+[CORS] Final Allowed Origins: ['http://localhost', 'http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173', 'http://localhost:4173', 'http://127.0.0.1:4173', 'https://saleready.up.railway.app', 'https://saleready-production.up.railway.app']
+============================================================
+= TraderCopilot - Marketplace Scheduler (DB Powered)
+============================================================
+
+ [INFO] Registering strategies...
+ [REG] Registered strategy: rsi_macd_divergence_v1 - RSI + MACD Divergence Detector
+ [REG] Registered strategy: ma_cross_v1 - MA Cross 10/50
+ [REG] Registered strategy: donchian_v2 - Donchian Breakout V2
+ [REG] Registered strategy: bb_mean_reversion - Bollinger Reversion
+ [REG] Registered strategy: rsi_divergence_v1 - RSI Divergence 14
+ [REG] Registered strategy: trend_following_native_v1 - Trend Master Native (EMA20/100)
+ [WARN] Warning: Overwriting strategy 'donchian_v2'
+ [REG] Registered strategy: donchian_v2 - Donchian Breakout V2
+ [INFO] Strategies registered
+============================== warnings summary ===============================
+..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\formparsers.py:12
+  C:\Users\lukx\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\formparsers.py:12: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+backend\core\schemas.py:17
+  c:\Users\lukx\Desktop\TraderCopilot-freshsale\backend\core\schemas.py:17: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class Signal(BaseModel):
+
+backend\core\schemas.py:184
+  c:\Users\lukx\Desktop\TraderCopilot-freshsale\backend\core\schemas.py:184: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class UserResponse(BaseModel):
+
+backend\main.py:182
+  c:\Users\lukx\Desktop\TraderCopilot-freshsale\backend\main.py:182: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4495
+..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4495
+  C:\Users\lukx\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+backend\main.py:703
+  c:\Users\lukx\Desktop\TraderCopilot-freshsale\backend\main.py:703: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+-- Docs: https://docs.pytest.org/en/stable/warnings.html
+=========================== short test summary info ===========================
+ERROR backend/tests/test_copilot_core.py - NameError: name 'CopilotProfileRes...
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+======================== 7 warnings, 1 error in 4.42s =========================

@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { API_BASE_URL } from '../../constants';
 
 import { MetricCard } from './MetricCard';
+import { SignalDetailsModal, SignalHistory } from '../SignalDetailsModal';
 
 export const DashboardHome: React.FC = () => {
     const [globalStats, setStats] = useState<any>({
@@ -19,8 +20,10 @@ export const DashboardHome: React.FC = () => {
     });
     const [strategies, setStrategies] = useState<any[]>([]);
     const [recentSignals, setRecentSignals] = useState<any[]>([]);
+    const [selectedSignal, setSelectedSignal] = useState<SignalHistory | null>(null);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const { userProfile } = useAuth();
 
     const fetchData = async () => {
         try {
@@ -62,7 +65,7 @@ export const DashboardHome: React.FC = () => {
         );
     }
 
-    const { userProfile } = useAuth();
+
 
     const activeStrategies = strategies.filter(s => s.is_active);
 
@@ -94,11 +97,11 @@ export const DashboardHome: React.FC = () => {
             {/* 1. Header & Global Metrics */}
             <div className="flex flex-col xl:flex-row gap-6 xl:items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                        <Zap className="text-amber-400 fill-current" size={24} />
+                    <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-indigo-100 to-indigo-200/50 flex items-center gap-3 drop-shadow-sm">
+                        <Zap className="text-amber-400 fill-amber-400 animate-pulse" size={28} strokeWidth={2.5} />
                         Command Center
                     </h1>
-                    <p className="text-slate-400 text-sm">Real-time trading operations overview.</p>
+                    <p className="text-slate-400 font-medium text-sm mt-1 ml-10">Real-time trading operations overview.</p>
                 </div>
 
                 <div className="flex flex-wrap gap-4">
@@ -128,9 +131,9 @@ export const DashboardHome: React.FC = () => {
 
                     <button
                         onClick={handleRefresh}
-                        className={`p-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors ${refreshing ? 'animate-spin' : ''}`}
+                        className={`p-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors`}
                     >
-                        <RefreshCw size={20} />
+                        <RefreshCw size={20} className={refreshing ? 'animate-spin' : ''} />
                     </button>
                 </div>
             </div>
@@ -167,7 +170,19 @@ export const DashboardHome: React.FC = () => {
             </div>
 
             {/* 3. Global History (Fleet Activity) */}
-            <DashboardHistory signals={filteredSignals} />
+            {/* 3. Global History (Fleet Activity) */}
+            <DashboardHistory
+                signals={filteredSignals}
+                onSignalClick={(sig) => setSelectedSignal(sig as SignalHistory)}
+            />
+
+            {/* Signal Details Modal */}
+            {selectedSignal && (
+                <SignalDetailsModal
+                    signal={selectedSignal}
+                    onClose={() => setSelectedSignal(null)}
+                />
+            )}
         </div>
     );
 };

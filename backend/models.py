@@ -108,3 +108,22 @@ class AdvisorResp(BaseModel):
     )
     risk_score: float = Field(..., ge=0.0, le=1.0, description="Score de riesgo 0..1 (1 = riesgo muy bajo)")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Confianza en el plan propuesto")
+
+class CopilotProfileBase(BaseModel):
+    trader_style: Optional[str] = "BALANCED"
+    risk_tolerance: Optional[str] = "MEDIUM"
+    time_horizon: Optional[str] = "INTRADAY"
+    custom_instructions: Optional[str] = None
+
+class CopilotProfileCreate(CopilotProfileBase):
+    pass
+
+class CopilotProfileUpdate(CopilotProfileBase):
+    pass
+
+class CopilotProfileResp(CopilotProfileBase):
+    id: int
+    user_id: int
+    updated_at: Optional[datetime] = None
+
+    model_config = ConfigDict(from_attributes=True)

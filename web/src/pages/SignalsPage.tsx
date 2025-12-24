@@ -47,7 +47,7 @@ export const SignalsPage: React.FC = () => {
                     onClick={fetchSignals}
                     className="p-2 rounded-lg bg-slate-800/50 text-slate-400 hover:text-white transition-colors"
                 >
-                    <RefreshCw className="w-5 h-5" />
+                    <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
                 </button>
             </div>
 

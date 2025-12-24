@@ -26,7 +26,8 @@ from database import SessionLocal
 from strategies.registry import get_registry
 from core.signal_logger import log_signal
 from core.signal_evaluator import evaluate_pending_signals
-from models_db import StrategyConfig
+from models_db import StrategyConfig, User
+from notify import send_telegram
 
 # Configuración de Logging
 logging.basicConfig(
@@ -43,9 +44,14 @@ def get_active_strategies_from_db():
     """
     db = SessionLocal()
     try:
-        active_configs = db.query(StrategyConfig).filter(StrategyConfig.enabled == 1).all()
+        # Join with User to get Telegram preferences
+        results = db.query(StrategyConfig, User.telegram_chat_id)\
+            .outerjoin(User, StrategyConfig.user_id == User.id)\
+            .filter(StrategyConfig.enabled == 1)\
+            .all()
+            
         strategies = []
-        for c in active_configs:
+        for c, chat_id in results:
             # Parse JSON fields safely
             try:
                 tokens_list = json.loads(c.tokens) if c.tokens else []
@@ -75,7 +81,8 @@ def get_active_strategies_from_db():
                 "strategy_id": c.strategy_id, # "donchian_v2"
                 "symbol": target_symbol,
                 "timeframe": target_tf,
-                "name": c.name
+                "name": c.name,
+                "telegram_chat_id": chat_id # Populated if user strategy, else None
             })
             
         return strategies
@@ -97,11 +104,11 @@ class StrategyScheduler:
         self.registry = get_registry()
         
         print("="*60)
-        print("🚀 TraderCopilot - Marketplace Scheduler (DB Powered)")
+        print("= TraderCopilot - Marketplace Scheduler (DB Powered)")
         print("="*60)
         
         # Registrar estrategias built-in
-        print("\n📦 Registering strategies...")
+        print("\n [INFO] Registering strategies...")
         from strategies.example_rsi_macd import RSIMACDDivergenceStrategy
         from strategies.ma_cross import MACrossStrategy
         from strategies.DonchianBreakoutV2 import DonchianBreakoutV2 as DonchianStrategy
@@ -117,7 +124,7 @@ class StrategyScheduler:
         self.registry.register(RSIDivergenceStrategy)
         self.registry.register(TrendFollowingNative)
         self.registry.register(DonchianBreakoutV2)
-        print("✅ Strategies registered")
+        print(" [INFO] Strategies registered")
         
         # State tracking for intervals
         self.last_run = {} # {persona_id: timestamp}
@@ -128,6 +135,15 @@ class StrategyScheduler:
         self.lock_id = str(uuid.uuid4())
         self.lock_ttl = 30 # seconds
         self.lock_name = "global_scheduler_lock"
+        
+        # Deduplication Cache for Notifications
+        # Key: "Token_Direction_Timeframe" -> Value: timestamp
+        self.dedupe_cache = {}
+        
+        # Coherence Guard (Global Trend State)
+        # Key: "Token" -> Value: { 'direction': 'long', 'ts': datetime, 'conf': 0.8 }
+        # Used to reject conflicting signals (Long -> Short) if they happen too fast (Chop protection)
+        self.token_coherence = {}
 
     def acquire_lock(self, db: Session) -> bool:
         """Intenta adquirir o renovar el lock de base de datos."""
@@ -227,6 +243,13 @@ class StrategyScheduler:
                             ts_key = f"{p_id}_{sig.token}"
                             last_ts = self.processed_signals.get(ts_key)
                             
+                            # Freshness Check: Ignore signals older than 6 hour
+                            # This prevents 'backfilling' history into the Live Feed when detailed backtest strategies are run.
+                            time_diff = now - sig.timestamp
+                            if time_diff > timedelta(hours=6):
+                                # print(f"    ⏳ Skipping old signal: {sig.timestamp} (> 6h)")
+                                continue
+
                             if last_ts and sig.timestamp <= last_ts:
                                 continue
 
@@ -236,6 +259,35 @@ class StrategyScheduler:
                                 continue
                             
                             # 3. Valid New Signal
+                            
+                            # ==== 4. Coherence Guard (Anti-Chop) ====
+                            # Ensures we don't flip-flop direction too fast for the same token
+                            coherence_key = sig.token
+                            last_state = self.token_coherence.get(coherence_key)
+                            
+                            if last_state:
+                                last_dir = last_state['direction']
+                                last_ts = last_state['ts']
+                                
+                                # Conflict detected? (Opposite direction)
+                                if last_dir != sig.direction:
+                                    # If conflict happens within 30 minutes, it's likely noise/chop. Suppress.
+                                    if (now - last_ts) < timedelta(minutes=30):
+                                        # print(f"    🛡️ Coherence Guard: Suppressing {sig.direction} on {sig.token} (Trend is {last_dir})")
+                                        continue
+                                    else:
+                                        # Valid Reversal (enough time passed)
+                                        pass
+                                else:
+                                    # Confirmation (Same direction), beneficial to update TS to keep trend "alive"
+                                    pass
+
+                            # Update Global Coherence State
+                            self.token_coherence[coherence_key] = {
+                                'direction': sig.direction,
+                                'ts': now
+                            }
+
                             self.processed_signals[ts_key] = sig.timestamp
                             self.last_signal_direction[ts_key] = sig.direction
                             
@@ -243,10 +295,41 @@ class StrategyScheduler:
                             # Fix user confusion: Use the Human Readable Name? No, Marketplace:{ID} is safer for filtering.
                             sig.source = f"Marketplace:{p_id}"
                             
-                            log_signal(sig)
-                            count += 1
-                            print(f"    ⭐ SIGNAL: {sig.direction} @ {sig.entry}")
+                            # CRITICAL FIX: Overwrite strategy_id with persona_id so signals are attributed 
+                            # to the specific instance (1234), not the generic logic (ma_cross_v1).
+                            # This allows separate history and purging for distinct personas using same logic.
+                            sig.strategy_id = p_id
                             
+                            
+                            # Deduplication Logic (Notification Layer)
+                            # Prevent spam if the same strategy sends same signal (even with new TS) within X mins
+                            dedupe_key = f"{p_id}_{sig.token}_{sig.direction}"
+                            last_notif = self.dedupe_cache.get(dedupe_key)
+                            
+                            # Cooldown: 45 minutes (approx 1h candle)
+                            if last_notif and (now - last_notif < timedelta(minutes=45)):
+                                # print(f"    🔕 Suppressing duplicate notification: {dedupe_key}")
+                                continue
+                                
+                            self.dedupe_cache[dedupe_key] = now
+
+                            # ==== TELEGRAM NOTIFICATION ====
+                            try:
+                                icon = "🟢" if sig.direction == "long" else "🔴"
+                                msg = (
+                                    f"{icon} {sig.direction.upper()}: {sig.token} / USDT\n\n"
+                                    f"Entry: {sig.entry}\n"
+                                    f"Target: {sig.tp}\n"
+                                    f"Stop:   {sig.sl}\n\n"
+                                    f"⚡ Strategy: {persona['name']} ({persona['timeframe']})"
+                                )
+                                # Send to specific user (if configured) or system default (if None)
+                                send_telegram(msg, chat_id=persona.get("telegram_chat_id"))
+                            except Exception as notif_err:
+                                print(f"    ⚠️ Notification failed: {notif_err}")
+                            except Exception as notif_err:
+                                print(f"    ⚠️ Notification failed: {notif_err}")
+
                         if count == 0:
                             print("    (No new signals)")
                             

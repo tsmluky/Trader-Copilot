@@ -10,8 +10,9 @@ def market_summary_endpoint(symbols: Optional[List[str]] = Query(None)):
     Returns price and 24h change for the default watchlist.
     """
     if not symbols:
-        # Default watchlist if none provided
-        symbols = ["BTC", "ETH", "SOL", "XRP", "BNB", "DOGE", "ADA", "AVAX", "DOT", "LINK"]
+        # Default watchlist (Prioritize Major Caps for Free Tier)
+        symbols = ["BTC", "ETH", "SOL", "BNB", "XRP", "ADA", "DOGE", "AVAX"]
+
     
     return {"current_prices": get_market_summary(symbols)}
 

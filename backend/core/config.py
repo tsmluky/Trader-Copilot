@@ -17,7 +17,7 @@ def load_env_if_needed():
     
     if os.path.exists(env_path):
         print(f"[CONFIG] Loading environment from: {env_path}")
-        load_dotenv(env_path, override=False)
+        load_dotenv(env_path, override=True) # Force override to fix stale keys
     else:
         # Fallback or production scenarios where env vars are injected directly
         print(f"[CONFIG] No .env found at {env_path}, assuming environment variables are set.")

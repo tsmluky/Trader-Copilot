@@ -3,7 +3,14 @@
 Web-first trading signals + advisor. Designed to be deployable in minutes (Railway + Vercel), with clear demo flows and minimal operational burden.
 
 ## What you can demo in 2–3 minutes
+## What you can demo in 2–3 minutes
 See DEMO.md.
+
+## Utility Scripts (New Location)
+- **Maintenance/Tools**: `backend/tools/` (e.g. `reset_db.py`, `seed_auth.py`)
+- **Runners**: `backend/scripts/` (e.g. `start.sh`)
+- **Main Entry Point**: `START_DEV.ps1` (Recommended for local dev)
+
 
 ## Core features
 - LITE / PRO signal generation

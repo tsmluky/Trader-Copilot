@@ -17,6 +17,8 @@ import { useAuth } from '../../context/AuthContext';
 import { NotificationCenter } from '../NotificationCenter';
 import { API_BASE_URL } from '../../constants';
 import { AdvisorChat } from '../AdvisorChat';
+import { TutorialOverlay } from '../tutorial/TutorialOverlay';
+
 
 import { useTheme } from '../../context/ThemeContext';
 
@@ -50,8 +52,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         };
 
         fetchPrices();
-        const interval = setInterval(fetchPrices, 60000); // Update every 1m
+        const interval = setInterval(fetchPrices, 30000); // Update every 30s
         return () => clearInterval(interval);
+
     }, []);
 
     const navItems = [
@@ -60,7 +63,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         { id: '/analysis', label: 'Analyst', icon: Crosshair },
         { id: '/strategies', label: 'Quant', icon: Activity },
         { id: '/backtest', label: 'Backtest', icon: FlaskConical },
-        { id: '/logs', label: 'System Logs', icon: Terminal },
         { id: '/pricing', label: 'Membership', icon: Zap },
         { id: '/settings', label: 'Settings', icon: Settings },
     ];
@@ -73,7 +75,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const activeItem = navItems.find(item => location.pathname === item.id) || navItems[0];
 
     return (
-        <div className="flex h-screen bg-[#020617] text-slate-200 overflow-hidden font-sans">
+        <div className="flex h-screen bg-[#020617] text-slate-200 overflow-hidden font-sans relative selection:bg-indigo-500/30">
+            {/* Aurora Background Effects - Global */}
+            <div className="fixed inset-0 pointer-events-none z-0">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px] animate-pulse-slow"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px] animate-pulse-slow delay-1000"></div>
+            </div>
+            <TutorialOverlay />
+
             {/* Mobile Sidebar Overlay */}
             {isSidebarOpen && (
                 <div
@@ -115,7 +124,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                             return (
                                 <button
                                     key={item.id}
+                                    id={`nav-${item.label.toLowerCase().replace(' ', '-')}`} // Added ID for Tutorial Highlight
                                     onClick={() => {
+                                        console.log(`[NAV] Clicked: ${item.label} (${item.id})`);
                                         navigate(item.id);
                                         setIsSidebarOpen(false);
                                     }}
@@ -136,7 +147,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     {/* User Footer */}
                     <div className="p-4 border-t border-slate-800/50">
                         <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-900/50 border border-slate-800/50 mb-3">
-                            <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => navigate('/settings')}
+                                className="flex items-center gap-3 text-left hover:opacity-80 transition-opacity"
+                            >
                                 <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-xs border border-indigo-500/30">
                                     {user?.name?.substring(0, 2).toUpperCase() || 'ME'}
                                 </div>
@@ -144,7 +158,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                                     <span className="text-xs font-medium text-slate-300">{user?.name || 'Trader'}</span>
                                     <span className="text-[10px] text-slate-500">{user?.plan ? `${user.plan} Plan` : 'Free Plan'}</span>
                                 </div>
-                            </div>
+                            </button>
                             <button onClick={logout} className="text-slate-500 hover:text-rose-400 transition-colors">
                                 <LogOut className="w-4 h-4" />
                             </button>

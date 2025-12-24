@@ -12,6 +12,7 @@ interface AdvisorChatProps {
 
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { ShieldCheck, X } from 'lucide-react';
 
 export const AdvisorChat: React.FC<AdvisorChatProps> = ({ currentToken, currentTimeframe, initialContext, embedded = false }) => {
   const { userProfile } = useAuth();
@@ -229,17 +230,24 @@ export const AdvisorChat: React.FC<AdvisorChatProps> = ({ currentToken, currentT
       {isOpen && (
         <div className="mb-4 w-80 md:w-96 h-[450px] bg-[#0B1121] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 duration-300 pointer-events-auto">
           {/* Header */}
-          <div className="bg-gray-800/80 p-3 border-b border-gray-700 flex justify-between items-center backdrop-blur-sm">
+          <div className="p-4 border-b border-slate-800 bg-slate-900/95 sticky top-0 z-10 flex justify-between items-center backdrop-blur-md">
             <div className="flex items-center gap-2">
-              <span className="text-xl">🛡️</span>
-              <h3 className="font-bold text-gray-100">PRO Analyst AI</h3>
+              <div className="bg-indigo-500/10 p-2 rounded-lg border border-indigo-500/20">
+                <ShieldCheck className="w-5 h-5 text-indigo-400" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-200 text-sm">TraderCopilot Advisor</h3>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span className="text-[10px] uppercase font-bold text-emerald-500/80 tracking-wider">Secure Channel</span>
+                </div>
+              </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-gray-400 hover:text-white hover:bg-red-500/20 transition-colors p-1.5 rounded-lg flex items-center justify-center w-8 h-8"
-              title="Close Chat"
+              className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-all hover:rotate-90"
             >
-              ✕
+              <X className="w-5 h-5" />
             </button>
           </div>
 
@@ -283,6 +291,13 @@ export const AdvisorChat: React.FC<AdvisorChatProps> = ({ currentToken, currentT
               </div>
             )}
             <div ref={messagesEndRef} />
+          </div>
+
+          {/* DISCLAIMER FOOTER */}
+          <div className="px-4 py-2 bg-slate-950/50 border-t border-slate-900 text-center">
+            <p className="text-[10px] text-slate-600 font-medium">
+              TraderCopilot Advisor provides technical analysis for educational purposes only. Not financial advice.
+            </p>
           </div>
 
           {/* Input Area */}

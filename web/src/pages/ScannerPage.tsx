@@ -32,12 +32,16 @@ export const ScannerPage: React.FC = () => {
     const fetchSignals = async () => {
         try {
             // Increased limit to avoid missing signals in active markets
-            const res = await fetch(`${API_BASE_URL}/logs/recent?limit=200`);
-            if (res.ok) {
-                let rawSignals = await res.json();
+            // Use api.get to ensure Authentication header is sent
+            const rawSignalsResponse = await api.get('/logs/recent?limit=200');
+
+            if (rawSignalsResponse) {
+                let rawSignals = rawSignalsResponse;
+                const userPlan = userProfile?.user.subscription_status || 'free';
 
                 // --- MEMBERSHIP LOCKING LOGIC ---
-                const plan = userProfile?.user.subscription_status || 'free';
+                // Reuse plan variable if it was already defined or use local
+                const plan = userPlan;
 
                 rawSignals = rawSignals.map((s: any) => {
                     let locked = false;
@@ -58,7 +62,12 @@ export const ScannerPage: React.FC = () => {
                         }
                     }
                     return { ...s, locked };
-                });
+                })
+                    .filter((s: any) => {
+                        // Filter out manual analysis (LITE) - Show only Marketplace Strategies
+                        // Only signals with source starting with "Marketplace:" or explicit strategies
+                        return s.source && s.source.startsWith("Marketplace:");
+                    });
 
                 // Deduplicate & Filter
                 const uniqueMap = new Map();
@@ -158,9 +167,9 @@ export const ScannerPage: React.FC = () => {
                 <div className="flex gap-2">
                     <button
                         onClick={handleRefresh}
-                        className={`p-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition-all ${refreshing ? 'animate-spin' : ''}`}
+                        className={`p-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition-all`}
                     >
-                        <RefreshCw size={20} />
+                        <RefreshCw size={20} className={refreshing ? 'animate-spin' : ''} />
                     </button>
                 </div>
             </div>
