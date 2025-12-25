@@ -9,10 +9,10 @@ backend\audit\test_security_matrix.py F                                  [100%]
 ================================== FAILURES ===================================
 __________________________ test_admin_routes_as_user __________________________
 
-self = <sqlalchemy.engine.base.Connection object at 0x0000018C30354210>
-dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000018C2F23E810>
-context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000018C30354A90>
-statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x0000018C30354B10>
+self = <sqlalchemy.engine.base.Connection object at 0x0000020F918E5790>
+dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000020F907EE650>
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000020F918E5E10>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x0000020F918E6010>
 parameters = [('user@tradercopilot.com',)]
 
     def _exec_single_context(
@@ -139,11 +139,11 @@ parameters = [('user@tradercopilot.com',)]
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000018C2F23E810>
-cursor = <sqlite3.Cursor object at 0x0000018C30359440>
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000020F907EE650>
+cursor = <sqlite3.Cursor object at 0x0000020F918F9640>
 statement = 'SELECT users.id, users.email, users.name, users.hashed_password, users.role, users."plan", users.plan_status, users.plan_expires_at, users.telegram_chat_id, users.timezone, users.created_at \nFROM users \nWHERE users.email = ?'
 parameters = ('user@tradercopilot.com',)
-context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000018C30354A90>
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000020F918E5E10>
 
     def do_execute(self, cursor, statement, parameters, context=None):
 >       cursor.execute(statement, parameters)
@@ -153,10 +153,10 @@ E       sqlite3.OperationalError: no such column: users.telegram_chat_id
 
 The above exception was the direct cause of the following exception:
 
-self = <starlette.middleware.errors.ServerErrorMiddleware object at 0x0000018C30338D10>
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function _TestClientTransport.handle_request.<locals>.receive at 0x0000018C302F0680>
-send = <function _TestClientTransport.handle_request.<locals>.send at 0x0000018C302F0720>
+self = <starlette.middleware.errors.ServerErrorMiddleware object at 0x0000020F91371DD0>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function _TestClientTransport.handle_request.<locals>.receive at 0x0000020F918807C0>
+send = <function _TestClientTransport.handle_request.<locals>.send at 0x0000020F91880860>
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -178,10 +178,10 @@ send = <function _TestClientTransport.handle_request.<locals>.send at 0x0000018C
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:164: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <starlette.middleware.cors.CORSMiddleware object at 0x0000018C2FDA0C90>
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function _TestClientTransport.handle_request.<locals>.receive at 0x0000018C302F0680>
-send = <function ServerErrorMiddleware.__call__.<locals>._send at 0x0000018C30336AC0>
+self = <starlette.middleware.cors.CORSMiddleware object at 0x0000020F918D6850>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function _TestClientTransport.handle_request.<locals>.receive at 0x0000020F918807C0>
+send = <function ServerErrorMiddleware.__call__.<locals>._send at 0x0000020F918DADE0>
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":  # pragma: no cover
@@ -198,10 +198,10 @@ send = <function ServerErrorMiddleware.__call__.<locals>._send at 0x0000018C3033
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\cors.py:85: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <starlette.middleware.base.BaseHTTPMiddleware object at 0x0000018C2FD5A490>
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function _TestClientTransport.handle_request.<locals>.receive at 0x0000018C302F0680>
-send = <function ServerErrorMiddleware.__call__.<locals>._send at 0x0000018C30336AC0>
+self = <starlette.middleware.base.BaseHTTPMiddleware object at 0x0000020F918D6810>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function _TestClientTransport.handle_request.<locals>.receive at 0x0000020F918807C0>
+send = <function ServerErrorMiddleware.__call__.<locals>._send at 0x0000020F918DADE0>
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -296,10 +296,10 @@ send = <function ServerErrorMiddleware.__call__.<locals>._send at 0x0000018C3033
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\base.py:189: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <contextlib._GeneratorContextManager object at 0x0000018C30339010>
+self = <contextlib._GeneratorContextManager object at 0x0000020F918D6B90>
 typ = <class 'ExceptionGroup'>
 value = ExceptionGroup('unhandled errors in a TaskGroup', [OperationalError('(sqlite3.OperationalError) no such column: users.telegram_chat_id')])
-traceback = <traceback object at 0x0000018C30357B80>
+traceback = <traceback object at 0x0000020F918FCFC0>
 
     def __exit__(self, typ, value, traceback):
         if typ is None:
@@ -337,10 +337,10 @@ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_utils.py:93: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <starlette.middleware.base.BaseHTTPMiddleware object at 0x0000018C2FD5A490>
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function _TestClientTransport.handle_request.<locals>.receive at 0x0000018C302F0680>
-send = <function ServerErrorMiddleware.__call__.<locals>._send at 0x0000018C30336AC0>
+self = <starlette.middleware.base.BaseHTTPMiddleware object at 0x0000020F918D6810>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function _TestClientTransport.handle_request.<locals>.receive at 0x0000020F918807C0>
+send = <function ServerErrorMiddleware.__call__.<locals>._send at 0x0000020F918DADE0>
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -437,8 +437,8 @@ send = <function ServerErrorMiddleware.__call__.<locals>._send at 0x0000018C3033
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\base.py:191: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-request = <starlette.middleware.base._CachedRequest object at 0x0000018C2FDC1450>
-call_next = <function BaseHTTPMiddleware.__call__.<locals>.call_next at 0x0000018C30336C00>
+request = <starlette.middleware.base._CachedRequest object at 0x0000020F918D6B10>
+call_next = <function BaseHTTPMiddleware.__call__.<locals>.call_next at 0x0000020F918DAE80>
 
     @app.middleware("http")
     async def add_process_time_header(request: Request, call_next):
@@ -449,7 +449,7 @@ call_next = <function BaseHTTPMiddleware.__call__.<locals>.call_next at 0x000001
 backend\main.py:148: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-request = <starlette.middleware.base._CachedRequest object at 0x0000018C2FDC1450>
+request = <starlette.middleware.base._CachedRequest object at 0x0000020F918D6B10>
 
     async def call_next(request: Request) -> Response:
         app_exc: Exception | None = None
@@ -521,10 +521,10 @@ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\base.py:151: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <starlette.middleware.base.BaseHTTPMiddleware object at 0x0000018C30338CD0>
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000018C30336CA0>
-send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x0000018C30336DE0>
+self = <starlette.middleware.base.BaseHTTPMiddleware object at 0x0000020F918D67D0>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000020F918DAF20>
+send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x0000020F918DB060>
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -619,10 +619,10 @@ send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\base.py:189: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <contextlib._GeneratorContextManager object at 0x0000018C303394D0>
+self = <contextlib._GeneratorContextManager object at 0x0000020F918D7050>
 typ = <class 'ExceptionGroup'>
 value = ExceptionGroup('unhandled errors in a TaskGroup', [OperationalError('(sqlite3.OperationalError) no such column: users.telegram_chat_id')])
-traceback = <traceback object at 0x0000018C30357A00>
+traceback = <traceback object at 0x0000020F918FCE40>
 
     def __exit__(self, typ, value, traceback):
         if typ is None:
@@ -660,10 +660,10 @@ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_utils.py:93: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <starlette.middleware.base.BaseHTTPMiddleware object at 0x0000018C30338CD0>
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000018C30336CA0>
-send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x0000018C30336DE0>
+self = <starlette.middleware.base.BaseHTTPMiddleware object at 0x0000020F918D67D0>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000020F918DAF20>
+send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x0000020F918DB060>
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -760,8 +760,8 @@ send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\base.py:191: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-request = <starlette.middleware.base._CachedRequest object at 0x0000018C303393D0>
-call_next = <function BaseHTTPMiddleware.__call__.<locals>.call_next at 0x0000018C30337060>
+request = <starlette.middleware.base._CachedRequest object at 0x0000020F918D6F50>
+call_next = <function BaseHTTPMiddleware.__call__.<locals>.call_next at 0x0000020F918DB2E0>
 
     @app.middleware("http")
     async def limit_upload_size(request: Request, call_next):
@@ -775,7 +775,7 @@ call_next = <function BaseHTTPMiddleware.__call__.<locals>.call_next at 0x000001
 backend\main.py:116: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-request = <starlette.middleware.base._CachedRequest object at 0x0000018C303393D0>
+request = <starlette.middleware.base._CachedRequest object at 0x0000020F918D6F50>
 
     async def call_next(request: Request) -> Response:
         app_exc: Exception | None = None
@@ -847,10 +847,10 @@ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\base.py:151: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <slowapi.middleware.SlowAPIMiddleware object at 0x0000018C30338950>
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000018C30337100>
-send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x0000018C30337240>
+self = <slowapi.middleware.SlowAPIMiddleware object at 0x0000020F918D66D0>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000020F918DB380>
+send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x0000020F918DB4C0>
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -945,10 +945,10 @@ send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\base.py:189: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <contextlib._GeneratorContextManager object at 0x0000018C30339B90>
+self = <contextlib._GeneratorContextManager object at 0x0000020F918D76D0>
 typ = <class 'ExceptionGroup'>
 value = ExceptionGroup('unhandled errors in a TaskGroup', [OperationalError('(sqlite3.OperationalError) no such column: users.telegram_chat_id')])
-traceback = <traceback object at 0x0000018C30357880>
+traceback = <traceback object at 0x0000020F918FC9C0>
 
     def __exit__(self, typ, value, traceback):
         if typ is None:
@@ -986,10 +986,10 @@ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_utils.py:93: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <slowapi.middleware.SlowAPIMiddleware object at 0x0000018C30338950>
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000018C30337100>
-send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x0000018C30337240>
+self = <slowapi.middleware.SlowAPIMiddleware object at 0x0000020F918D66D0>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000020F918DB380>
+send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x0000020F918DB4C0>
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -1086,9 +1086,9 @@ send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\base.py:191: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <slowapi.middleware.SlowAPIMiddleware object at 0x0000018C30338950>
-request = <starlette.middleware.base._CachedRequest object at 0x0000018C30339A90>
-call_next = <function BaseHTTPMiddleware.__call__.<locals>.call_next at 0x0000018C303374C0>
+self = <slowapi.middleware.SlowAPIMiddleware object at 0x0000020F918D66D0>
+request = <starlette.middleware.base._CachedRequest object at 0x0000020F918D7610>
+call_next = <function BaseHTTPMiddleware.__call__.<locals>.call_next at 0x0000020F918DB740>
 
     async def dispatch(
         self, request: Request, call_next: RequestResponseEndpoint
@@ -1114,7 +1114,7 @@ call_next = <function BaseHTTPMiddleware.__call__.<locals>.call_next at 0x000001
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\slowapi\middleware.py:136: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-request = <starlette.middleware.base._CachedRequest object at 0x0000018C30339A90>
+request = <starlette.middleware.base._CachedRequest object at 0x0000020F918D7610>
 
     async def call_next(request: Request) -> Response:
         app_exc: Exception | None = None
@@ -1186,10 +1186,10 @@ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\base.py:151: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <starlette.middleware.exceptions.ExceptionMiddleware object at 0x0000018C30338B90>
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000018C30337600>
-send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x0000018C30337740>
+self = <starlette.middleware.exceptions.ExceptionMiddleware object at 0x0000020F918D6650>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000020F918DB880>
+send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x0000020F918DB9C0>
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] not in ("http", "websocket"):
@@ -1212,9 +1212,9 @@ send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\exceptions.py:65: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000018C30337600>
-send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x0000018C30337740>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000020F918DB880>
+send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x0000020F918DB9C0>
 
     async def wrapped_app(scope: Scope, receive: Receive, send: Send) -> None:
         response_started = False
@@ -1243,9 +1243,9 @@ send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:64: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000018C30337600>
-send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x0000018C30337740>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000020F918DB880>
+send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no_error at 0x0000020F918DB9C0>
 
     async def wrapped_app(scope: Scope, receive: Receive, send: Send) -> None:
         response_started = False
@@ -1263,10 +1263,10 @@ send = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.send_no
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <fastapi.routing.APIRouter object at 0x0000018C2F66B250>
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000018C30337600>
-send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x0000018C30337B00>
+self = <fastapi.routing.APIRouter object at 0x0000020F90C1B390>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000020F918DB880>
+send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x0000020F918DBD80>
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         """
@@ -1277,10 +1277,10 @@ send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.send
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:756: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <fastapi.routing.APIRouter object at 0x0000018C2F66B250>
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000018C30337600>
-send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x0000018C30337B00>
+self = <fastapi.routing.APIRouter object at 0x0000020F90C1B390>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000020F918DB880>
+send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x0000020F918DBD80>
 
     async def app(self, scope: Scope, receive: Receive, send: Send) -> None:
         assert scope["type"] in ("http", "websocket", "lifespan")
@@ -1306,9 +1306,9 @@ send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.send
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = APIRoute(path='/admin/stats', name='get_admin_stats', methods=['GET'])
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000018C30337600>
-send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x0000018C30337B00>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000020F918DB880>
+send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x0000020F918DBD80>
 
     async def handle(self, scope: Scope, receive: Receive, send: Send) -> None:
         if self.methods and scope["method"] not in self.methods:
@@ -1326,9 +1326,9 @@ send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.send
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:297: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000018C30337600>
-send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x0000018C30337B00>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000020F918DB880>
+send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x0000020F918DBD80>
 
     async def app(scope: Scope, receive: Receive, send: Send) -> None:
         request = Request(scope, receive, send)
@@ -1345,9 +1345,9 @@ send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.send
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:77: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000018C30337600>
-send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x0000018C30337B00>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000020F918DB880>
+send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x0000020F918DBD80>
 
     async def wrapped_app(scope: Scope, receive: Receive, send: Send) -> None:
         response_started = False
@@ -1376,9 +1376,9 @@ send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.send
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:64: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000018C30337600>
-send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x0000018C30337B00>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000020F918DB880>
+send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x0000020F918DBD80>
 
     async def wrapped_app(scope: Scope, receive: Receive, send: Send) -> None:
         response_started = False
@@ -1396,9 +1396,9 @@ send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.send
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\_exception_handler.py:53: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000018C30337600>
-send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x0000018C30337CE0>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function BaseHTTPMiddleware.__call__.<locals>.call_next.<locals>.receive_or_disconnect at 0x0000020F918DB880>
+send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x0000020F918DBF60>
 
     async def app(scope: Scope, receive: Receive, send: Send) -> None:
         if is_async_callable(func):
@@ -1407,7 +1407,7 @@ send = <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.send
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\routing.py:72: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-request = <starlette.requests.Request object at 0x0000018C3033A2D0>
+request = <starlette.requests.Request object at 0x0000020F91309510>
 
     async def app(request: Request) -> Response:
         response: Union[Response, None] = None
@@ -1614,8 +1614,8 @@ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\dependencies\utils.py:600: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQHRyYWRlcmNvcGlsb3QuY29tIiwicm9sZSI6InVzZXIiLCJpZCI6MSwiZXhwIjoxNzY2NTQxMzA0fQ.M8nI0MKbI5AymFvH2Ov6ZU4cC00Amg-1fhekMTvb-7w'
-db = <sqlalchemy.orm.session.Session object at 0x0000018C3033B010>
+token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQHRyYWRlcmNvcGlsb3QuY29tIiwicm9sZSI6InVzZXIiLCJpZCI6MSwiZXhwIjoxNzY2NTQxNjIwfQ.7k1slx3DlMicJ_s0BDKFz0rnEa0EROHaEUb07BjH2Bg'
+db = <sqlalchemy.orm.session.Session object at 0x0000020F911D7C50>
 
     async def get_current_user(token: Annotated[str, fastapi.Depends(oauth2_scheme)], db: Session = fastapi.Depends(get_db)):
         """Verifica el token JWT y retorna el usuario actual."""
@@ -1644,8 +1644,8 @@ db = <sqlalchemy.orm.session.Session object at 0x0000018C3033B010>
 backend\routers\auth_new.py:46: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <sqlalchemy.orm.session.Session object at 0x0000018C3033B010>
-statement = <sqlalchemy.sql.selectable.Select object at 0x0000018C3033B910>
+self = <sqlalchemy.orm.session.Session object at 0x0000020F911D7C50>
+statement = <sqlalchemy.sql.selectable.Select object at 0x0000020F918E4F10>
 params = None
 
     def execute(
@@ -1720,8 +1720,8 @@ params = None
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\session.py:2351: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <sqlalchemy.orm.session.Session object at 0x0000018C3033B010>
-statement = <sqlalchemy.sql.selectable.Select object at 0x0000018C3033B910>
+self = <sqlalchemy.orm.session.Session object at 0x0000020F911D7C50>
+statement = <sqlalchemy.sql.selectable.Select object at 0x0000020F918E4F10>
 params = None
 
     def _execute_internal(
@@ -1850,12 +1850,12 @@ params = None
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 cls = <class 'sqlalchemy.orm.context.ORMSelectCompileState'>
-session = <sqlalchemy.orm.session.Session object at 0x0000018C3033B010>
-statement = <sqlalchemy.sql.selectable.Select object at 0x0000018C3033B910>
+session = <sqlalchemy.orm.session.Session object at 0x0000020F911D7C50>
+statement = <sqlalchemy.sql.selectable.Select object at 0x0000020F918E4F10>
 params = {}
 execution_options = immutabledict({'_result_disable_adapt_to_context': True})
-bind_arguments = {'clause': <sqlalchemy.sql.selectable.Select object at 0x0000018C3033B910>, 'mapper': <Mapper at 0x18c2f2cb990; User>}
-conn = <sqlalchemy.engine.base.Connection object at 0x0000018C30354210>
+bind_arguments = {'clause': <sqlalchemy.sql.selectable.Select object at 0x0000020F918E4F10>, 'mapper': <Mapper at 0x20f9087f8d0; User>}
+conn = <sqlalchemy.engine.base.Connection object at 0x0000020F918E5790>
 
     @classmethod
     def orm_execute_statement(
@@ -1874,8 +1874,8 @@ conn = <sqlalchemy.engine.base.Connection object at 0x0000018C30354210>
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\orm\context.py:306: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <sqlalchemy.engine.base.Connection object at 0x0000018C30354210>
-statement = <sqlalchemy.sql.selectable.Select object at 0x0000018C3033B910>
+self = <sqlalchemy.engine.base.Connection object at 0x0000020F918E5790>
+statement = <sqlalchemy.sql.selectable.Select object at 0x0000020F918E4F10>
 parameters = {}
 
     def execute(
@@ -1931,8 +1931,8 @@ parameters = {}
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1419: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <sqlalchemy.sql.selectable.Select object at 0x0000018C3033B910>
-connection = <sqlalchemy.engine.base.Connection object at 0x0000018C30354210>
+self = <sqlalchemy.sql.selectable.Select object at 0x0000020F918E4F10>
+connection = <sqlalchemy.engine.base.Connection object at 0x0000020F918E5790>
 distilled_params = [{}]
 execution_options = immutabledict({'_result_disable_adapt_to_context': True})
 
@@ -1952,8 +1952,8 @@ execution_options = immutabledict({'_result_disable_adapt_to_context': True})
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\sql\elements.py:526: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <sqlalchemy.engine.base.Connection object at 0x0000018C30354210>
-elem = <sqlalchemy.sql.selectable.Select object at 0x0000018C3033B910>
+self = <sqlalchemy.engine.base.Connection object at 0x0000020F918E5790>
+elem = <sqlalchemy.sql.selectable.Select object at 0x0000020F918E4F10>
 distilled_parameters = [{}]
 execution_options = immutabledict({'_result_disable_adapt_to_context': True})
 
@@ -2023,16 +2023,16 @@ execution_options = immutabledict({'_result_disable_adapt_to_context': True})
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1641: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <sqlalchemy.engine.base.Connection object at 0x0000018C30354210>
-dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000018C2F23E810>
+self = <sqlalchemy.engine.base.Connection object at 0x0000020F918E5790>
+dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000020F907EE650>
 constructor = <bound method DefaultExecutionContext._init_compiled of <class 'sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext'>>
-statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x0000018C30354B10>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x0000020F918E6010>
 parameters = [{}]
 execution_options = immutabledict({'_result_disable_adapt_to_context': True})
-args = (<sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x0000018C30354B10>, [{}], <sqlalchemy.sql.selectable.Select object at 0x0000018C3033B910>, [BindParameter('%(1701615745168 email)s', 'user@tradercopilot.com', type_=String())])
+args = (<sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x0000020F918E6010>, [{}], <sqlalchemy.sql.selectable.Select object at 0x0000020F918E4F10>, [BindParameter('%(2265889787536 email)s', 'user@tradercopilot.com', type_=String())])
 kw = {'cache_hit': <CacheStats.CACHE_MISS: 1>}, yp = None
-conn = <sqlalchemy.pool.base._ConnectionFairy object at 0x0000018C30278AD0>
-context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000018C30354A90>
+conn = <sqlalchemy.pool.base._ConnectionFairy object at 0x0000020F9181FF50>
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000020F918E5E10>
 
     def _execute_context(
         self,
@@ -2096,10 +2096,10 @@ context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x00
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1846: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <sqlalchemy.engine.base.Connection object at 0x0000018C30354210>
-dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000018C2F23E810>
-context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000018C30354A90>
-statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x0000018C30354B10>
+self = <sqlalchemy.engine.base.Connection object at 0x0000020F918E5790>
+dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000020F907EE650>
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000020F918E5E10>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x0000020F918E6010>
 parameters = [('user@tradercopilot.com',)]
 
     def _exec_single_context(
@@ -2245,12 +2245,12 @@ parameters = [('user@tradercopilot.com',)]
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1986: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <sqlalchemy.engine.base.Connection object at 0x0000018C30354210>
+self = <sqlalchemy.engine.base.Connection object at 0x0000020F918E5790>
 e = OperationalError('no such column: users.telegram_chat_id')
 statement = 'SELECT users.id, users.email, users.name, users.hashed_password, users.role, users."plan", users.plan_status, users.plan_expires_at, users.telegram_chat_id, users.timezone, users.created_at \nFROM users \nWHERE users.email = ?'
 parameters = ('user@tradercopilot.com',)
-cursor = <sqlite3.Cursor object at 0x0000018C30359440>
-context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000018C30354A90>
+cursor = <sqlite3.Cursor object at 0x0000020F918F9640>
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000020F918E5E10>
 is_sub_exec = False
 
     def _handle_dbapi_exception(
@@ -2388,10 +2388,10 @@ is_sub_exec = False
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:2355: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <sqlalchemy.engine.base.Connection object at 0x0000018C30354210>
-dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000018C2F23E810>
-context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000018C30354A90>
-statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x0000018C30354B10>
+self = <sqlalchemy.engine.base.Connection object at 0x0000020F918E5790>
+dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000020F907EE650>
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000020F918E5E10>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x0000020F918E6010>
 parameters = [('user@tradercopilot.com',)]
 
     def _exec_single_context(
@@ -2518,11 +2518,11 @@ parameters = [('user@tradercopilot.com',)]
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\sqlalchemy\engine\base.py:1967: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000018C2F23E810>
-cursor = <sqlite3.Cursor object at 0x0000018C30359440>
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x0000020F907EE650>
+cursor = <sqlite3.Cursor object at 0x0000020F918F9640>
 statement = 'SELECT users.id, users.email, users.name, users.hashed_password, users.role, users."plan", users.plan_status, users.plan_expires_at, users.telegram_chat_id, users.timezone, users.created_at \nFROM users \nWHERE users.email = ?'
 parameters = ('user@tradercopilot.com',)
-context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000018C30354A90>
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x0000020F918E5E10>
 
     def do_execute(self, cursor, statement, parameters, context=None):
 >       cursor.execute(statement, parameters)
@@ -2537,11 +2537,19 @@ E       (Background on this error at: https://sqlalche.me/e/20/e3q8)
 
 During handling of the above exception, another exception occurred:
 
-test_db = <sqlalchemy.orm.session.Session object at 0x0000018C2FD82150>
+test_db = <sqlalchemy.orm.session.Session object at 0x0000020F9173B490>
 
     def test_admin_routes_as_user(test_db):
         """Verify 403 when user tries to access admin routes."""
         db = test_db
+    
+        # DEBUG: Check actual schema in DB
+        from sqlalchemy import text
+        try:
+            res = db.execute(text("PRAGMA table_info(users)")).fetchall()
+            print(f"\n[DEBUG] TABLE USERS SCHEMA (User/CID/Name/Type...): {res}")
+        except Exception as e:
+            print(f"[DEBUG] PRAGMA FAILED: {e}")
     
         user = db.query(User).filter(User.email == "user@tradercopilot.com").first()
         if not user:
@@ -2573,7 +2581,7 @@ test_db = <sqlalchemy.orm.session.Session object at 0x0000018C2FD82150>
             if method == "GET":
 >               res = client.get(path, headers=headers)
 
-backend\audit\test_security_matrix.py:97: 
+backend\audit\test_security_matrix.py:106: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\testclient.py:548: in get
     return super().get(
@@ -2609,10 +2617,10 @@ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     await self.middleware_stack(scope, receive, send)
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
-self = <starlette.middleware.errors.ServerErrorMiddleware object at 0x0000018C30338D10>
-scope = {'app': <fastapi.applications.FastAPI object at 0x0000018C2F3A0F50>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000018C2FD76160>, 'extensions': {'http.response.debug': {}}, ...}
-receive = <function _TestClientTransport.handle_request.<locals>.receive at 0x0000018C302F0680>
-send = <function _TestClientTransport.handle_request.<locals>.send at 0x0000018C302F0720>
+self = <starlette.middleware.errors.ServerErrorMiddleware object at 0x0000020F91371DD0>
+scope = {'app': <fastapi.applications.FastAPI object at 0x0000020F90BDC510>, 'client': ['testclient', 50000], 'endpoint': <function get_admin_stats at 0x0000020F9131E3E0>, 'extensions': {'http.response.debug': {}}, ...}
+receive = <function _TestClientTransport.handle_request.<locals>.receive at 0x0000020F918807C0>
+send = <function _TestClientTransport.handle_request.<locals>.send at 0x0000020F91880860>
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":
@@ -2651,6 +2659,8 @@ E               TypeError: 'dict' object is not callable
 
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\middleware\errors.py:181: TypeError
 ---------------------------- Captured stdout call -----------------------------
+
+[DEBUG] TABLE USERS SCHEMA (User/CID/Name/Type...): [(0, 'id', 'INTEGER', 1, None, 1), (1, 'email', 'VARCHAR', 0, None, 0), (2, 'name', 'VARCHAR', 0, None, 0), (3, 'hashed_password', 'VARCHAR', 0, None, 0), (4, 'role', 'VARCHAR', 0, None, 0), (5, 'plan', 'VARCHAR', 0, None, 0), (6, 'plan_status', 'VARCHAR', 0, None, 0), (7, 'plan_expires_at', 'DATETIME', 0, None, 0), (8, 'telegram_chat_id', 'VARCHAR', 0, None, 0), (9, 'timezone', 'VARCHAR', 0, None, 0), (10, 'created_at', 'DATETIME', 0, None, 0)]
 [SETUP] Creating test user...
 ============================== warnings summary ===============================
 ..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\starlette\formparsers.py:12
@@ -2720,4 +2730,4 @@ backend\routers\logs.py:14
 -- Docs: https://docs.pytest.org/en/stable/warnings.html
 =========================== short test summary info ===========================
 FAILED backend/audit/test_security_matrix.py::test_admin_routes_as_user - Typ...
-======================= 1 failed, 12 warnings in 3.43s ========================
+======================= 1 failed, 12 warnings in 4.71s ========================

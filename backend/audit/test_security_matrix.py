@@ -22,7 +22,37 @@ def test_public_health():
     res = client.get("/health")
     assert res.status_code == 200
 
-def test_protected_routes_no_auth():
+
+@pytest.fixture(scope="module")
+def test_db():
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy.pool import StaticPool
+    from database import Base, get_db
+    from main import app
+    
+    # Use In-Memory DB for Security Tests
+    engine = create_engine(
+        "sqlite://", 
+        connect_args={"check_same_thread": False}, 
+        poolclass=StaticPool
+    )
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    
+    db = TestingSessionLocal()
+    
+    # OVERRIDE GLOBALLY FOR THIS MODULE
+    app.dependency_overrides[get_db] = lambda: db
+    
+    try:
+        yield db
+    finally:
+        db.close()
+        app.dependency_overrides.clear()
+
+def test_protected_routes_no_auth(test_db):
     """Verify 401 when no token provided."""
     protected_paths = [
         ("GET", "/auth/users/me"),
@@ -40,29 +70,25 @@ def test_protected_routes_no_auth():
             
         assert res.status_code == 401, f"{path} should be protected but got {res.status_code}"
 
-def test_admin_routes_as_user():
+def test_admin_routes_as_user(test_db):
     """Verify 403 when user tries to access admin routes."""
-    # Create or Get User for Test
-    db = SessionLocal()
-    try:
-        user = db.query(User).filter(User.email == "user@tradercopilot.com").first()
-        if not user:
-            print("[SETUP] Creating test user...")
-            # get_password_hash is imported from core.security at top level
-            user = User(
-                email="user@tradercopilot.com",
-                hashed_password=get_password_hash("password"),
-                role="user",
-                name="Test User",
-                plan="free",
-                plan_status="active"
-            )
-            db.add(user)
-            db.commit()
-            db.refresh(user)
-        user_id = user.id
-    finally:
-        db.close()
+    db = test_db
+    
+    # 2. Setup User (Direct Add)
+    from core.security import get_password_hash
+    user = User(
+        email="user@tradercopilot.com",
+        hashed_password=get_password_hash("password"),
+        role="user",
+        name="Test User",
+        plan="free",
+        plan_status="active",
+        telegram_chat_id="12345" # Explicitly set to avoid any default weirdness
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    user_id = user.id
 
     # Create a user token (role=user). Using seeded user to ensure DB existence.
     token = create_access_token({"sub": "user@tradercopilot.com", "role": "user", "id": user_id})
@@ -79,6 +105,8 @@ def test_admin_routes_as_user():
             
         assert res.status_code == 403, f"{path} should return 403 for normal user but got {res.status_code}"
 
+    app.dependency_overrides.clear()
+
 def test_destructive_endpoints_removed():
     """Verify dangerous endpoints are GONE."""
     res = client.post("/system/reset")
@@ -92,21 +120,4 @@ def test_destructive_endpoints_removed():
     res = client.patch("/strategies/marketplace/some_id/toggle")
     assert res.status_code == 401, "/strategies/marketplace/{id}/toggle should be 401 (Protected) now."
 
-if __name__ == "__main__":
-    # Mini-runner
-    try:
-        test_public_health()
-        print("[PASS] Public Health")
-        test_protected_routes_no_auth()
-        print("[PASS] Protected Routes (401)")
-        test_admin_routes_as_user()
-        print("[PASS] Admin RBAC (403)")
-        test_destructive_endpoints_removed()
-        print("[PASS] Destructive Endpoints Removed (404/401)")
-        print("\n [OK] SECURITY MATRIX PASS")
-    except AssertionError as e:
-        print(f"\n [FAIL] SECURITY FAIL: {e}")
-        sys.exit(1)
-    except Exception as e:
-        print(f"\n [ERR] ERROR: {e}")
-        sys.exit(1)
+# Tests should be run via 'pytest backend/audit/test_security_matrix.py'
