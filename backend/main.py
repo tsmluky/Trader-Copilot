@@ -171,17 +171,20 @@ origins = [
     "https://saleready-production.up.railway.app"
 ]
 
+
 if env_allowed:
-    extra_origins = env_allowed.split(",")
+    extra_origins = [o.strip() for o in env_allowed.split(",") if o.strip()]
     origins.extend(extra_origins)
     print(f"[CORS] ➕ Extended Origins with env: {extra_origins}")
-    print(f"[CORS] âš ï¸ Using Default Origins: {origins}")
 
-print(f"[CORS] Final Allowed Origins: {origins}")
+# Remove duplicates
+origins = list(set(origins))
+print(f"[CORS] ✅ Final Allowed Origins: {origins}")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"https://.*\.vercel\.app|https://.*\.railway\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
