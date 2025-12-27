@@ -250,6 +250,9 @@ async def startup():
 
     # Crear tablas (DB SYNC) sin bloquear el event loop
     await anyio.to_thread.run_sync(lambda: Base.metadata.create_all(bind=engine))
+    
+    # Import SessionLocal early to avoid UnboundLocalError
+    from database import SessionLocal
 
     # Hotfix Postgres & Migrations
     try:
@@ -321,7 +324,7 @@ async def startup():
     # --- 2. Seed Personas (Fresh Session) ---
     db = None
     try:
-        from database import SessionLocal
+        # from database import SessionLocal # Moved to top
         db = SessionLocal()
         print("🌱 [SEED] Verify Personas in DB...")
         # Import moved inside to avoid circular deps if any
