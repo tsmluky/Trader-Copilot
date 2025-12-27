@@ -138,10 +138,10 @@ def _rate_limit_exceeded_handler_fixed(request, exc):
     )
 
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler_fixed)
-app.add_middleware(SlowAPIMiddleware) # Must be added after other middlewares if order matters, but here is fine.
+# app.add_middleware(SlowAPIMiddleware) # DISABLED FOR DEBUGGING
 
 # Payload Size Limit Middleware (64KB)
-@app.middleware("http")
+# @app.middleware("http")
 async def limit_upload_size(request: Request, call_next):
     if request.method == "POST":
         content_length = request.headers.get("content-length")
