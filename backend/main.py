@@ -141,7 +141,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler_fixed)
 # app.add_middleware(SlowAPIMiddleware) # DISABLED FOR DEBUGGING
 
 # Payload Size Limit Middleware (64KB)
-# @app.middleware("http")
+# # @app.middleware("http")
 async def limit_upload_size(request: Request, call_next):
     if request.method == "POST":
         content_length = request.headers.get("content-length")
@@ -203,7 +203,9 @@ origins = [
     "http://localhost:4173",
     "http://127.0.0.1:4173",
     "https://saleready.up.railway.app",
-    "https://saleready-production.up.railway.app"
+    "https://saleready-production.up.railway.app",
+    "https://www.tradercopilot.app",
+    "https://tradercopilot.app"
 ]
 
 
@@ -219,7 +221,7 @@ print(f"[CORS] ✅ Final Allowed Origins: {origins}")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex=r"https://.*\.vercel\.app|https://.*\.railway\.app",
+    allow_origin_regex=r"https://.*\.vercel\.app|https://.*\.railway\.app|https://.*\.tradercopilot\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
