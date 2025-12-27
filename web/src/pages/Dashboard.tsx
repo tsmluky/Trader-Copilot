@@ -49,18 +49,29 @@ export const Dashboard: React.FC = () => {
           return tb - ta;
         });
 
-        setLogs(allLogs);
+        // 0. Filter by User Registration (Fix PnL for new users)
+        const userJoinedAt = new Date(userProfile?.user.created_at || 0).getTime();
+        const filteredByJoinDate = allLogs.filter(l => {
+          const logTime = new Date((l.evaluated_at as string) || (l.timestamp as string) || 0).getTime();
+          // Allow a small buffer (e.g. 10 mins) or just strict >
+          return logTime >= userJoinedAt;
+        });
+
+        // Use filtered logs for calculations
+        const logsToUse = filteredByJoinDate;
+
+        setLogs(logsToUse);
 
         const now = new Date();
         const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
         const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-        const last24hLogs = allLogs.filter(
+        const last24hLogs = logsToUse.filter(
           (l) => new Date((l.evaluated_at as string) || 0) > oneDayAgo
         );
 
 
-        const strategiesLogs = allLogs.filter((l) => {
+        const strategiesLogs = logsToUse.filter((l) => {
           const s = String(l.source || '');
           return !s.includes('lite-rule') && !s.includes('Pro_v1_local');
         });
@@ -142,7 +153,7 @@ export const Dashboard: React.FC = () => {
     };
 
     fetchData();
-  }, []);
+  }, [userProfile]);
 
   const handleSignalClick = (log: LogRow) => {
     // Map LogRow to Signal format expected by Drawer

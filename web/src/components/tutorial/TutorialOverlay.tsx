@@ -12,26 +12,38 @@ interface Step {
 const STEPS: Step[] = [
     {
         targetId: 'nav-overview',
-        title: 'Market Command Center',
-        content: 'Get a high-level view of the market, active signals, and your portfolio performance in real-time.',
+        title: 'Centro de Comando',
+        content: 'Tu vista general del mercado. Monitorea señales activas, rendimiento del portafolio y alertas en tiempo real.',
         position: 'right'
     },
     {
-        targetId: 'nav-scanner',
-        title: 'AI Radar Scanner',
-        content: 'Our AI scans thousands of tokens 24/7. Filter by strategy, timeframe, and win-rate to find the best opportunities.',
+        targetId: 'nav-radar',
+        title: 'Radar IA',
+        content: 'Escanea miles de tokens 24/7. Filtra por estrategia, temporalidad y win-rate para encontrar las mejores oportunidades automáticamente.',
         position: 'right'
     },
     {
-        targetId: 'nav-analysis',
-        title: 'AI Market Analyst',
-        content: 'Chat with our DeepSeek-powered AI Advisor to get deep insights on any token or market condition.',
+        targetId: 'nav-analyst',
+        title: 'Analista de Mercado',
+        content: 'Consulta a nuestro Asesor IA (DeepSeek). Pregúntale sobre cualquier token o condición de mercado para obtener análisis profundos.',
         position: 'right'
     },
     {
-        targetId: 'nav-strategies',
-        title: 'Quant Lab',
-        content: 'Manage and configure your automated trading strategies. Enable or disable agents with a single click.',
+        targetId: 'nav-quant',
+        title: 'Laboratorio Quant',
+        content: 'Gestiona tus estrategias automáticas. Activa o desactiva agentes de trading con un solo clic y ajusta su configuración.',
+        position: 'right'
+    },
+    {
+        targetId: 'nav-backtest',
+        title: 'Backtesting',
+        content: 'Simula tus estrategias con datos históricos antes de arriesgar capital real. Valida la eficacia de tus ideas.',
+        position: 'right'
+    },
+    {
+        targetId: 'nav-settings',
+        title: 'Tu Perfil',
+        content: 'Configura tus preferencias, conecta tu cuenta de Telegram para alertas y gestiona tu suscripción.',
         position: 'right'
     }
 ];
@@ -144,7 +156,7 @@ export const TutorialOverlay: React.FC = () => {
                                 onClick={() => setCurrentStep(c => c - 1)}
                                 className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:bg-slate-800 transition-colors"
                             >
-                                Back
+                                Atrás
                             </button>
                         )}
                         <button
@@ -157,7 +169,7 @@ export const TutorialOverlay: React.FC = () => {
                             }}
                             className="flex items-center gap-1 px-4 py-1.5 rounded-md text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 transition-all shadow-lg hover:shadow-indigo-500/25"
                         >
-                            {currentStep === STEPS.length - 1 ? 'Finish' : 'Next'}
+                            {currentStep === STEPS.length - 1 ? 'Finalizar' : 'Siguiente'}
                             {currentStep === STEPS.length - 1 ? <Check size={12} /> : <ChevronRight size={12} />}
                         </button>
                     </div>
