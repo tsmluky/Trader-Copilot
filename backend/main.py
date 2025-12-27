@@ -80,7 +80,28 @@ from telegram_listener import start_telegram_bot, stop_telegram_bot
 @app.on_event("startup")
 async def startup_event():
     # Start Telegram Bot in background
+    # Start Telegram Bot in background
     asyncio.create_task(start_telegram_bot())
+    
+    # Start Self-Health Check (Debug 502)
+    async def self_health_check_loop():
+        await asyncio.sleep(10) # Wait for server to bind
+        print("[HEALTH CHECK] Starting internal connectivity test...")
+        import httpx
+        port = os.getenv("PORT", "8080")
+        url = f"http://127.0.0.1:{port}/"
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                resp = await client.get(url)
+                print(f"[HEALTH CHECK] Internal Ping {url} -> Status: {resp.status_code}")
+                if resp.status_code == 200:
+                    print("[HEALTH CHECK] ✅ SUCCESS: App is listening and reachable internally.")
+                else:
+                    print(f"[HEALTH CHECK] ⚠️ WARNING: App responded with {resp.status_code}.")
+        except Exception as e:
+            print(f"[HEALTH CHECK] ❌ FAILURE: Could not connect internally: {e}")
+
+    asyncio.create_task(self_health_check_loop())
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -246,96 +267,89 @@ async def startup():
             except:
                 pass
             
-            # 3. Migrate StrategyConfig
-            try:
-                conn.execute(text("ALTER TABLE strategy_configs ADD COLUMN persona_id VARCHAR;"))
-                conn.execute(text("ALTER TABLE strategy_configs ADD COLUMN user_id INTEGER;"))
-                conn.execute(text("ALTER TABLE strategy_configs ADD COLUMN is_public INTEGER DEFAULT 0;"))
-                conn.execute(text("ALTER TABLE strategy_configs ADD COLUMN color VARCHAR DEFAULT 'indigo';"))
-                conn.execute(text("ALTER TABLE strategy_configs ADD COLUMN icon VARCHAR DEFAULT 'Cpu';"))
-                conn.execute(text("ALTER TABLE strategy_configs ADD COLUMN expected_roi VARCHAR;"))
-            except Exception as e:
-                print(f"⚠️ [DB MIGRATION] StrategyConfig migration warning: {e}")
-                pass
+            # --- 1. Schema Constraints Fix (Critical for Multiple Personas) ---
+    def _fix_schema_constraints(db: Session):
+        """Drops the erroneous UNIQUE constraint on strategy_id if it exists."""
+        try:
+            # Check if constraint exists (PostgreSQL specific)
+            from sqlalchemy import text
+            check_sql = "SELECT constraint_name FROM information_schema.table_constraints WHERE table_name = 'strategy_configs' AND constraint_type = 'UNIQUE' AND constraint_name LIKE '%strategy_id%'"
+            result = db.execute(text(check_sql)).fetchone()
+            if result:
+                constraint = result[0]
+                print(f"🔧 [DB FIX] Dropping unique constraint '{constraint}' on strategy_configs.strategy_id...")
+                db.execute(text(f"ALTER TABLE strategy_configs DROP CONSTRAINT {constraint}"))
+                db.commit()
+                print("✅ [DB FIX] Constraint dropped. Multiple personas allowed.")
+        except Exception as e:
+            print(f"⚠️ [DB FIX] Could not check/drop constraint: {e}")
+            db.rollback()
+
+    try:
+        db = SessionLocal()
+        _fix_schema_constraints(db)
         
-        # 4. SEED DATA
+        # Add 'persona_id' column if missing (Migration)
+        try:
+            db.execute(text("ALTER TABLE strategy_configs ADD COLUMN persona_id VARCHAR"))
+            db.commit()
+            print("🔧 [DB MIGRATION] Added 'persona_id' column.")
+        except Exception as e:
+            db.rollback()
+            # Ignore if already exists
+            # print(f"⚠️ [DB MIGRATION] Column check: {e}")
+            pass
+            
+        db.close()
+    except Exception as e:
+        print(f"⚠️ [DB MIGRATION] Setup failed: {e}")
+
+    # --- 2. Seed Personas (Fresh Session) ---
+    try:
+        db = SessionLocal()
+        print("🌱 [SEED] Verify Personas in DB...")
+        # Import moved inside to avoid circular deps if any
         from marketplace_config import SYSTEM_PERSONAS
         from models_db import StrategyConfig
         import json
-        from database import SessionLocal
         
-        db = SessionLocal()
-        try:
-            print("🌱 [SEED] Verify Personas in DB...")
-            # A. Migrate Custom JSON if DB empty (of custom strategies)
-            user_strat_count = db.query(StrategyConfig).filter(StrategyConfig.user_id != None).count()
-            if user_strat_count == 0:
-                 from marketplace_config import load_user_strategies
-                 user_jsons = load_user_strategies()
-                 if user_jsons:
-                     print(f"  ➡️  Migrating {len(user_jsons)} user strategies to DB...")
-                     for p in user_jsons:
-                         desc = p.get("description", "")
-                         db_obj = StrategyConfig(
-                             persona_id=p["id"],
-                             strategy_id=p["strategy_id"],
-                             name=p["name"],
-                             timeframes=json.dumps([p["timeframe"]]),
-                             tokens=json.dumps([p["symbol"]]),
-                             description=desc,
-                             risk_profile=p.get("risk_level", "medium"),
-                             expected_roi=p.get("expected_roi", "N/A"),
-                             color=p.get("color", "indigo"),
-                             is_public=0,
-                             user_id=1, 
-                             enabled=1 if p.get("is_active") else 0
-                         )
-                         exists = db.query(StrategyConfig).filter(StrategyConfig.persona_id == p["id"]).first()
-                         if not exists:
-                             db.add(db_obj)
-                     db.commit()
+        for sp in SYSTEM_PERSONAS:
+            # Check by persona_id
+            db_p = db.query(StrategyConfig).filter(StrategyConfig.persona_id == sp["id"]).first()
             
-            # B. Sync System Personas
-            for sp in SYSTEM_PERSONAS:
-                # Check by persona_id (This is the unique ID for the Marketplace Item)
-                db_p = db.query(StrategyConfig).filter(StrategyConfig.persona_id == sp["id"]).first()
-                
-                if not db_p:
-                    print(f"   [SEED] Creating {sp['name']}...")
-                    db_p = StrategyConfig(
-                        persona_id=sp["id"],
-                        strategy_id=sp["strategy_id"],
-                        name=sp["name"],
-                        description=sp["description"],
-                        timeframes=json.dumps([sp["timeframe"]]),
-                        tokens=json.dumps([sp["symbol"]]),
-                        risk_profile=sp["risk_level"],
-                        expected_roi=sp["expected_roi"],
-                        color=sp["color"],
-                        is_public=1,
-                        user_id=None,
-                        enabled=1
-                    )
-                    db.add(db_p)
-                else:
-                    # Update existing system strategy (Sync definitions)
-                    db_p.name = sp["name"]
-                    db_p.description = sp["description"]
-                    db_p.persona_id = sp["id"] # Ensure persona_id matches
-                    db_p.expected_roi = sp["expected_roi"]
-                    db_p.is_public = 1
-                    db_p.user_id = None
-            
-            db.commit()
-            print("✅ [DB] Schema & Seeds synced.")
-        except Exception as e:
-            print(f"❌ [DB] Seed Error: {e}")
-            db.rollback()
-        finally:
-            db.close()
-
+            if not db_p:
+                print(f"   [SEED] Creating {sp['name']}...")
+                db_p = StrategyConfig(
+                    persona_id=sp["id"],
+                    strategy_id=sp["strategy_id"],
+                    name=sp["name"],
+                    description=sp["description"],
+                    timeframes=json.dumps([sp["timeframe"]]),
+                    tokens=json.dumps([sp["symbol"]]),
+                    risk_profile=sp["risk_level"],
+                    expected_roi=sp["expected_roi"],
+                    color=sp["color"],
+                    is_public=1,
+                    user_id=None,
+                    enabled=1
+                )
+                db.add(db_p)
+            else:
+                # Update existing system strategy
+                db_p.name = sp["name"]
+                db_p.description = sp["description"]
+                db_p.persona_id = sp["id"]
+                db_p.expected_roi = sp["expected_roi"]
+                db_p.is_public = 1
+                db_p.user_id = None
+        
+        db.commit()
+        print("✅ [DB] Schema & Seeds synced.")
     except Exception as e:
-        print(f"⚠️ [DB] Schema update skipped: {e}")
+        print(f"❌ [DB] Seed Error: {e}")
+        db.rollback()
+    finally:
+        db.close()
 
     # Background evaluator (best-effort)
     try:
