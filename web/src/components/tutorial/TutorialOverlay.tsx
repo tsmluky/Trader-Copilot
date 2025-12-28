@@ -64,7 +64,7 @@ export const TutorialOverlay: React.FC = () => {
 
     // Initial Check
     useEffect(() => {
-        const seen = localStorage.getItem('tradercopilot_tutorial_completed');
+        const seen = localStorage.getItem('tradercopilot_tutorial_completed_v2');
         if (!seen) {
             // Small delay to ensure render
             setTimeout(() => setIsVisible(true), 1000);
