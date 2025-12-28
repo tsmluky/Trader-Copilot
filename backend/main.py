@@ -273,6 +273,15 @@ async def startup():
                 pass
             
             # --- 1. Schema Constraints Fix (Critical for Multiple Personas) ---
+            # HOTFIX: Purge Garbage Test Data (DOGE with ETH prices)
+            if "postgresql" in str(engine.url):
+                try:
+                    # DOGE at 3498 is impossible. Delete these artifacts.
+                    conn.execute(text("DELETE FROM signals WHERE token = 'DOGE' AND entry > 50"))
+                    print("🧹 [DB CLEANUP] Wiped garbage DOGE signals.")
+                except Exception as e:
+                    print(f"⚠️ [DB CLEANUP] Cleanup failed: {e}")
+            
     except Exception as e:
         print(f"⚠️ [DB MIGRATION] Pre-startup checks failed: {e}")
 
