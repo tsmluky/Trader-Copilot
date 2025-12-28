@@ -111,6 +111,16 @@ export const ProAnalysisViewer: React.FC<Props> = ({ raw, token }) => {
         </div>
       )}
 
+      {/* ERROR / FALLBACK STATE: If raw text exists but no tags found, show raw as error/message */}
+      {raw && !ctxt && !ta && !plan && !insight && (
+        <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+          <h3 className="text-sm font-bold text-slate-400 mb-2">Analysis Output</h3>
+          <p className="text-sm text-slate-300 whitespace-pre-wrap font-mono">
+            {raw}
+          </p>
+        </div>
+      )}
+
       {/* Grid Layout */}
       <div className="grid grid-cols-1 gap-4">
 

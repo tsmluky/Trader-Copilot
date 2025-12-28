@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, ChevronRight, ChevronLeft, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 interface Step {
@@ -7,6 +8,7 @@ interface Step {
     title: string;
     content: string;
     position: 'right' | 'bottom' | 'top';
+    path?: string;
 }
 
 const STEPS: Step[] = [
@@ -14,41 +16,48 @@ const STEPS: Step[] = [
         targetId: 'nav-overview',
         title: 'Centro de Comando',
         content: 'Tu vista general del mercado. Monitorea señales activas, rendimiento del portafolio y alertas en tiempo real.',
-        position: 'right'
+        position: 'right',
+        path: '/'
     },
     {
         targetId: 'nav-radar',
         title: 'Radar IA',
         content: 'Escaneo oportunidades 24/7. Filtra por estrategia, temporalidad y win-rate para encontrar las mejores oportunidades automáticamente.',
-        position: 'right'
+        position: 'right',
+        path: '/scanner'
     },
     {
         targetId: 'nav-analyst',
         title: 'Analista de Mercado',
         content: 'Genera señales o análisis profundos sobre cualquier token. También puedes preguntarle a nuestro Copiloto IA para discutir sobre una posición o pedirle que profundice en algún análisis.',
-        position: 'right'
+        position: 'right',
+        path: '/analysis'
     },
     {
         targetId: 'nav-quant',
         title: 'Laboratorio Quant',
         content: 'Gestiona tus estrategias automáticas. Activa o desactiva agentes de trading con un solo clic y ajusta su configuración.',
-        position: 'right'
+        position: 'right',
+        path: '/strategies'
     },
     {
         targetId: 'nav-backtest',
         title: 'Backtesting',
         content: 'Simula tus estrategias con datos históricos antes de arriesgar capital real. Valida la eficacia de tus ideas.',
-        position: 'right'
+        position: 'right',
+        path: '/backtest'
     },
     {
         targetId: 'nav-settings',
         title: 'Tu Perfil',
         content: 'Configura tus preferencias, conecta tu cuenta de Telegram para alertas y gestiona tu suscripción.',
-        position: 'right'
+        position: 'right',
+        path: '/settings'
     }
 ];
 
 export const TutorialOverlay: React.FC = () => {
+    const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
     const [coords, setCoords] = useState<{ top: number; left: number; height: number; width: number } | null>(null);
@@ -162,7 +171,12 @@ export const TutorialOverlay: React.FC = () => {
                         <button
                             onClick={() => {
                                 if (currentStep < STEPS.length - 1) {
-                                    setCurrentStep(c => c + 1);
+                                    const nextStep = currentStep + 1;
+                                    setCurrentStep(nextStep);
+                                    // Navigate to next step's path
+                                    if (STEPS[nextStep].path) {
+                                        navigate(STEPS[nextStep].path);
+                                    }
                                 } else {
                                     finishTour();
                                 }
