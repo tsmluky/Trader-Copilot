@@ -50,7 +50,10 @@ export const Dashboard: React.FC = () => {
         });
 
         // 0. Filter by User Registration (Fix PnL for new users)
-        const userJoinedAt = new Date(userProfile?.user.created_at || 0).getTime();
+        // FAILSAFE: If created_at is missing, default to Date.now() to hide all old signals by default.
+        const userJoinedAt = new Date(userProfile?.user.created_at || Date.now()).getTime();
+        console.log('[Dashboard] Filtering logs after:', new Date(userJoinedAt).toISOString(), 'User Created At:', userProfile?.user.created_at);
+
         const filteredByJoinDate = allLogs.filter(l => {
           const logTime = new Date((l.evaluated_at as string) || (l.timestamp as string) || 0).getTime();
           // Allow a small buffer (e.g. 10 mins) or just strict >

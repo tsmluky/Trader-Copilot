@@ -115,7 +115,7 @@ export const TutorialOverlay: React.FC = () => {
     return (
         <div className="fixed inset-0 z-[100] overflow-hidden">
             {/* Backdrop with hole */}
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] transition-all duration-500 ease-in-out">
+            <div className="absolute inset-0 bg-black/40 transition-all duration-500 ease-in-out">
                 {/* We use a clip-path or just composite layers. 
                     Actually, simpler approach for "Sale Ready" polish without complex clip-path math:
                     Just huge borders around the cutout div.
