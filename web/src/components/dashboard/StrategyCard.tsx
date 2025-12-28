@@ -29,7 +29,6 @@ export const StrategyCard: React.FC<StrategyCardProps> = ({
     const cleanText = (text: string) => text ? text.replace(/[\[\]"']/g, '') : '';
 
     return (
-    return (
         <div className={`
             relative overflow-hidden rounded-2xl p-5 transition-all duration-300 group
             bg-gradient-to-b from-slate-800/40 to-slate-900/40 backdrop-blur-md
