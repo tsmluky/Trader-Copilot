@@ -95,10 +95,14 @@ export const DashboardHome: React.FC = () => {
     return (
         <div className="min-h-screen bg-[#020617] text-white selection:bg-gold-500/30 font-sans relative pb-16 animate-fade-in">
             {/* Background Texture & Lighting */}
+            {/* Background Texture & Lighting (Identical to Landing) */}
             <div className="fixed inset-0 z-0 pointer-events-none">
+                {/* Grid Pattern */}
                 <div className="absolute inset-0 bg-grid opacity-20" />
-                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-900/20 rounded-full blur-[120px] mix-blend-screen opacity-40"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-gold-500/5 blur-[120px] rounded-full mix-blend-screen opacity-30"></div>
+
+                {/* Landing Page Style Glows */}
+                <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-500/10 rounded-full blur-[120px] mix-blend-screen opacity-50"></div>
+                <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-indigo-600/5 blur-[120px] rounded-full mix-blend-screen opacity-30"></div>
             </div>
 
             {/* 1. Header & Global Metrics */}
