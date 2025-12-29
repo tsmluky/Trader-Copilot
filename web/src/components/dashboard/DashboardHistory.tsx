@@ -18,10 +18,10 @@ export const DashboardHistory: React.FC<DashboardHistoryProps> = ({ signals, onS
     const userTimezone = userProfile?.user?.timezone;
 
     return (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-            <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-950/30">
+        <div className="glass-card rounded-3xl overflow-hidden shadow-2xl">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
+                    <div className="p-2 bg-brand-500/10 rounded-lg text-brand-400">
                         <History size={20} />
                     </div>
                     <div>
@@ -34,7 +34,7 @@ export const DashboardHistory: React.FC<DashboardHistoryProps> = ({ signals, onS
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="bg-slate-950/50 text-slate-500 text-xs font-bold uppercase tracking-wider">
+                        <tr className="bg-white/[0.02] text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-white/5">
                             <th className="p-5 font-bold">Time</th>
                             <th className="p-5 font-bold">Agent / Token</th>
                             <th className="p-5 font-bold">Action</th>
@@ -42,7 +42,7 @@ export const DashboardHistory: React.FC<DashboardHistoryProps> = ({ signals, onS
                             <th className="p-5 font-bold text-center">Status</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/50">
+                    <tbody className="divide-y divide-white/5">
                         {signals.length === 0 ? (
                             <tr>
                                 <td colSpan={5} className="p-12 text-center text-slate-500 italic">
@@ -60,7 +60,7 @@ export const DashboardHistory: React.FC<DashboardHistoryProps> = ({ signals, onS
                                 <tr
                                     key={sig.id}
                                     onClick={() => onSignalClick && onSignalClick(sig)}
-                                    className="hover:bg-indigo-500/5 transition-all duration-200 group border-l-2 border-transparent hover:border-indigo-500 cursor-pointer"
+                                    className="hover:bg-white/[0.02] transition-all duration-200 group border-l-2 border-transparent hover:border-brand-500 cursor-pointer"
                                 >
                                     <td className="p-5 text-slate-400 font-mono text-xs whitespace-nowrap group-hover:text-slate-300" title={new Date(sig.timestamp.endsWith('Z') ? sig.timestamp : `${sig.timestamp}Z`).toLocaleString(undefined, {
                                         year: 'numeric',
@@ -76,11 +76,11 @@ export const DashboardHistory: React.FC<DashboardHistoryProps> = ({ signals, onS
                                     </td>
                                     <td className="p-5">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs font-black text-indigo-300 border border-indigo-500/30">
+                                            <div className="w-8 h-8 rounded-full bg-brand-500/10 flex items-center justify-center text-xs font-black text-brand-300 border border-brand-500/20">
                                                 {sig.token.substring(0, 3)}
                                             </div>
                                             <div>
-                                                <div className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors flex items-center gap-2">
+                                                <div className="text-sm font-bold text-white group-hover:text-brand-300 transition-colors flex items-center gap-2">
                                                     {sig.token}
                                                     {(sig.mode === 'BACKTEST' || sig.source.includes('backtest')) && (
                                                         <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-500 border border-slate-700">
@@ -113,8 +113,8 @@ export const DashboardHistory: React.FC<DashboardHistoryProps> = ({ signals, onS
                                                 {sig.status} {sig.pnl ? `(${sig.pnl > 0 ? '+' : ''}${sig.pnl}R)` : ''}
                                             </span>
                                         ) : (
-                                            <span className="text-[10px] font-bold text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700 inline-flex items-center gap-1.5">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                                            <span className="text-[10px] font-bold text-slate-400 bg-white/5 px-2.5 py-1 rounded-full border border-white/10 inline-flex items-center gap-1.5">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
                                                 Running
                                             </span>
                                         )}

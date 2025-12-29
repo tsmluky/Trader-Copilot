@@ -30,18 +30,15 @@ export const StrategyCard: React.FC<StrategyCardProps> = ({
 
     return (
         <div className={`
-            relative overflow-hidden rounded-2xl p-5 transition-all duration-300 group
-            bg-gradient-to-b from-slate-800/40 to-slate-900/40 backdrop-blur-md
-            border border-slate-800/60 hover:border-indigo-500/30
-            hover:shadow-[0_0_20px_-5px_rgba(99,102,241,0.2)]
-            hover:-translate-y-1
+            glass-card relative overflow-hidden rounded-2xl p-5 transition-all duration-300 group
+            hover:border-gold-500/30 hover:-translate-y-1
         `}>
             {/* Background Glow Effect */}
-            <div className={`absolute top-0 right-0 w-24 h-24 bg-${isCustom ? 'indigo' : 'emerald'}-500/10 blur-2xl rounded-full -mr-12 -mt-12 transition-opacity opacity-50 group-hover:opacity-100`} />
+            <div className={`absolute top-0 right-0 w-32 h-32 bg-${isCustom ? 'brand' : 'emerald'}-500/10 blur-3xl rounded-full -mr-16 -mt-16 transition-opacity opacity-40 group-hover:opacity-100`} />
 
             {/* Custom Badge (Corner Position) */}
             {isCustom && (
-                <div className="absolute top-0 right-0 mt-3 mr-3 px-1.5 py-0.5 bg-indigo-500 text-white text-[9px] font-bold uppercase tracking-wider rounded shadow-lg z-20">
+                <div className="absolute top-0 right-0 mt-3 mr-3 px-1.5 py-0.5 bg-brand-500 text-white text-[9px] font-bold uppercase tracking-wider rounded shadow-lg z-20">
                     CUSTOM
                 </div>
             )}
@@ -61,11 +58,11 @@ export const StrategyCard: React.FC<StrategyCardProps> = ({
 
                     {/* Title & Meta */}
                     <div>
-                        <h3 className="text-lg font-black text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-indigo-300 transition-all leading-tight">
+                        <h3 className="text-lg font-black text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gold-300 transition-all leading-tight">
                             {name}
                         </h3>
                         <div className="flex items-center gap-2 text-slate-500 text-[10px] mt-1.5 font-medium">
-                            <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300 border border-slate-700">{cleanText(timeframe)}</span>
+                            <span className="px-1.5 py-0.5 bg-white/5 rounded text-slate-300 border border-white/10">{cleanText(timeframe)}</span>
                             <span className="text-slate-600">•</span>
                             <span className="text-slate-400">{cleanText(type)}</span>
                         </div>
@@ -75,10 +72,10 @@ export const StrategyCard: React.FC<StrategyCardProps> = ({
                 {/* Type Icon */}
                 <div className="flex flex-col items-end gap-2">
                     <div className={`p-2 rounded-xl border transition-colors ${type === 'Trend'
-                        ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400 group-hover:bg-indigo-500/20'
-                        : (type && type.includes('SOL') ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' : 'bg-slate-800/50 border-slate-700 text-slate-400')
+                        ? 'bg-brand-500/10 border-brand-500/20 text-brand-400 group-hover:bg-brand-500/20'
+                        : (type && type.includes('SOL') ? 'bg-brand-500/10 border-brand-500/20 text-brand-400' : 'bg-white/5 border-white/10 text-slate-400')
                         }`}>
-                        {type === 'Trend' || name.includes('Trend') ? <TrendingUp size={16} /> : <Activity size={16} />}
+                        {type === 'Trend' || name.includes('Trend') ? <TrendingUp size={18} /> : <Activity size={18} />}
                     </div>
                 </div>
             </div>
@@ -89,7 +86,7 @@ export const StrategyCard: React.FC<StrategyCardProps> = ({
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-2 relative z-10">
-                <div className="bg-slate-950/60 rounded-xl p-3 border border-slate-800/80 group-hover:border-slate-700 transition-colors relative overflow-hidden">
+                <div className="bg-[#020617]/40 rounded-xl p-3 border border-white/5 group-hover:border-white/10 transition-colors relative overflow-hidden backdrop-blur-sm">
                     <div className="relative z-10">
                         <div className="text-slate-500 text-[9px] font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1">
                             <BarChart2 className="w-2.5 h-2.5" /> Win Rate
@@ -100,7 +97,7 @@ export const StrategyCard: React.FC<StrategyCardProps> = ({
                     </div>
                 </div>
 
-                <div className="bg-slate-950/60 rounded-xl p-3 border border-slate-800/80 group-hover:border-slate-700 transition-colors relative overflow-hidden">
+                <div className="bg-[#020617]/40 rounded-xl p-3 border border-white/5 group-hover:border-white/10 transition-colors relative overflow-hidden backdrop-blur-sm">
                     <div className="relative z-10">
                         <div className="text-slate-500 text-[9px] font-bold uppercase tracking-wider mb-0.5 flex items-center gap-1">
                             <TrendingUp className="w-2.5 h-2.5" /> Total PnL
