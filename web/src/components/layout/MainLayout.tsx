@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
     LayoutDashboard,
     LineChart,
@@ -59,7 +59,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     }, []);
 
     const navItems = [
-        { id: '/', label: 'Overview', icon: LayoutDashboard },
+        { id: '/dashboard', label: 'Overview', icon: LayoutDashboard },
         { id: '/scanner', label: 'Radar', icon: Radar },
         { id: '/analysis', label: 'Analyst', icon: Crosshair },
         { id: '/strategies', label: 'Quant', icon: Activity },
@@ -105,7 +105,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
                     {/* Logo Area */}
                     <div className="h-20 flex items-center px-6 border-b border-white/5 relative z-10">
-                        <Logo />
+                        <Link to="/dashboard" className="block">
+                            <Logo />
+                        </Link>
                     </div>
 
                     {/* Navigation */}
