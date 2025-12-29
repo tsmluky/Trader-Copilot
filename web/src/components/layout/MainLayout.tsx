@@ -13,6 +13,7 @@ import {
     FlaskConical,
     Crosshair
 } from 'lucide-react';
+import { Logo } from '../common/Logo';
 import { useAuth } from '../../context/AuthContext';
 import { NotificationCenter } from '../NotificationCenter';
 import { API_BASE_URL } from '../../constants';
@@ -104,22 +105,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
                     {/* Logo Area */}
                     <div className="h-20 flex items-center px-6 border-b border-white/5 relative z-10">
-                        <div className="flex items-center gap-3 group cursor-pointer">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white shadow-lg shadow-brand-500/20 group-hover:shadow-brand-500/40 transition-all">
-                                {/* Use Logo URL if available, else generic Icon */}
-                                {theme.logoUrl && theme.logoUrl.startsWith('http') ? (
-                                    <img src={theme.logoUrl} alt="Logo" className="w-6 h-6" />
-                                ) : (
-                                    <Zap className="w-5 h-5 fill-white" />
-                                )}
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="font-black text-lg tracking-tight text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-brand-200 transition-all">
-                                    {theme.appName}
-                                </span>
-                                <span className="text-[10px] text-brand-400 font-bold tracking-widest uppercase">Copilot Console</span>
-                            </div>
-                        </div>
+                        <Logo />
                     </div>
 
                     {/* Navigation */}

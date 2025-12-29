@@ -9,23 +9,28 @@ interface MetricCardProps {
 }
 
 export const MetricCard: React.FC<MetricCardProps> = ({ label, value, trend, icon: Icon }) => (
-    <div className="glass-card p-4 rounded-2xl flex items-center gap-4 min-w-[160px] hover:border-gold-500/30 transition-all duration-300 group relative overflow-hidden h-full">
-        <div className={`absolute -right-4 -top-4 w-20 h-20 rounded-full blur-2xl opacity-10 ${trend >= 0 ? 'bg-emerald-500' : 'bg-rose-500'} group-hover:opacity-20 transition-opacity`} />
+    <div className="group relative overflow-hidden rounded-2xl bg-[#020617]/40 backdrop-blur-md border border-white/5 p-5 shadow-lg transition-all duration-500 hover:border-brand-500/30 hover:shadow-brand-500/10 hover:-translate-y-1">
+        {/* Hover Highlight Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-        <div className={`p-3 rounded-xl relative z-10 ${trend >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
-            <Icon size={24} strokeWidth={1.5} />
-        </div>
-        <div className="relative z-10 flex flex-col justify-center">
-            <div className="text-[10px] text-slate-400 uppercase font-bold tracking-widest leading-none mb-1.5">{label}</div>
-            <div className="flex items-baseline gap-2">
-                <div className="text-2xl font-mono font-bold text-white tracking-tight leading-none">
-                    {value}
+        {/* Glow Blob */}
+        <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full blur-3xl opacity-20 transition-opacity duration-500 group-hover:opacity-30 ${trend >= 0 ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+
+        <div className="relative z-10 flex items-start justify-between mb-4">
+            <div className={`p-3 rounded-xl ${trend >= 0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'} transition-colors group-hover:bg-opacity-20`}>
+                <Icon size={22} strokeWidth={2} />
+            </div>
+            {trend !== 0 && (
+                <div className={`flex items-center text-xs font-bold px-2 py-1 rounded-lg border ${trend > 0 ? 'text-emerald-400 border-emerald-500/20 bg-emerald-500/5' : 'text-rose-400 border-rose-500/20 bg-rose-500/5'}`}>
+                    {trend > 0 ? '↗' : '↘'} {Math.abs(trend)}%
                 </div>
-                {trend !== 0 && (
-                    <div className={`text-[10px] font-bold inline-flex items-center ${trend > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {trend > 0 ? '▲' : '▼'} {Math.abs(trend)}%
-                    </div>
-                )}
+            )}
+        </div>
+
+        <div className="relative z-10">
+            <div className="text-[11px] text-slate-400 uppercase font-bold tracking-wider mb-1">{label}</div>
+            <div className="text-3xl font-black text-white tracking-tight flex items-baseline gap-1">
+                {value}
             </div>
         </div>
     </div>
