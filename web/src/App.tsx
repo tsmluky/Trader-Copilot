@@ -8,7 +8,7 @@ import { ScannerPage } from './pages/ScannerPage';
 import { StrategiesPage } from './pages/StrategiesPage';
 import { StrategyDetailsPage } from './pages/StrategyDetailsPage';
 import { BacktestPage } from './pages/BacktestPage';
-import { LogsPage } from './pages/LogsPage';
+
 import { AdvisorPage } from './pages/AdvisorPage';
 import { PricingPage } from './pages/PricingPage';
 import { AdminPage } from './pages/AdminPage';

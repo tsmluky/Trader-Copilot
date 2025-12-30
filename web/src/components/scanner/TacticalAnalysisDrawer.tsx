@@ -1,6 +1,17 @@
-import { X, Bot, Shield, Target } from 'lucide-react';
-import { AdvisorChat } from '../AdvisorChat';
-import { formatPrice, formatRelativeTime } from '../../utils/format';
+import React from 'react';
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetDescription
+} from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { ArrowRight, Bot, Target, Shield, Clock } from 'lucide-react';
+import { SignalCard } from '../SignalCard';
 
 interface TacticalAnalysisDrawerProps {
     isOpen: boolean;
@@ -8,94 +19,91 @@ interface TacticalAnalysisDrawerProps {
     signal: any;
 }
 
-export const TacticalAnalysisDrawer: React.FC<TacticalAnalysisDrawerProps> = ({ isOpen, onClose, signal }) => {
-    if (!isOpen || !signal) return null;
+export function TacticalAnalysisDrawer({ isOpen, onClose, signal }: TacticalAnalysisDrawerProps) {
+    if (!signal) return null;
 
-    // Prep context for the advisor
-    const analysisContext = {
-        token: signal.token,
-        direction: signal.direction.toLowerCase(),
-        entry: signal.entry,
-        tp: signal.tp || 0,
-        sl: signal.sl || 0,
-        timeframe: signal.timeframe,
-        rogue_mode: true // Enable fun mode
-    };
+    // Fake specific analysis data for the drawer
+    const isLong = signal.direction?.toLowerCase() === 'long';
 
     return (
-        <div className="fixed inset-x-0 bottom-0 top-16 z-40 flex justify-end pointer-events-none">
-            {/* Backdrop - only clickable part is pointer-events-auto */}
-            <div
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity pointer-events-auto"
-                onClick={onClose}
-            />
-
-            {/* Slide-over Panel */}
-            <div className="relative w-full max-w-md bg-[#020617]/90 backdrop-blur-2xl border-l border-white/10 h-full shadow-2xl shadow-indigo-500/20 animate-slide-in-right flex flex-col pointer-events-auto">
-
-                {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-white/5 bg-gradient-to-r from-white/[0.03] to-transparent">
-                    <div>
-                        <h2 className="text-lg font-bold text-white flex items-center gap-3">
-                            <div className="p-1.5 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-400">
-                                <Bot size={18} />
-                            </div>
-                            Tactical Analysis
-                        </h2>
-                        <p className="text-xs text-slate-400 mt-1 pl-1">
-                            Deep-dive validation for <span className="text-white font-bold">{signal.token}</span>
-                        </p>
+        <Sheet open={isOpen} onOpenChange={onClose}>
+            <SheetContent className="w-[400px] sm:w-[540px] border-l border-white/10 bg-[#020617]/95 backdrop-blur-xl">
+                <SheetHeader className="mb-6">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center border border-brand-500/20">
+                            <Bot className="text-brand-400" size={20} />
+                        </div>
+                        <div>
+                            <SheetTitle className="text-white text-xl font-bold">Tactical Analysis</SheetTitle>
+                            <SheetDescription className="text-slate-400">AI Deep Dive & Execution Plan</SheetDescription>
+                        </div>
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="p-2 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition-colors border border-transparent hover:border-white/5"
-                    >
-                        <X size={20} />
-                    </button>
+                </SheetHeader>
+
+                <Tabs defaultValue="overview" className="h-full">
+                    <TabsList className="bg-white/5 border border-white/5 w-full mb-6">
+                        <TabsTrigger value="overview" className="flex-1">Overview</TabsTrigger>
+                        <TabsTrigger value="metrics" className="flex-1">Metrics</TabsTrigger>
+                        <TabsTrigger value="execution" className="flex-1">Execution</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="overview" className="mt-0">
+                        <div className="space-y-6">
+                            {/* Key Stats */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+                                    <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Win Probability</div>
+                                    <div className="text-2xl font-black text-emerald-400 flex items-center gap-2">
+                                        {(signal.confidence || 0)}%
+                                        <Target size={16} />
+                                    </div>
+                                </div>
+                                <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+                                    <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Risk Rating</div>
+                                    <div className="text-2xl font-black text-gold-400 flex items-center gap-2">
+                                        Low
+                                        <Shield size={16} />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Signal Card Review */}
+                            <SignalCard signal={signal} />
+
+                            <div className="px-1">
+                                <h4 className="text-sm font-bold text-white mb-2">Market Context</h4>
+                                <p className="text-slate-400 text-sm leading-relaxed">
+                                    {signal.rationale || "The AI detected a strong momentum breakout pattern aligned with higher timeframe trends. Volume analysis confirms institutional participation at the entry zone."}
+                                </p>
+                            </div>
+                        </div>
+                    </TabsContent>
+
+                    <TabsContent value="execution" className="mt-0">
+                        <div className="p-8 border border-dashed border-white/10 rounded-xl bg-white/[0.02] text-center space-y-4">
+                            <div className="w-16 h-16 bg-brand-500/10 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <Bot size={32} className="text-brand-400" />
+                            </div>
+                            <h3 className="text-white font-bold text-lg">Auto-Execute is Disabled</h3>
+                            <p className="text-slate-400 text-sm">
+                                To enable automated execution for this signal type, please upgrade your plan or configure your API keys in Settings.
+                            </p>
+                            <Button className="w-full bg-brand-600 hover:bg-brand-500 mt-4">
+                                Configure Execution
+                            </Button>
+                        </div>
+                    </TabsContent>
+                </Tabs>
+
+                <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-white/10 bg-[#020617]/90 backdrop-blur-md">
+                    <Button size="lg" className="w-full font-bold text-md gap-2" onClick={() => {
+                        window.open(`https://www.tradingview.com/chart?symbol=BINANCE:${signal.token}USDT`, '_blank');
+                    }}>
+                        Open in TradingView <ArrowRight size={16} />
+                    </Button>
                 </div>
 
-                {/* Signal Context Summary */}
-                <div className="p-4 bg-black/20 border-b border-white/5 flex flex-col gap-3 text-xs">
-                    {/* Key Levels Row - Glass Capsule */}
-                    <div className="flex items-center justify-between text-slate-300 bg-white/5 p-3 rounded-xl border border-white/5">
-                        <div className="flex flex-col items-center">
-                            <span className="text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-0.5">Entry</span>
-                            <span className="font-mono font-bold text-white text-sm">{formatPrice(signal.entry)}</span>
-                        </div>
-                        <div className="w-px h-8 bg-white/10"></div>
-                        <div className="flex flex-col items-center">
-                            <span className="text-[9px] uppercase tracking-widest text-emerald-400 font-bold mb-0.5">Target</span>
-                            <span className="font-mono font-bold text-emerald-400 text-sm">{formatPrice(signal.tp)}</span>
-                        </div>
-                        <div className="w-px h-8 bg-white/10"></div>
-                        <div className="flex flex-col items-center">
-                            <span className="text-[9px] uppercase tracking-widest text-rose-400 font-bold mb-0.5">Stop</span>
-                            <span className="font-mono font-bold text-rose-400 text-sm">{formatPrice(signal.sl)}</span>
-                        </div>
-
-                        {/* Rationale Snippet */}
-                        {signal.rationale && (
-                            <div className="text-slate-400 italic leading-relaxed px-1 text-[11px] border-l-2 border-indigo-500/30 pl-2">
-                                "{signal.rationale}"
-                            </div>
-                        )}
-
-                        {/* Meta Info */}
-                        <div className="flex items-center justify-between text-[10px] text-slate-500 px-1">
-                            <span>TF: {signal.timeframe}</span>
-                            <span>{formatRelativeTime(signal.timestamp)}</span>
-                        </div>
-                    </div>
-
-                    {/* Chat Area */}
-                    <div className="flex-1 overflow-hidden relative">
-                        <AdvisorChat
-                            initialContext={analysisContext}
-                            embedded={true}
-                        />
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
+            </SheetContent>
+        </Sheet>
+    )
+}

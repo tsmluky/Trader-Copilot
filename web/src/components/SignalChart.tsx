@@ -1,111 +1,91 @@
-import React, { useEffect, useRef } from 'react';
-import { createChart, ColorType, CrosshairMode } from 'lightweight-charts';
+import React from 'react';
+import {
+    ResponsiveContainer,
+    ComposedChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ReferenceLine,
+    Area
+} from 'recharts';
 
-interface ChartProps {
+interface SignalChartProps {
     data: any[];
-    entry?: number;
-    tp?: number;
-    sl?: number;
-    direction?: "LONG" | "SHORT" | string;
+    entry: number;
+    tp: number;
+    sl: number;
+    direction: 'long' | 'short';
 }
 
-export const SignalChart: React.FC<ChartProps> = ({ data, entry, tp, sl, direction }) => {
-    const chartContainerRef = useRef<HTMLDivElement>(null);
-    const chartRef = useRef<any>(null);
-
-    useEffect(() => {
-        if (!chartContainerRef.current || data.length === 0) return;
-
-        const chart = createChart(chartContainerRef.current, {
-            layout: {
-                background: { type: ColorType.Solid, color: 'transparent' },
-                textColor: '#94a3b8',
-            },
-            grid: {
-                vertLines: { color: '#1e293b' },
-                horzLines: { color: '#1e293b' },
-            },
-            width: chartContainerRef.current.clientWidth,
-            height: 300,
-            crosshair: {
-                mode: CrosshairMode.Normal,
-            },
-            timeScale: {
-                borderColor: '#334155',
-                timeVisible: true,
-            },
-        });
-
-        const candlestickSeries = chart.addCandlestickSeries({
-            upColor: '#10b981',
-            downColor: '#f43f5e',
-            borderVisible: false,
-            wickUpColor: '#10b981',
-            wickDownColor: '#f43f5e',
-        });
-
-        candlestickSeries.setData(data);
-
-        // Add Lines
-        const isLong = direction?.toUpperCase() === "LONG";
-
-        if (entry) {
-            candlestickSeries.createPriceLine({
-                price: entry,
-                color: '#6366f1', // Indigo
-                lineWidth: 2,
-                lineStyle: 2, // Dashed
-                axisLabelVisible: true,
-                title: 'ENTRY',
-            });
-        }
-
-        if (tp) {
-            candlestickSeries.createPriceLine({
-                price: tp,
-                color: '#10b981', // Emerald
-                lineWidth: 2,
-                lineStyle: 0, // Solid
-                axisLabelVisible: true,
-                title: 'TP',
-            });
-        }
-
-        if (sl) {
-            candlestickSeries.createPriceLine({
-                price: sl,
-                color: '#f43f5e', // Rose
-                lineWidth: 2,
-                lineStyle: 0, // Solid
-                axisLabelVisible: true,
-                title: 'SL',
-            });
-        }
-
-        chart.timeScale().fitContent();
-
-        chartRef.current = chart;
-
-        const handleResize = () => {
-            chart.applyOptions({ width: chartContainerRef.current?.clientWidth || 400 });
-        };
-
-        window.addEventListener('resize', handleResize);
-
-        return () => {
-            window.removeEventListener('resize', handleResize);
-            chart.remove();
-        };
-    }, [data, entry, tp, sl, direction]);
+export const SignalChart = ({ data, entry, tp, sl, direction }: SignalChartProps) => {
+    // Determine domain padding
+    const prices = data.map(d => d.price);
+    const minPrice = Math.min(...prices, sl, entry, tp) * 0.995;
+    const maxPrice = Math.max(...prices, sl, entry, tp) * 1.005;
 
     return (
-        <div className="w-full relative bg-slate-950/50 rounded-xl border border-slate-800 overflow-hidden shadow-inner">
-            <div ref={chartContainerRef} className="w-full h-[300px]" />
+        <div className="w-full h-[300px] mt-4">
+            <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={data}>
+                    <defs>
+                        <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                        </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                    <XAxis
+                        dataKey="time"
+                        stroke="#475569"
+                        fontSize={10}
+                        tickLine={false}
+                        axisLine={false}
+                        minTickGap={30}
+                    />
+                    <YAxis
+                        domain={[minPrice, maxPrice]}
+                        stroke="#475569"
+                        fontSize={10}
+                        tickLine={false}
+                        axisLine={false}
+                        width={60}
+                        tickFormatter={(val) => val.toFixed(2)}
+                    />
+                    <Tooltip
+                        contentStyle={{
+                            backgroundColor: "#0f172a",
+                            borderColor: "#334155",
+                            color: "#f8fafc",
+                            borderRadius: "8px",
+                            fontSize: "12px",
+                        }}
+                        itemStyle={{ color: '#fff' }}
+                        labelStyle={{ color: '#94a3b8' }}
+                    />
 
-            {/* Watermark / Logo Overlay */}
-            <div className="absolute top-4 left-4 pointer-events-none opacity-30">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Trader Copilot Chart</span>
-            </div>
+                    {/* Price Area */}
+                    <Area
+                        type="monotone"
+                        dataKey="price"
+                        stroke="#6366f1"
+                        fillOpacity={1}
+                        fill="url(#colorPrice)"
+                        strokeWidth={2}
+                    />
+
+                    {/* Entry Line */}
+                    <ReferenceLine y={entry} stroke="#fbbf24" strokeDasharray="3 3" label={{ value: 'ENTRY', fill: '#fbbf24', fontSize: 10, position: 'right' }} />
+
+                    {/* TP Line */}
+                    <ReferenceLine y={tp} stroke="#10b981" label={{ value: 'TP', fill: '#10b981', fontSize: 10, position: 'right' }} />
+
+                    {/* SL Line */}
+                    <ReferenceLine y={sl} stroke="#f43f5e" label={{ value: 'SL', fill: '#f43f5e', fontSize: 10, position: 'right' }} />
+
+                </ComposedChart>
+            </ResponsiveContainer>
         </div>
-    );
-};
+    )
+}
