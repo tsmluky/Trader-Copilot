@@ -6,12 +6,20 @@
     "devCommand": "npm run dev",
     "rewrites": [
         {
+            "source": "/demoen",
+            "destination": "/demoen/index.html"
+        },
+        {
             "source": "/demoEN",
-            "destination": "/demoEN/index.html"
+            "destination": "/demoen/index.html"
+        },
+        {
+            "source": "/demoes",
+            "destination": "/demoes/index.html"
         },
         {
             "source": "/demoES",
-            "destination": "/demoES/index.html"
+            "destination": "/demoes/index.html"
         },
         {
             "source": "/(.*)",
