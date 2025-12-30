@@ -460,11 +460,10 @@ export const DashboardHome: React.FC = () => {
             </div>
 
             <TacticalAnalysisDrawer
-                open={!!selectedSignal}
-                onOpenChange={(open) => !open && setSelectedSignal(null)}
+                isOpen={!!selectedSignal}
+                onClose={() => setSelectedSignal(null)}
                 signal={selectedSignal}
             />
         </div>
     );
 };
-
