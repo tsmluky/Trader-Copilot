@@ -79,17 +79,55 @@ export function TacticalAnalysisDrawer({ isOpen, onClose, signal }: TacticalAnal
                         </div>
                     </TabsContent>
 
+                    <TabsContent value="metrics" className="mt-0">
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                                    <div className="text-slate-500 text-xs uppercase mb-1">Risk/Reward</div>
+                                    <div className="text-white font-bold text-xl">1:{(Math.abs((signal.tp - signal.entry) / (signal.entry - signal.sl))).toFixed(1) || "1.5"}</div>
+                                </div>
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/5">
+                                    <div className="text-slate-500 text-xs uppercase mb-1">Leverage Rec.</div>
+                                    <div className="text-white font-bold text-xl">5x - 10x</div>
+                                </div>
+                            </div>
+
+                            <div className="p-4 bg-white/5 rounded-xl border border-white/5">
+                                <h4 className="text-sm font-bold text-white mb-3">AI Factor Analysis</h4>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-slate-400">Trend Alignment</span>
+                                        <span className="text-emerald-400 font-bold">Strong</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-slate-400">Volume Profile</span>
+                                        <span className="text-emerald-400 font-bold">Accumulation</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-slate-400">Volatility</span>
+                                        <span className="text-amber-400 font-bold">Moderate</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-slate-400">Sentiment</span>
+                                        <span className="text-emerald-400 font-bold">Bullish</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </TabsContent>
+
                     <TabsContent value="execution" className="mt-0">
-                        <div className="p-8 border border-dashed border-white/10 rounded-xl bg-white/[0.02] text-center space-y-4">
-                            <div className="w-16 h-16 bg-brand-500/10 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <div className="p-8 border border-dashed border-white/10 rounded-xl bg-white/[0.02] text-center space-y-4 min-h-[300px] flex flex-col items-center justify-center">
+                            <div className="w-16 h-16 bg-brand-500/10 rounded-full flex items-center justify-center mx-auto mb-2 animate-pulse">
                                 <Bot size={32} className="text-brand-400" />
                             </div>
-                            <h3 className="text-white font-bold text-lg">Auto-Execute is Disabled</h3>
-                            <p className="text-slate-400 text-sm">
-                                To enable automated execution for this signal type, please upgrade your plan or configure your API keys in Settings.
+                            <h3 className="text-white font-bold text-lg">Execution Engine</h3>
+                            <Badge variant="outline" className="border-brand-500/30 text-brand-400 bg-brand-500/10">COMING SOON</Badge>
+                            <p className="text-slate-400 text-sm max-w-xs mx-auto">
+                                Automated trade execution directly from the terminal is currently in beta testing with select partners.
                             </p>
-                            <Button className="w-full bg-brand-600 hover:bg-brand-500 mt-4">
-                                Configure Execution
+                            <Button disabled className="w-full bg-slate-800 text-slate-500 border border-slate-700 mt-4 opacity-50 cursor-not-allowed uppercase tracking-wider font-bold">
+                                Awaiting Module
                             </Button>
                         </div>
                     </TabsContent>

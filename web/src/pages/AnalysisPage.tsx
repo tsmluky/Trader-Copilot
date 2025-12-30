@@ -109,15 +109,22 @@ export const AnalysisPage = () => {
             {/* Token Input */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Asset</label>
-              <div className="relative">
-                <Input
-                  value={token}
-                  onChange={(e) => setToken(e.target.value.toUpperCase())}
-                  className="pl-10 h-11 bg-black/20 border-white/10 text-lg font-bold text-white placeholder:text-slate-600 focus:border-brand-500/50"
-                  placeholder="BTC, ETH, SOL..."
-                />
-                <div className="absolute left-3 top-3 text-slate-500 font-bold">$</div>
-              </div>
+              <Select value={token} onValueChange={setToken}>
+                <SelectTrigger className="h-11 bg-black/20 border-white/10 text-white font-bold text-lg">
+                  <SelectValue placeholder="Select Token" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  {[
+                    "BTC", "ETH", "SOL", "XRP", "BNB", "ADA", "DOGE", "AVAX", "DOT", "LINK",
+                    "LTC", "MATIC", "UNI", "TRX", "ATOM", "XLM", "OP", "ARB", "INJ", "RUNE",
+                    "NEAR", "APT", "FIL", "IMX", "LDO", "HBAR", "VET", "PEPE", "SHIB", "SUI", "SEI", "TIA"
+                  ].sort().map((t) => (
+                    <SelectItem key={t} value={t} className="font-bold">
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Timeframe */}

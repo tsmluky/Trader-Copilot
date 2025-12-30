@@ -45,15 +45,21 @@ export function SignalCard({ signal, chartNode }: SignalCardProps) {
       <div className="grid grid-cols-3 gap-4 mb-6 relative z-10">
         <div className="bg-black/20 rounded-lg p-3 text-center border border-white/5">
           <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Entry Zone</div>
-          <div className="text-lg font-mono font-bold text-white">{signal.entry}</div>
+          <div className="text-lg font-mono font-bold text-white">
+            {typeof signal.entry === 'number' ? signal.entry.toFixed(2) : signal.entry}
+          </div>
         </div>
         <div className="bg-black/20 rounded-lg p-3 text-center border border-white/5">
           <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Take Profit</div>
-          <div className="text-lg font-mono font-bold text-emerald-400">{signal.tp}</div>
+          <div className="text-lg font-mono font-bold text-emerald-400">
+            {typeof signal.tp === 'number' ? signal.tp.toFixed(2) : signal.tp}
+          </div>
         </div>
         <div className="bg-black/20 rounded-lg p-3 text-center border border-white/5">
           <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Stop Loss</div>
-          <div className="text-lg font-mono font-bold text-rose-400">{signal.sl}</div>
+          <div className="text-lg font-mono font-bold text-rose-400">
+            {typeof signal.sl === 'number' ? signal.sl.toFixed(2) : signal.sl}
+          </div>
         </div>
       </div>
 

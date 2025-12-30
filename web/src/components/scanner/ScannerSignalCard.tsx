@@ -66,15 +66,21 @@ export function ScannerSignalCard({ signal, onAnalyze }: ScannerSignalCardProps)
                 <div className="grid grid-cols-3 gap-2 py-2 border-y border-white/5 bg-black/20 rounded-lg px-2 mt-1">
                     <div className="text-center">
                         <div className="text-[10px] text-slate-500 uppercase">Entry</div>
-                        <div className="text-xs font-mono font-bold text-slate-300">{signal.entry}</div>
+                        <div className="text-xs font-mono font-bold text-slate-300">
+                            {typeof signal.entry === 'number' ? signal.entry.toFixed(2) : signal.entry}
+                        </div>
                     </div>
                     <div className="text-center border-l border-white/5">
                         <div className="text-[10px] text-slate-500 uppercase">TP</div>
-                        <div className="text-xs font-mono font-bold text-emerald-400">{signal.tp}</div>
+                        <div className="text-xs font-mono font-bold text-emerald-400">
+                            {typeof signal.tp === 'number' ? signal.tp.toFixed(2) : signal.tp}
+                        </div>
                     </div>
                     <div className="text-center border-l border-white/5">
                         <div className="text-[10px] text-slate-500 uppercase">SL</div>
-                        <div className="text-xs font-mono font-bold text-rose-400">{signal.sl}</div>
+                        <div className="text-xs font-mono font-bold text-rose-400">
+                            {typeof signal.sl === 'number' ? signal.sl.toFixed(2) : signal.sl}
+                        </div>
                     </div>
                 </div>
 

@@ -134,7 +134,16 @@ export const DashboardHome: React.FC = () => {
         return () => clearInterval(interval);
     }, []);
 
-    const showWelcome = !userProfile?.user?.onboarding_completed; // Logic from redesign
+    const [isBannerDismissed, setIsBannerDismissed] = useState(() => {
+        return localStorage.getItem('welcome_banner_dismissed') === 'true';
+    });
+
+    const dismissBanner = () => {
+        setIsBannerDismissed(true);
+        localStorage.setItem('welcome_banner_dismissed', 'true');
+    };
+
+    const showWelcome = !userProfile?.user?.onboarding_completed && !isBannerDismissed;
 
     return (
         <div className="min-h-screen bg-[#020617] text-white selection:bg-gold-500/30 overflow-x-hidden font-sans relative">
@@ -154,6 +163,14 @@ export const DashboardHome: React.FC = () => {
 
                         <div className="relative glass-card rounded-2xl p-6 lg:p-8 border border-white/10 bg-[#0f172a]/80 overflow-hidden shadow-2xl">
                             <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-brand-500/10 to-transparent pointer-events-none" />
+
+                            {/* Close Button */}
+                            <button
+                                onClick={dismissBanner}
+                                className="absolute top-4 right-4 p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors z-20"
+                            >
+                                <ArrowDownRight className="rotate-45" size={20} />
+                            </button>
 
                             <div className="relative z-10">
                                 <div className="flex items-center gap-3 mb-4">
@@ -213,8 +230,19 @@ export const DashboardHome: React.FC = () => {
                     />
 
                     <KPICard
+                        title="Win Rate"
+                        value={loading ? "—" : `${stats.win_rate ?? 0}%`}
+                        sub="Last 24h"
+                        trend={(stats.win_rate ?? 0) >= 70 ? "up" : "down"}
+                        icon={<Target size={32} />}
+                        color="from-emerald-500/20 to-emerald-600/10"
+                        iconColor="text-emerald-400"
+                        loading={loading}
+                    />
+
+                    <KPICard
                         title="Active Signals"
-                        value={loading ? "—" : stats.active_fleet} // Using active_fleet as active signals count proxy
+                        value={loading ? "—" : (stats.active_fleet ?? 0)} // Using active_fleet as active signals count proxy
                         sub="Open Positions"
                         icon={<Layers size={32} />}
                         color="from-brand-500/20 to-brand-600/10"
@@ -234,12 +262,12 @@ export const DashboardHome: React.FC = () => {
 
                     <KPICard
                         title="Est. PnL"
-                        value={loading ? "—" : `${stats.pnl_7d > 0 ? "+" : ""}${stats.pnl_7d}R`}
+                        value={loading ? "—" : `${(stats.pnl_7d ?? 0) > 0 ? "+" : ""}${(stats.pnl_7d ?? 0)}R`}
                         sub="7-Day Return"
-                        trend={stats.pnl_7d >= 0 ? "up" : "down"}
+                        trend={(stats.pnl_7d ?? 0) >= 0 ? "up" : "down"}
                         icon={<TrendingUp size={32} />}
-                        color={stats.pnl_7d >= 0 ? "from-gold-500/20 to-orange-600/10" : "from-rose-500/20 to-rose-600/10"}
-                        iconColor={stats.pnl_7d >= 0 ? "text-gold-400" : "text-rose-400"}
+                        color={(stats.pnl_7d ?? 0) >= 0 ? "from-gold-500/20 to-orange-600/10" : "from-rose-500/20 to-rose-600/10"}
+                        iconColor={(stats.pnl_7d ?? 0) >= 0 ? "text-gold-400" : "text-rose-400"}
                         loading={loading}
                     />
                 </div>
