@@ -34,30 +34,31 @@ const CollapsibleSection: React.FC<{
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="bg-slate-900/50 rounded-2xl border border-slate-800 overflow-hidden transition-all duration-300">
+
+    <div className="glass-card rounded-2xl overflow-hidden transition-all duration-300 mb-4 hover:shadow-xl hover:shadow-indigo-500/5 group">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-6 md:p-8 hover:bg-slate-800/30 transition-colors text-left"
+        className="w-full flex items-center justify-between p-6 md:p-8 hover:bg-white/[0.02] transition-colors text-left"
       >
-        <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg transition-colors ${isOpen ? 'bg-indigo-500/10 text-indigo-400' : 'bg-slate-800 text-slate-500'}`}>
+        <div className="flex items-center gap-4">
+          <div className={`p-3 rounded-xl transition-all duration-300 ${isOpen ? 'bg-brand-500/20 text-brand-400 shadow-[0_0_15px_rgba(99,102,241,0.3)]' : 'bg-white/5 text-slate-500 group-hover:text-slate-300'}`}>
             {icon}
           </div>
           <div>
-            <h3 className="text-base font-bold text-white transition-colors">{title}</h3>
-            <p className="text-sm text-slate-400">{subtitle}</p>
+            <h3 className="text-lg font-bold text-white transition-colors tracking-tight">{title}</h3>
+            <p className="text-sm text-slate-400 font-medium">{subtitle}</p>
           </div>
         </div>
-        <div className={`text-slate-500 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+        <div className={`text-slate-500 transition-transform duration-300 ${isOpen ? 'rotate-180 text-brand-400' : ''}`}>
           <ChevronDown size={20} />
         </div>
       </button>
 
       <div
-        className={`transition-all duration-300 ease-in-out border-t border-slate-800/50 ${isOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
+        className={`transition-all duration-300 ease-in-out border-t border-white/5 bg-[#020617]/30 ${isOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
           }`}
       >
-        <div className="p-6 md:p-8 pt-4">
+        <div className="p-6 md:p-8 pt-6">
           {children}
         </div>
       </div>
@@ -200,53 +201,62 @@ export const SettingsPage: React.FC = () => {
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto pb-24 md:pb-12 animate-fade-in text-slate-100 relative">
+      {/* Background Texture & Lighting (Identical to Landing) */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 bg-grid opacity-20" />
+
+        {/* Landing Page Style Glows */}
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-500/10 rounded-full blur-[120px] mix-blend-screen opacity-50"></div>
+        <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-indigo-600/5 blur-[120px] rounded-full mix-blend-screen opacity-30"></div>
+      </div>
 
       {/* Change Password Modal */}
       {showPasswordModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="glass-card border border-white/10 rounded-3xl w-full max-w-md p-8 shadow-2xl relative">
             <button
               onClick={() => setShowPasswordModal(false)}
-              className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors"
+              className="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-2 rounded-full"
             >
               <FileText className="rotate-45" size={20} />
             </button>
-            <h3 className="text-xl font-bold text-white mb-1">Change Password</h3>
-            <p className="text-slate-400 text-sm mb-6">Enter your current password to confirm changes.</p>
+            <h3 className="text-2xl font-black text-white mb-2">Change Password</h3>
+            <p className="text-slate-400 text-sm mb-8 font-medium">Enter your current password to confirm changes.</p>
 
             <form onSubmit={handleChangePassword} className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5">Current Password</label>
+                <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1.5 tracking-wider">Current Password</label>
                 <input
                   type="password"
                   value={passwordForm.old}
                   onChange={e => setPasswordForm(p => ({ ...p, old: e.target.value }))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600"
+                  className="w-full bg-[#0B1120] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-700 font-medium"
                   placeholder="••••••••"
                 />
               </div>
               <div>
-                <label className="text-xs font-bold text-slate-500 uppercase block mb-1.5">New Password</label>
+                <label className="text-[10px] font-bold text-slate-500 uppercase block mb-1.5 tracking-wider">New Password</label>
                 <input
                   type="password"
                   value={passwordForm.new}
                   onChange={e => setPasswordForm(p => ({ ...p, new: e.target.value }))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-600"
+                  className="w-full bg-[#0B1120] border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-700 font-medium"
                   placeholder="New secure password"
                 />
               </div>
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-3 pt-6">
                 <button
                   type="button"
                   onClick={() => setShowPasswordModal(false)}
-                  className="flex-1 py-2.5 rounded-lg font-bold text-slate-400 hover:bg-slate-800 transition-colors"
+                  className="flex-1 py-3 rounded-xl font-bold text-slate-400 hover:bg-white/5 transition-colors text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={passwordLoading}
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-lg font-bold shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-wide"
                 >
                   {passwordLoading ? "Updating..." : "Update Password"}
                 </button>
@@ -257,10 +267,13 @@ export const SettingsPage: React.FC = () => {
       )}
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6 border-b border-indigo-500/10 pb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Account Settings</h1>
-          <p className="text-slate-400 max-w-xl">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6 relative z-10 pl-2">
+        <div className="relative pl-6">
+          <div className="absolute left-0 top-1 bottom-1 w-1.5 bg-gradient-to-b from-brand-400 to-indigo-600 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
+          <h1 className="text-3xl md:text-4xl font-black text-white mb-2 tracking-tight flex items-center gap-3 drop-shadow-md">
+            Account Preferences
+          </h1>
+          <p className="text-slate-400 max-w-xl font-medium text-lg">
             Manage your profile, neural preferences, and security settings.
           </p>
         </div>

@@ -49,148 +49,149 @@ export const ScannerSignalCard: React.FC<ScannerSignalCardProps> = ({ signal, on
 
     return (
         <div
-            className="group relative bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/10"
+            className={`glass-card rounded-2xl overflow-hidden relative group transition-all duration-300 hover:-translate-y-1
+            ${isHovered ? (isLong ? 'hover:border-emerald-500/30 hover:shadow-[0_0_30px_-5px_rgba(16,185,129,0.15)]' : 'hover:border-rose-500/30 hover:shadow-[0_0_30px_-5px_rgba(244,63,94,0.15)]') : ''}
+            `}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
+            {/* Top Highlight - "Glass Edge" */}
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-20 group-hover:via-white/30 group-hover:opacity-100 transition-all duration-700" />
+
+            {/* Ambient Glow based on Direction */}
+            <div className={`absolute -right-20 -top-20 w-64 h-64 rounded-full blur-[100px] opacity-10 transition-all duration-700 group-hover:opacity-20 pointer-events-none 
+                ${isLong ? 'bg-emerald-500' : 'bg-rose-500'}`}
+            />
 
             {/* Locked Overlay */}
             {signal.locked && (
-                <div className="absolute inset-0 z-20 bg-slate-900/60 backdrop-blur-[6px] flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500">
-                    <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mb-3 shadow-xl border border-slate-700">
+                <div className="absolute inset-0 z-30 bg-[#020617]/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 flex items-center justify-center mb-4 border border-amber-500/30 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
                         <Lock size={24} className="text-amber-400" />
                     </div>
-                    <h3 className="text-white font-bold mb-1">Signal Locked</h3>
-                    <p className="text-xs text-slate-400 mb-4 px-2">
+                    <h3 className="text-white font-bold text-lg mb-1 tracking-tight">Signal Locked</h3>
+                    <p className="text-sm text-slate-400 mb-6 max-w-[200px] leading-relaxed">
                         Upgrade your plan to see {signal.timeframe} opportunities like this.
                     </p>
-                    <Link to="/membership" className="px-5 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold text-xs transition-colors shadow-lg shadow-amber-500/20">
+                    <Link to="/pricing" className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-bold text-sm transition-all shadow-lg shadow-amber-500/25 active:scale-95">
                         Unlock Now
                     </Link>
                 </div>
             )}
 
             {/* Header */}
-            <div className="p-4 border-b border-slate-800/50 flex justify-between items-start bg-slate-800/20">
-                <div className="flex items-center gap-3">
-                    <div className="p-2 bg-slate-800 rounded-lg">
-                        <span className="font-bold text-slate-200">{signal.token}</span>
+            <div className="p-5 border-b border-white/5 flex justify-between items-start relative z-10">
+                <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-sm font-black border shadow-lg transition-colors
+                        ${isLong ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}
+                     `}>
+                        {signal.token.substring(0, 3)}
                     </div>
                     <div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-slate-400">{signal.token}USDT</span>
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 border border-slate-700">
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className="text-base font-bold text-white tracking-tight">{signal.token}</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-slate-400 border border-white/5 font-mono">
                                 {timeAgo(safeTimestamp)}
                             </span>
                         </div>
-                        <span className="text-xs text-slate-500 flex items-center gap-2">
-                            {signal.timeframe}
-                            <span className={`text-[9px] font-bold px-1.5 rounded border ${['1m', '5m', '15m', '30m'].includes(signal.timeframe) ? 'border-amber-500/30 text-amber-500 bg-amber-500/10' :
-                                ['1h', '4h'].includes(signal.timeframe) ? 'border-blue-500/30 text-blue-500 bg-blue-500/10' :
-                                    'border-purple-500/30 text-purple-500 bg-purple-500/10'
+                        <span className="text-xs text-slate-500 flex items-center gap-2 font-medium">
+                            <span className={`text-[9px] font-bold px-1.5 rounded border uppercase tracking-wider ${['1m', '5m', '15m', '30m'].includes(signal.timeframe) ? 'border-amber-500/20 text-amber-500 bg-amber-500/5' :
+                                ['1h', '4h'].includes(signal.timeframe) ? 'border-blue-500/20 text-blue-400 bg-blue-500/5' :
+                                    'border-purple-500/20 text-purple-400 bg-purple-500/5'
                                 }`}>
-                                {['1m', '5m', '15m', '30m'].includes(signal.timeframe) ? 'SCALP' :
-                                    ['1h', '4h'].includes(signal.timeframe) ? 'SWING' : 'MACRO'}
+                                {signal.timeframe}
                             </span>
-                            • {new Date(safeTimestamp).toLocaleTimeString()}
+                            <span className="w-1 h-1 rounded-full bg-slate-700"></span>
+                            {new Date(safeTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                     </div>
                 </div>
             </div>
 
-            <div className={`p-5 space-y-4 ${signal.locked ? 'opacity-20 blur-sm select-none' : ''}`}>
-                {/* Context & Confidence */}
-                <div className="grid grid-cols-3 gap-2 py-3 border-t border-b border-slate-800/50 bg-slate-800/20 rounded-lg">
-                    <div className="text-center border-r border-slate-800/50 px-2">
-                        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Entry</div>
-                        <div className="font-mono text-white font-bold text-sm">
-                            {formatPrice(signal.entry)}
+            <div className={`p-5 space-y-5 relative z-10 ${signal.locked ? 'opacity-0' : ''}`}>
+                {/* Main Signal Direction - MASSIVE Typography */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        {isLong ?
+                            <TrendingUp size={32} className="text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.4)]" /> :
+                            <TrendingDown size={32} className="text-rose-400 drop-shadow-[0_0_10px_rgba(244,63,94,0.4)]" />
+                        }
+                        <div className="flex flex-col">
+                            <span className="text-[10px] uppercase tracking-widest font-bold text-slate-500">Direction</span>
+                            <span className={`text-3xl font-black tracking-tighter ${isLong ? 'text-emerald-400 text-shadow-glow-emerald' : 'text-rose-400 text-shadow-glow-rose'}`}>
+                                {signal.direction.toUpperCase()}
+                            </span>
                         </div>
                     </div>
-                    <div className="text-center border-r border-slate-800/50 px-2">
-                        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">TP</div>
-                        <div className="font-mono text-emerald-400 font-bold text-sm">
+                    <div className="text-right">
+                        <div className="text-[10px] uppercase tracking-widest font-bold text-slate-500">Entry</div>
+                        <div className="text-xl font-bold text-white font-mono">{formatPrice(signal.entry)}</div>
+                    </div>
+                </div>
+
+                {/* Targets Grid */}
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-xl bg-white/5 border border-white/5 flex flex-col items-center justify-center">
+                        <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1 font-bold">Target (TP)</div>
+                        <div className="font-mono text-emerald-400 font-bold text-sm tracking-tight drop-shadow-sm">
                             {formatPrice(signal.tp)}
                         </div>
                     </div>
-                    <div className="text-center px-2">
-                        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">SL</div>
-                        <div className="font-mono text-rose-400 font-bold text-sm">
+                    <div className="p-3 rounded-xl bg-white/5 border border-white/5 flex flex-col items-center justify-center">
+                        <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1 font-bold">Stop (SL)</div>
+                        <div className="font-mono text-rose-400 font-bold text-sm tracking-tight drop-shadow-sm">
                             {formatPrice(signal.sl)}
                         </div>
                     </div>
                 </div>
 
-                {/* Main signal info (reduced to just direction header) */}
-                <div className="flex items-center gap-2 pb-2">
-                    {isLong ? <TrendingUp size={20} className="text-emerald-400" /> : <TrendingDown size={20} className="text-rose-400" />}
-                    <span className={`text-xl font-black ${isLong ? 'text-emerald-400' : 'text-rose-400'} tracking-tight`}>
-                        {signal.direction.toUpperCase()}
-                    </span>
-                </div>
-
-                {/* Rationale / Context */}
-                {/* Context & Confidence */}
+                {/* AI Confidence Bar */}
                 <div className="space-y-2">
-                    <div className="flex justify-between items-center text-xs">
-                        <span className="text-slate-500 font-medium">AI Confidence</span>
-                        <span className={`font-bold ${(signal.confidence || 0) >= 0.8 ? 'text-emerald-400' :
-                            (signal.confidence || 0) >= 0.5 ? 'text-yellow-400' : 'text-slate-400'
-                            }`}>
+                    <div className="flex justify-between items-end text-xs">
+                        <span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">AI Confidence</span>
+                        <span className={`font-mono font-bold ${(signal.confidence || 0) >= 0.8 ? 'text-emerald-400' : (signal.confidence || 0) >= 0.5 ? 'text-yellow-400' : 'text-slate-400'}`}>
                             {Math.round((signal.confidence || 0) * 100)}%
                         </span>
                     </div>
 
-                    {/* Progress Bar */}
-                    <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-slate-800/50 rounded-full overflow-hidden border border-white/5">
                         <div
-                            className={`h-full rounded-full transition-all duration-500 ${(signal.confidence || 0) >= 0.8 ? 'bg-emerald-500' :
-                                (signal.confidence || 0) >= 0.5 ? 'bg-yellow-500' : 'bg-slate-600'
+                            className={`h-full rounded-full shadow-[0_0_10px_currentColor] transition-all duration-1000 ease-out ${(signal.confidence || 0) >= 0.8 ? 'bg-emerald-500 text-emerald-500' :
+                                (signal.confidence || 0) >= 0.5 ? 'bg-yellow-500 text-yellow-500' : 'bg-slate-500 text-slate-500'
                                 }`}
                             style={{ width: `${Math.round((signal.confidence || 0) * 100)}%` }}
                         />
                     </div>
 
-                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed pt-1 border-t border-slate-800/50 mt-2">
-                        {signal.rationale || "Technical signal detected based on active strategy parameters and market conditions."}
+                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed pt-2 font-medium opacity-80">
+                        {signal.rationale || "Technical anomaly detected matching high-probability fractal patterns."}
                     </p>
                 </div>
 
                 {/* Footer Actions */}
-                <div className="pt-2 flex items-center justify-between">
-                    {/* Status Pill */}
-                    <div>
-                        {isOpen ? (
-                            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                                <Activity size={10} />
-                                ACTIVE
-                            </span>
-                        ) : (
-                            <span className={`inline-flex items-center px-2 py-1 rounded text-[10px] font-bold border ${isWin ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                                isLoss ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' :
-                                    'bg-slate-500/10 text-slate-400 border-slate-500/20'
-                                }`}>
-                                {signal.status}
-                            </span>
-                        )}
-                    </div>
+                <div className="pt-2 flex items-center justify-between border-t border-white/5 mt-2">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wide border ${isOpen
+                        ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                        : (isWin ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20')
+                        }`}>
+                        {isOpen && <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />}
+                        {isOpen ? 'Active' : signal.status}
+                    </span>
 
-                    {/* Analyze Button */}
                     <div className="flex gap-2">
                         <button
                             onClick={handleToggleFollow}
-                            className={`p-1.5 rounded-lg border transition-all ${isFollowed
+                            className={`p-2 rounded-lg border transition-all ${isFollowed
                                 ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-400'
-                                : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'}`}
-                            title={isFollowed ? "Untrack Signal" : "Track this Signal"}
+                                : 'bg-white/5 border-white/5 text-slate-400 hover:text-white hover:bg-white/10'}`}
                         >
-                            {isFollowed ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
+                            {isFollowed ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
                         </button>
                         <button
                             onClick={() => onAnalyze(signal)}
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all border border-slate-700 hover:border-slate-600"
+                            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-bold transition-all border border-white/5 hover:border-white/20 hover:shadow-lg group/btn"
                         >
-                            <Crosshair size={14} className="text-indigo-400" />
+                            <Crosshair size={14} className="text-indigo-400 group-hover/btn:rotate-90 transition-transform duration-300" />
                             Analyze
                         </button>
                     </div>

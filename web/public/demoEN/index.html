@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TraderCopilot — Product Presentation</title>
+  <style>
+    :root {
+      --bg: #070A12;
+      --panel: #0B1020;
+      --text: #E9ECF6;
+      --muted: #A9B0C7;
+      --muted2: #7E86A3;
+      --stroke: rgba(255, 255, 255, .08);
+      --shadow: 0 24px 90px rgba(0, 0, 0, .55);
+      --accent: #7C5CFF;
+      --accent2: #22D3EE;
+      --accent3: #34D399;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(124, 92, 255, .18), transparent 60%),
+        radial-gradient(900px 700px at 80% 10%, rgba(34, 211, 238, .14), transparent 55%),
+        radial-gradient(1000px 800px at 60% 90%, rgba(52, 211, 153, .10), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      font: 16px/1.45 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
+    }
+
+    .deck {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    .frame {
+      width: min(1100px, 96vw);
+      aspect-ratio: 16 / 9;
+      border: 1px solid var(--stroke);
+      border-radius: 26px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .topbar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(11, 16, 32, .78), rgba(11, 16, 32, .22));
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-weight: 650;
+      letter-spacing: .2px;
+    }
+
+    .logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 30% 30%, rgba(124, 92, 255, .9), rgba(34, 211, 238, .55) 55%, rgba(52, 211, 153, .25) 100%);
+      box-shadow: 0 10px 30px rgba(124, 92, 255, .25);
+      border: 1px solid rgba(255, 255, 255, .14);
+    }
+
+    .meta {
+      color: var(--muted2);
+      font-size: 12.5px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .pill {
+      border: 1px solid var(--stroke);
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    .slides {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      transition: transform 420ms cubic-bezier(.2, .9, .2, 1);
+    }
+
+    section.slide {
+      width: 100%;
+      height: 100%;
+      flex: 0 0 100%;
+      padding: 78px 68px 46px 68px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 34px;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .kicker {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.6px;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .h1 {
+      font-size: 42px;
+      line-height: 1.05;
+      margin: 0 0 10px 0;
+      letter-spacing: -.6px;
+    }
+
+    .h2 {
+      font-size: 28px;
+      line-height: 1.15;
+      margin: 0 0 10px 0;
+      letter-spacing: -.3px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.45;
+      margin: 0 0 14px 0;
+    }
+
+    .card {
+      border: 1px solid var(--stroke);
+      border-radius: 18px;
+      padding: 14px;
+      background: rgba(11, 16, 32, .42);
+      box-shadow: 0 18px 60px rgba(0, 0, 0, .25);
+    }
+
+    .card+.card {
+      margin-top: 12px;
+    }
+
+    .label {
+      font-weight: 650;
+      margin: 0 0 6px 0;
+    }
+
+    .desc {
+      color: var(--muted);
+      margin: 0;
+      font-size: 14.5px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--stroke);
+      margin: 10px 0;
+    }
+
+    .quote {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-left: 3px solid rgba(124, 92, 255, .7);
+      border-radius: 12px;
+      background: rgba(124, 92, 255, .08);
+      color: var(--text);
+      font-weight: 520;
+    }
+
+    .quote span {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .bigMetric {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--stroke);
+      border-radius: 18px;
+      padding: 12px;
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .metric .num {
+      font-size: 20px;
+      font-weight: 750;
+      letter-spacing: -.3px;
+      margin: 0;
+    }
+
+    .metric .txt {
+      margin: 6px 0 0 0;
+      color: var(--muted);
+      font-size: 13.5px;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, .12);
+      background: rgba(255, 255, 255, .04);
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+    }
+
+    .layer {
+      border: 1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, .02));
+      border-radius: 18px;
+      padding: 9px 12px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .tag {
+      font-size: 11px;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, .14);
+      background: rgba(255, 255, 255, .03);
+      width: max-content;
+    }
+
+    .tag.lite {
+      border-color: rgba(34, 211, 238, .35);
+      color: rgba(189, 247, 255, .92);
+    }
+
+    .tag.pro {
+      border-color: rgba(124, 92, 255, .38);
+      color: rgba(221, 213, 255, .95);
+    }
+
+    .tag.quant {
+      border-color: rgba(52, 211, 153, .35);
+      color: rgba(199, 255, 233, .92);
+    }
+
+    .tag.advisor {
+      border-color: rgba(251, 191, 36, .35);
+      color: rgba(255, 244, 206, .92);
+    }
+
+    .layer .t {
+      font-weight: 680;
+      margin: 0 0 4px 0;
+    }
+
+    .layer .d {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.4px;
+      line-height: 1.35;
+    }
+
+    ul {
+      margin: 12px 0 0 18px;
+      color: var(--muted);
+      padding: 0;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    .twoCol {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .emph {
+      background: linear-gradient(90deg, rgba(124, 92, 255, .85), rgba(34, 211, 238, .8));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* Minimal controls */
+    .controls {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .dots {
+      display: flex;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 1px solid var(--stroke);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .18);
+      cursor: pointer;
+    }
+
+    .dot.active {
+      background: linear-gradient(90deg, rgba(124, 92, 255, .95), rgba(34, 211, 238, .85));
+      box-shadow: 0 10px 28px rgba(124, 92, 255, .18);
+    }
+
+    button {
+      border: 1px solid var(--stroke);
+      background: rgba(255, 255, 255, .03);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-weight: 650;
+      transition: transform .08s ease, background .2s ease;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, .05);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .sr {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media print {
+      body {
+        background: #000;
+      }
+
+      .deck {
+        padding: 0;
+      }
+
+      .frame {
+        width: 100%;
+        aspect-ratio: auto;
+        height: auto;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        overflow: visible;
+      }
+
+      .topbar,
+      .controls {
+        display: none !important;
+      }
+
+      .slides {
+        display: block;
+        transform: none !important;
+      }
+
+      section.slide {
+        page-break-after: always;
+        width: 100%;
+        height: 100vh;
+        padding: 32mm 20mm 22mm 20mm;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="deck">
+    <div class="frame" role="application" aria-label="TraderCopilot — Product Presentation">
+      <div class="topbar">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>TraderCopilot</div>
+        </div>
+        <div class="meta">
+          <div class="pill">Product Presentation</div>
+          <div class="pill">Early-stage · 2025</div>
+        </div>
+      </div>
+
+      <div class="slides" id="slides">
+
+        <!-- SLIDE 1 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">Summary</div>
+
+              <h1 class="h1">Your trading copilot for <span class='emph'>better decisions</span>.</h1>
+
+              <p class="lead">
+                TraderCopilot combines <b>signals</b>, <b>contextual analysis</b>, <b>quant validation</b> and a
+                <b>position advisor</b> into one coherent system.
+              </p>
+
+              <div class="quote">
+                Built for traders who want <b>structure</b> over hype.
+                <span>Method-first, risk-aware decision support.</span>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="bigMetric">
+                <div class="metric">
+                  <p class="num">LITE</p>
+                  <p class="txt">Fast signals + automatic post-evaluation</p>
+                </div>
+                <div class="metric">
+                  <p class="num">PRO</p>
+                  <p class="txt">Deep, contextual market analysis</p>
+                </div>
+                <div class="metric">
+                  <p class="num">QUANT</p>
+                  <p class="txt">Backtested strategies, measurable edge</p>
+                </div>
+                <div class="metric">
+                  <p class="num">ADVISOR</p>
+                  <p class="txt">Position reasoning and decision support</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Core promise</div>
+                <p class="desc">
+                  Reduce decision noise with a repeatable flow: <br /><b>signal → context → validation → decision</b>.
+                </p>
+              </div>
+
+              <div class="card">
+                <div class="label">What this deck is</div>
+                <p class="desc">
+                  A high-signal overview of what TraderCopilot is today and what we need next to accelerate it.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 2 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">The problem</div>
+              <h2 class="h2">Trading is noisy, fragmented and emotionally demanding.</h2>
+              <p class="lead">Most traders don’t lose because they lack data. They lose because they lack
+                <b>structure</b> — and they act under stress.
+              </p>
+
+              <div class="card">
+                <div class="row">
+                  <div class="icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 19V5m0 14h16" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round" />
+                      <path d="M8 15l3-3 3 2 5-6" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="label">Signals without accountability</p>
+                    <p class="desc">Signals get delivered, but rarely evaluated. No feedback loop, no credibility.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="row">
+                  <div class="icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M21 21l-4.35-4.35" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round" />
+                      <circle cx="10" cy="10" r="6" stroke="white" opacity=".9" stroke-width="2" />
+                      <path d="M10 7v3l2 2" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="label">Analysis without context</p>
+                    <p class="desc">Generic TA ignores news, regime shifts and real market conditions.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="row">
+                  <div class="icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 22s8-4 8-10V6l-8-4-8 4v6c0 6 8 10 8 10z" stroke="white" opacity=".9"
+                        stroke-width="2" />
+                      <path d="M9 12l2 2 4-5" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="label">Decisions made under stress</p>
+                    <p class="desc">Without a decision framework, emotions dominate execution.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">What traders actually need</div>
+                <ul>
+                  <li>A clear workflow for each decision</li>
+                  <li>Signals with measured performance</li>
+                  <li>Analysis that adapts to market context</li>
+                  <li>Validation using historical data and rules</li>
+                </ul>
+              </div>
+              <div class="quote">The missing piece is not “more indicators”.<br />It’s a <b>decision system</b> with
+                feedback.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 3 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">The solution</div>
+              <h2 class="h2">TraderCopilot turns fragmented tools into a coherent decision system.</h2>
+              <p class="lead">A modular product where each layer solves a different part of the decision chain — while
+                reinforcing the others.</p>
+
+              <div class="card">
+                <div class="label">What it is</div>
+                <p class="desc">A trading assistant that delivers signals, generates contextual analysis, runs quant
+                  strategies, and supports position reasoning — all in one product.</p>
+              </div>
+              <div class="card">
+                <div class="label">What it is not</div>
+                <p class="desc">Not a promise machine. Not a black box. Not a copy-trade gimmick.
+                  Designed for credibility: <b>outputs are logged, evaluated and improved.</b></p>
+              </div>
+              <div class="quote">Credibility comes from <b>measured feedback</b>, not marketing claims.</div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Decision workflow</div>
+                <div class="divider"></div>
+                <div class="twoCol">
+                  <div class='metric'>
+                    <p class='num'>1) Trigger</p>
+                    <p class='txt'>A signal or a question</p>
+                  </div>
+                  <div class='metric'>
+                    <p class='num'>2) Context</p>
+                    <p class='txt'>Market regime + narrative</p>
+                  </div>
+                  <div class='metric'>
+                    <p class='num'>3) Validation</p>
+                    <p class='txt'>Quant evidence + rules</p>
+                  </div>
+                  <div class='metric'>
+                    <p class='num'>4) Action</p>
+                    <p class='txt'>Plan + risk</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="label">Why this matters</div>
+                <p class="desc">Traders don’t need more information. They need a repeatable framework that reduces
+                  emotional drift.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 4 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">Product architecture</div>
+              <h2 class="h2">Four layers, one coherent system.</h2>
+              <p class="lead">Each layer is independently valuable — and synergistic together.</p>
+
+              <div class="stack">
+                <div class="layer">
+                  <div class="tag lite">LITE</div>
+                  <div>
+                    <p class="t">Fast actionable signals + automatic evaluation</p>
+                    <p class="d">Users can see whether a signal worked. Credibility is built through measurable
+                      outcomes.</p>
+                  </div>
+                </div>
+                <div class="layer">
+                  <div class="tag pro">PRO</div>
+                  <div>
+                    <p class="t">Contextual market analysis</p>
+                    <p class="d">Structured TA + narrative (events/news/regime) to avoid generic outputs.</p>
+                  </div>
+                </div>
+                <div class="layer">
+                  <div class="tag quant">QUANT</div>
+                  <div>
+                    <p class="t">Backtested strategies and metrics</p>
+                    <p class="d">Signals aren’t opinions. Strategies can be evaluated with historical data and
+                      constraints.</p>
+                  </div>
+                </div>
+                <div class="layer">
+                  <div class="tag advisor">ADVISOR</div>
+                  <div>
+                    <p class="t">Conversational copilot for positions</p>
+                    <p class="d">Position copilot — risk, invalidation, partials & scenarios.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="quote">Designed as a product <b>asset</b>: modular, extensible, and defensible.</div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">What users see</div>
+                <ul>
+                  <li>Clean signal cards + evaluation results</li>
+                  <li>PRO reports with consistent structure</li>
+                  <li>Strategy dashboards and performance stats</li>
+                  <li>Advisor chat focused on decisions</li>
+                </ul>
+              </div>
+              <div class="card">
+                <div class="label">Under the hood</div>
+                <ul>
+                  <li>Logging by token/mode for traceability</li>
+                  <li>Evaluation loop for LITE outcomes</li>
+                  <li>Quant engine for backtests and strategy outputs</li>
+                  <li>LLM layer for structured reporting and advisor</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 5 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">Differentiation</div>
+              <h2 class="h2">What makes TraderCopilot different.</h2>
+              <p class="lead">Not more features. Different product logic.</p>
+
+              <div class="card">
+                <div class="row">
+                  <div class="icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 2v20" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round" />
+                      <path d="M7 7l5-5 5 5" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                      <path d="M7 17l5 5 5-5" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="label">Feedback loop (evaluation)</p>
+                    <p class="desc">Signals are evaluated automatically — turning claims into measurable performance.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="row">
+                  <div class="icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 6h16M4 12h10M4 18h16" stroke="white" opacity=".9" stroke-width="2"
+                        stroke-linecap="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="label">Structured outputs</p>
+                    <p class="desc">PRO and Advisor follow consistent formatting to reduce ambiguity and support
+                      decisions.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="row">
+                  <div class="icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M3 12h18" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round" />
+                      <path d="M12 3v18" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="label">Quant validation built-in</p>
+                    <p class="desc">Performance can be tested and improved with data — not intuition.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="quote">Designed to be <b>auditable</b> and <b>improvable</b> over time.</div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Data + evaluation system</div>
+                <p class="desc">Logs and outcomes turn every signal into measurable learning.
+                  That’s harder to replicate than a UI.</p>
+              </div>
+              <div class="card">
+                <div class="label">Positioning</div>
+                <p class="desc">For serious traders who want a structured assistant — not an influencer signal channel.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 6 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">Current status</div>
+              <h2 class="h2">A working product under refinement.</h2>
+              <p class="lead">Core flows exist end-to-end.
+                <br />Next: UX polish and validation with real users/operators.
+              </p>
+
+              <div class="card">
+                <div class="label">Already in place</div>
+                <ul>
+                  <li>Backend flows for LITE/PRO/ADVISOR</li>
+                  <li>Logging by token/mode for traceability</li>
+                  <li>Automatic evaluation loop for LITE outcomes</li>
+                  <li>Quant tooling and strategy validation in progress</li>
+                </ul>
+              </div>
+              <div class="card">
+                <div class="label">Now improving</div>
+                <ul>
+                  <li>Sale-ready UX polish and visual hierarchy</li>
+                  <li>Stability checks + reliable PRO rendering</li>
+                  <li>Clearer dashboards and strategy pages</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">What this means</div>
+                <p class="desc">Past idea stage. The product exists. Remaining work is credibility, polish and
+                  validation.</p>
+              </div>
+              <div class="quote">The goal is for the product to feel inevitable: clean, consistent and trustworthy.
+              </div>
+              <div class="card">
+                <div class="label">Example use</div>
+                <p class="desc">LITE signal → automatic evaluation → contextual PRO analysis → plan with Advisor.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 7 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">Who it’s for</div>
+              <h2 class="h2">Target user: intermediate to advanced retail traders.</h2>
+              <p class="lead">Traders who already operate and want a structured assistant to reduce decision errors.</p>
+
+              <div class="card">
+                <div class="label">Ideal user profile</div>
+                <ul>
+                  <li>Already trades (spot or perps)</li>
+                  <li>Understands basic risk management</li>
+                  <li>Values structure over hype</li>
+                  <li>Open to measurable, iterative improvement</li>
+                </ul>
+              </div>
+              <div class="quote">Not for beginners chasing hype.<br />Built for traders who want <b>clarity</b> and
+                <b>repeatability</b>.
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Why this segment</div>
+                <p class="desc">They can evaluate the product, give high-quality feedback, and become credible early
+                  users.</p>
+              </div>
+              <div class="card">
+                <div class="label">Value proposition</div>
+                <p class="desc">“A tool that helps you decide better — with feedback and quant support — instead of just
+                  throwing signals at you.”</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 8 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">Why it matters</div>
+              <h2 class="h2">Clear business potential and a strong product-asset angle.</h2>
+              <p class="lead">Modular architecture, measurable outputs, and a clean path from utility to monetization.
+              </p>
+
+              <div class="card">
+                <div class="label">Business outcomes</div>
+                <ul>
+                  <li>Scalable SaaS model</li>
+                  <li>Natural upsell path: LITE → PRO → QUANT</li>
+                  <li>Defensible product via evaluation + quant</li>
+                  <li>Potential to become a sellable asset</li>
+                </ul>
+              </div>
+              <div class="quote">The end goal is not “a tool”. It’s a <b>valuable product</b> with defensibility.</div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Why now</div>
+                <p class="desc">Traders are overwhelmed by fragmented tools. A cohesive decision system is a
+                  strong entry point: it reduces friction, standardizes decisions, and enables iteration with data.</p>
+              </div>
+              <div class="card">
+                <div class="label">Long-term expansion (optional)</div>
+                <ul>
+                  <li>More strategies and regimes</li>
+                  <li>Continuous position monitoring</li>
+                  <li>Automated alerts &amp; notifications</li>
+                  <li>More assets and timeframes</li>
+                  <li>Personalized profiles &amp; preferences</li>
+                  <li>Public strategy rankings</li>
+                  <li>Strategy marketplace</li>
+                  <li>Copy-trading</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 9 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">What we need</div>
+              <h2 class="h2">An early partner to accelerate traction</h2>
+              <p class="lead">We’re looking for someone who brings focus, judgment, and validation.</p>
+
+              <div class="card">
+                <div class="label">With your support, in 45–60 days</div>
+                <ul>
+                  <li>10–20 pilot users</li>
+                  <li>Basic retention metrics</li>
+                  <li>Pricing and offer v1</li>
+                  <li>A polished, repeatable demo</li>
+                </ul>
+              </div>
+              <div class="quote">If we don’t see credible traction signals, we stop or pivot.</div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Use of support</div>
+                <p class="desc">Infra + time + pilot acquisition.</p>
+              </div>
+              <div class="card">
+                <div class="label">Partner role</div>
+                <p class="desc">Hard feedback + network + weekly reviews.</p>
+              </div>
+              <div class="card">
+                <div class="label">Success criteria</div>
+                <p class="desc">Active users + evaluated signals + conversion to paid.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 10 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">Closing</div>
+              <h1 class="h1">TraderCopilot</h1>
+              <p class="lead">Trade with less noise. Decide with more evidence.</p>
+
+              <div class="card">
+                <div class="label">Core idea</div>
+                <p class="desc">Signals + context + quant validation + Advisor — in a single flow.</p>
+              </div>
+              <div class="quote">Next step: live demo + roadmap review.</div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Contact</div>
+                <p class="desc">Founder: Francisco Iannicelli<br />Project: TraderCopilot<br />Contact: @tsmluky
+                  (Telegram)<br />Demo: Available live</p>
+              </div>
+              <div class="card">
+                <div class="label">Note</div>
+                <p class="desc">This deck prioritizes clarity and product logic. Technical deep-dive and metrics
+                  available if needed.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <div class="controls" aria-label="Controls">
+        <div class="dots" id="dots" aria-label="Slides"></div>
+        <button id="prevBtn" aria-label="Previous">←</button>
+        <button id="nextBtn" aria-label="Next">→</button>
+        <span class="sr" id="srStatus" aria-live="polite"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const slidesEl = document.getElementById('slides');
+      const total = slidesEl.children.length;
+      let idx = 0;
+
+      const sr = document.getElementById('srStatus');
+
+      const dotsEl = document.getElementById('dots');
+      const dots = [];
+      for (let i = 0; i < total; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('role', 'button');
+        dot.setAttribute('tabindex', '0');
+        dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+        dot.addEventListener('click', () => { idx = i; render(); });
+        dot.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { idx = i; render(); e.preventDefault(); }
+        });
+        dotsEl.appendChild(dot);
+        dots.push(dot);
+      }
+
+      function clamp(n) { return Math.max(0, Math.min(total - 1, n)); }
+      function render() {
+        idx = clamp(idx);
+        slidesEl.style.transform = `translateX(${-idx * 100}%)`;
+        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+        sr.textContent = 'Slide ' + (idx + 1) + ' of ' + total;
+      }
+      function next() { idx++; render(); }
+      function prev() { idx--; render(); }
+
+      document.getElementById('nextBtn').addEventListener('click', next);
+      document.getElementById('prevBtn').addEventListener('click', prev);
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { next(); e.preventDefault(); }
+        if (e.key === 'ArrowLeft' || e.key === 'PageUp') { prev(); e.preventDefault(); }
+      });
+
+      // Touch swipe
+      let sx = null;
+      window.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
+      window.addEventListener('touchend', (e) => {
+        if (sx === null) return;
+        const ex = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : sx;
+        const dx = ex - sx;
+        if (Math.abs(dx) > 40) { if (dx < 0) next(); else prev(); }
+        sx = null;
+      }, { passive: true });
+
+      render();
+    })();
+  </script>
+</body>
+
+</html>

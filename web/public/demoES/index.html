@@ -1,0 +1,1050 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TraderCopilot — Presentación de Producto</title>
+  <style>
+    :root {
+      --bg: #070A12;
+      --panel: #0B1020;
+      --text: #E9ECF6;
+      --muted: #A9B0C7;
+      --muted2: #7E86A3;
+      --stroke: rgba(255, 255, 255, .08);
+      --shadow: 0 24px 90px rgba(0, 0, 0, .55);
+      --accent: #7C5CFF;
+      --accent2: #22D3EE;
+      --accent3: #34D399;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background:
+        radial-gradient(1200px 800px at 20% 10%, rgba(124, 92, 255, .18), transparent 60%),
+        radial-gradient(900px 700px at 80% 10%, rgba(34, 211, 238, .14), transparent 55%),
+        radial-gradient(1000px 800px at 60% 90%, rgba(52, 211, 153, .10), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      font: 16px/1.45 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
+    }
+
+    .deck {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    .frame {
+      width: min(1100px, 96vw);
+      aspect-ratio: 16 / 9;
+      border: 1px solid var(--stroke);
+      border-radius: 26px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, .01));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .topbar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(11, 16, 32, .78), rgba(11, 16, 32, .22));
+      backdrop-filter: blur(10px);
+    }
+
+    .brand {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-weight: 650;
+      letter-spacing: .2px;
+    }
+
+    .logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 30% 30%, rgba(124, 92, 255, .9), rgba(34, 211, 238, .55) 55%, rgba(52, 211, 153, .25) 100%);
+      box-shadow: 0 10px 30px rgba(124, 92, 255, .25);
+      border: 1px solid rgba(255, 255, 255, .14);
+    }
+
+    .meta {
+      color: var(--muted2);
+      font-size: 12.5px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .pill {
+      border: 1px solid var(--stroke);
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .slides {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      transition: transform 420ms cubic-bezier(.2, .9, .2, 1);
+    }
+
+    section.slide {
+      width: 100%;
+      height: 100%;
+      flex: 0 0 100%;
+      padding: 78px 68px 46px 68px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 34px;
+      height: 100%;
+      min-height: 0;
+      align-items: start;
+    }
+
+    .kicker {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.6px;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .h1 {
+      font-size: 42px;
+      line-height: 1.05;
+      margin: 0 0 10px 0;
+      letter-spacing: -.6px;
+    }
+
+    .h2 {
+      font-size: 28px;
+      line-height: 1.15;
+      margin: 0 0 10px 0;
+      letter-spacing: -.3px;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.45;
+      margin: 0 0 14px 0;
+    }
+
+    .card {
+      border: 1px solid var(--stroke);
+      border-radius: 18px;
+      padding: 16px;
+      background: rgba(11, 16, 32, .42);
+      box-shadow: 0 18px 60px rgba(0, 0, 0, .25);
+    }
+
+    .card+.card {
+      margin-top: 12px;
+    }
+
+    .label {
+      font-weight: 650;
+      margin: 0 0 6px 0;
+    }
+
+    .desc {
+      color: var(--muted);
+      margin: 0;
+      font-size: 14.5px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--stroke);
+      margin: 10px 0;
+    }
+
+    .quote {
+      margin-top: 12px;
+      /* compactado */
+      padding: 12px 14px;
+      /* compactado */
+      border-left: 3px solid rgba(124, 92, 255, .7);
+      border-radius: 12px;
+      background: rgba(124, 92, 255, .08);
+      color: var(--text);
+      font-weight: 520;
+      font-size: 15px;
+      /* compactado */
+      line-height: 1.35;
+      /* compactado */
+    }
+
+    .quote span {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* Slide 1: compactar la grilla de métricas para que no se corte */
+    .bigMetric {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      /* antes 12 */
+    }
+
+    .metric {
+      border: 1px solid var(--stroke);
+      border-radius: 18px;
+      padding: 12px 14px;
+      /* antes 16 */
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .metric .num {
+      font-size: 20px;
+      /* antes 22 */
+      font-weight: 750;
+      letter-spacing: -.3px;
+      margin: 0;
+    }
+
+    .metric .txt {
+      margin: 6px 0 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      /* antes 13.5 */
+      line-height: 1.35;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, .12);
+      background: rgba(255, 255, 255, .04);
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .layer {
+      border: 1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, .02));
+      border-radius: 18px;
+      padding: 10px 12px;
+      /* compactado */
+      display: flex;
+      gap: 10px;
+      /* compactado */
+      align-items: flex-start;
+    }
+
+    .tag {
+      font-size: 11px;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, .14);
+      background: rgba(255, 255, 255, .03);
+      width: max-content;
+      flex: 0 0 auto;
+    }
+
+    .tag.lite {
+      border-color: rgba(34, 211, 238, .35);
+      color: rgba(189, 247, 255, .92);
+    }
+
+    .tag.pro {
+      border-color: rgba(124, 92, 255, .38);
+      color: rgba(221, 213, 255, .95);
+    }
+
+    .tag.quant {
+      border-color: rgba(52, 211, 153, .35);
+      color: rgba(199, 255, 233, .92);
+    }
+
+    .tag.advisor {
+      border-color: rgba(251, 191, 36, .35);
+      color: rgba(255, 244, 206, .92);
+    }
+
+    .layer .t {
+      font-weight: 680;
+      margin: 0 0 4px 0;
+    }
+
+    .layer .d {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13.4px;
+      /* compactado */
+      line-height: 1.35;
+    }
+
+    ul {
+      margin: 12px 0 0 18px;
+      color: var(--muted);
+      padding: 0;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    .twoCol {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .emph {
+      background: linear-gradient(90deg, rgba(124, 92, 255, .85), rgba(34, 211, 238, .8));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* Minimal controls */
+    .controls {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .dots {
+      display: flex;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 1px solid var(--stroke);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .18);
+      cursor: pointer;
+    }
+
+    .dot.active {
+      background: linear-gradient(90deg, rgba(124, 92, 255, .95), rgba(34, 211, 238, .85));
+      box-shadow: 0 10px 28px rgba(124, 92, 255, .18);
+    }
+
+    button {
+      border: 1px solid var(--stroke);
+      background: rgba(255, 255, 255, .03);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-weight: 650;
+      transition: transform .08s ease, background .2s ease;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, .05);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .sr {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media print {
+      body {
+        background: #000;
+      }
+
+      .deck {
+        padding: 0;
+      }
+
+      .frame {
+        width: 100%;
+        aspect-ratio: auto;
+        height: auto;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        overflow: visible;
+      }
+
+      .topbar,
+      .controls {
+        display: none !important;
+      }
+
+      .slides {
+        display: block;
+        transform: none !important;
+      }
+
+      section.slide {
+        page-break-after: always;
+        width: 100%;
+        height: 100vh;
+        padding: 32mm 20mm 22mm 20mm;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="deck">
+    <div class="frame" role="application" aria-label="TraderCopilot — Presentación de Producto">
+      <div class="topbar">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>TraderCopilot</div>
+        </div>
+        <div class="meta">
+          <div class="pill">Presentación de Producto</div>
+          <div class="pill">Fase temprana · 2025</div>
+        </div>
+      </div>
+
+      <div class="slides" id="slides">
+
+        <!-- SLIDE 1 (FIXED STRUCTURE) -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">Resumen</div>
+
+              <h1 class="h1">Tu copiloto de trading para <span class='emph'>mejores decisiones</span>.</h1>
+
+              <p class="lead">
+                TraderCopilot combina <b>señales</b>, <b>análisis contextual</b>, <b>validación cuantitativa</b> y un
+                <b>asesor de posiciones</b> en un sistema coherente.
+              </p>
+
+              <div class="quote">
+                Diseñado para traders que prefieren <b>estructura</b> antes que hype.
+                <span>Enfoque en método y control del riesgo.</span>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="bigMetric">
+                <div class="metric">
+                  <p class="num">LITE</p>
+                  <p class="txt">Señales rápidas + evaluación automática</p>
+                </div>
+                <div class="metric">
+                  <p class="num">PRO</p>
+                  <p class="txt">Análisis profundo y contextual</p>
+                </div>
+                <div class="metric">
+                  <p class="num">QUANT</p>
+                  <p class="txt">Estrategias backtesteadas, edge medible</p>
+                </div>
+                <div class="metric">
+                  <p class="num">ADVISOR</p>
+                  <p class="txt">Razonamiento de posiciones y soporte</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Promesa central</div>
+                <p class="desc">
+                  Reduce el ruido de decisión con un flujo repetible: <b>señal → contexto → validación → decisión</b>.
+                </p>
+              </div>
+
+              <div class="card">
+                <div class="label">Qué es este deck</div>
+                <p class="desc">
+                  Un resumen de alta señal sobre qué es TraderCopilot hoy y qué necesitamos para acelerarlo.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 2 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">El problema</div>
+              <h2 class="h2">El trading es ruidoso, fragmentado y emocionalmente exigente.</h2>
+              <p class="lead">La mayoría de traders no pierde por falta de datos. Pierde por falta de <b>estructura</b>
+                — y por actuar bajo estrés.</p>
+
+              <div class="card">
+                <div class="row">
+                  <div class="icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 19V5m0 14h16" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round" />
+                      <path d="M8 15l3-3 3 2 5-6" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="label">Señales sin responsabilidad</p>
+                    <p class="desc">Se envían señales, pero rara vez se evalúan. Sin feedback loop, no hay credibilidad.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="row">
+                  <div class="icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M21 21l-4.35-4.35" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round" />
+                      <circle cx="10" cy="10" r="6" stroke="white" opacity=".9" stroke-width="2" />
+                      <path d="M10 7v3l2 2" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="label">Análisis sin contexto</p>
+                    <p class="desc">El TA genérico ignora noticias, cambios de régimen y condiciones reales de mercado.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="row">
+                  <div class="icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 22s8-4 8-10V6l-8-4-8 4v6c0 6 8 10 8 10z" stroke="white" opacity=".9"
+                        stroke-width="2" />
+                      <path d="M9 12l2 2 4-5" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="label">Decisiones bajo estrés</p>
+                    <p class="desc">Sin un marco de decisión, la emoción domina la ejecución.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Lo que los traders realmente necesitan</div>
+                <ul>
+                  <li>Un flujo claro para cada decisión</li>
+                  <li>Señales con desempeño medido</li>
+                  <li>Análisis que se adapte al contexto</li>
+                  <li>Validación con datos históricos y reglas</li>
+                </ul>
+              </div>
+              <div class="quote">La pieza faltante no es “más indicadores”.<br />Es un <b>sistema de decisión</b> con
+                feedback.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 3 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">La solución</div>
+              <h2 class="h2">TraderCopilot convierte herramientas fragmentadas en un sistema coherente de decisión.</h2>
+              <p class="lead">Un producto modular donde cada capa resuelve una parte de la cadena de decisión —
+                reforzando al resto.</p>
+
+              <div class="card">
+                <div class="label">Qué es</div>
+                <p class="desc">Un asistente que entrega señales, genera análisis contextual, ejecuta estrategias quant
+                  y ayuda a razonar posiciones — en un solo producto.</p>
+              </div>
+              <div class="card">
+                <div class="label">Qué no es</div>
+                <p class="desc">No es una máquina de promesas. No es una caja negra. No es un gimmick de copy-trading.
+                  Diseñado para credibilidad: <b>se registra, evalúa y mejora.</b></p>
+              </div>
+              <div class="quote">La credibilidad viene del <b>feedback medido</b>, no del marketing.</div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Flujo de decisión</div>
+                <div class="divider"></div>
+                <div class="twoCol">
+                  <div class="metric">
+                    <p class="num">1) Disparador</p>
+                    <p class="txt">Una señal o una pregunta</p>
+                  </div>
+                  <div class="metric">
+                    <p class="num">2) Contexto</p>
+                    <p class="txt">Régimen + narrativa</p>
+                  </div>
+                  <div class="metric">
+                    <p class="num">3) Validación</p>
+                    <p class="txt">Evidencia quant + reglas</p>
+                  </div>
+                  <div class="metric">
+                    <p class="num">4) Acción</p>
+                    <p class="txt">Plan + riesgo</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="label">Por qué importa</div>
+                <p class="desc">Los traders no necesitan más información. Necesitan un marco repetible que reduzca el
+                  sesgo emocional.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 4 (COMPACT FIX) -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">Arquitectura del producto</div>
+              <h2 class="h2">Cuatro capas, un sistema coherente.</h2>
+              <p class="lead">Cada capa aporta valor por sí sola — y juntas multiplican.</p>
+
+              <div class="stack">
+                <div class="layer">
+                  <div class="tag lite">LITE</div>
+                  <div>
+                    <p class="t">Señales rápidas + evaluación automática</p>
+                    <p class="d">El usuario ve si funcionó. La credibilidad se construye con resultados medibles.</p>
+                  </div>
+                </div>
+                <div class="layer">
+                  <div class="tag pro">PRO</div>
+                  <div>
+                    <p class="t">Análisis de mercado contextual</p>
+                    <p class="d">TA estructurado + narrativa (eventos/noticias/régimen) para evitar análisis genéricos.
+                    </p>
+                  </div>
+                </div>
+                <div class="layer">
+                  <div class="tag quant">QUANT</div>
+                  <div>
+                    <p class="t">Estrategias backtesteadas y métricas</p>
+                    <p class="d">Las señales no son opiniones. Las estrategias se evalúan con datos y restricciones.</p>
+                  </div>
+                </div>
+                <div class="layer">
+                  <div class="tag advisor">ADVISOR</div>
+                  <div>
+                    <p class="t">Copiloto conversacional para posiciones</p>
+                    <p class="d">Ayuda con riesgo, invalidación, parciales y escenarios.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="quote">Diseñado como <b>activo de producto</b>: modular, extensible y defendible.</div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Lo que ve el usuario</div>
+                <ul>
+                  <li>Tarjetas limpias de señales + resultados</li>
+                  <li>Reportes PRO con estructura consistente</li>
+                  <li>Dashboard de estrategias y métricas</li>
+                  <li>Chat Advisor orientado a decisiones</li>
+                </ul>
+              </div>
+              <div class="card">
+                <div class="label">Bajo el capó</div>
+                <ul>
+                  <li>Logs por token/modo para trazabilidad</li>
+                  <li>Loop de evaluación para resultados LITE</li>
+                  <li>Motor quant para backtests y salidas</li>
+                  <li>Capa LLM para reportes y asesor</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 5 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">Diferencial</div>
+              <h2 class="h2">Qué hace diferente a TraderCopilot.</h2>
+              <p class="lead">No es más features. Es otra lógica de producto.</p>
+
+              <div class="card">
+                <div class="row">
+                  <div class="icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 2v20" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round" />
+                      <path d="M7 7l5-5 5 5" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                      <path d="M7 17l5 5 5-5" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="label">Feedback loop (evaluación)</p>
+                    <p class="desc">Las señales se evalúan — convirtiendo claims en desempeño medible.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="row">
+                  <div class="icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 6h16M4 12h10M4 18h16" stroke="white" opacity=".9" stroke-width="2"
+                        stroke-linecap="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="label">Salidas estructuradas</p>
+                    <p class="desc">PRO y Advisor siguen formato consistente para reducir ambigüedad.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="row">
+                  <div class="icon" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M3 12h18" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round" />
+                      <path d="M12 3v18" stroke="white" opacity=".9" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="label">Validación quant integrada</p>
+                    <p class="desc">Performance testeable y mejorable con datos — no intuición.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="quote">Diseñado para ser <b>auditable</b> y <b>mejorable</b> con el tiempo.</div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Sistema de datos + evaluación.</div>
+                <p class="desc">Logs y resultados convierten cada señal en aprendizaje medible.
+                  Eso es más difícil de copiar que una UI.</p>
+              </div>
+              <div class="card">
+                <div class="label">Posicionamiento</div>
+                <p class="desc">Para traders serios que quieren un asistente estructurado — no un canal de señales de
+                  influencer.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 6 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">Estado actual</div>
+              <h2 class="h2">Producto funcional en refinamiento.</h2>
+              <p class="lead">El flujo core existe end-to-end.
+                <br /> Siguiente: pulido UX y validación con usuarios reales.
+              </p>
+
+              <div class="card">
+                <div class="label">Ya implementado</div>
+                <ul>
+                  <li>Flujos backend LITE/PRO/ADVISOR</li>
+                  <li>Logs por token/modo para trazabilidad</li>
+                  <li>Evaluación automática de resultados LITE</li>
+                  <li>Tooling quant y validación en progreso</li>
+                </ul>
+              </div>
+              <div class="card">
+                <div class="label">Mejoras en curso</div>
+                <ul>
+                  <li>Pulido UX sale-ready y jerarquía visual</li>
+                  <li>Checks de estabilidad + render PRO confiable</li>
+                  <li>Dashboards y páginas de estrategia más claras</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Qué significa</div>
+                <p class="desc">No es idea. Existe. Lo que queda es credibilidad, pulido y validación.</p>
+              </div>
+              <div class="quote">El objetivo es que se sienta inevitable: limpio, consistente y confiable.</div>
+              <div class="card">
+                <div class="label">Ejemplo de uso</div>
+                <p class="desc">Señal LITE → evaluación automática → análisis PRO con contexto → plan con Advisor.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 7 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">Para quién es</div>
+              <h2 class="h2">Usuario objetivo: traders retail intermedios a avanzados.</h2>
+              <p class="lead">Traders que ya operan y quieren un asistente estructurado para reducir errores.</p>
+
+              <div class="card">
+                <div class="label">Perfil ideal</div>
+                <ul>
+                  <li>Ya opera (spot o perps)</li>
+                  <li>Entiende riesgo básico</li>
+                  <li>Valora estructura sobre hype</li>
+                  <li>Abierto a mejora medible e iterativa</li>
+                </ul>
+              </div>
+              <div class="quote">No es para principiantes tras hype.<br />Hecho para traders que buscan <b>claridad</b>
+                y <b>repetibilidad</b>.</div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Por qué este segmento</div>
+                <p class="desc">Pueden evaluar el producto, dar feedback de calidad y ser early users creíbles.</p>
+              </div>
+              <div class="card">
+                <div class="label">Propuesta de valor (simple)</div>
+                <p class="desc">“Una herramienta que te ayuda a decidir mejor — con feedback y soporte quant — en vez de
+                  tirarte señales.”</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 8 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">Por qué importa</div>
+              <h2 class="h2">Potencial de negocio claro y ángulo fuerte como activo de producto.</h2>
+              <p class="lead">Arquitectura modular, salidas medibles y un camino limpio de utilidad a monetización.</p>
+
+              <div class="card">
+                <div class="label">Resultados de negocio</div>
+                <ul>
+                  <li>Modelo SaaS escalable</li>
+                  <li>Upsell natural: LITE → PRO → QUANT</li>
+                  <li>Producto defendible por evaluación + quant</li>
+                  <li>Potencial de activo vendible</li>
+                </ul>
+              </div>
+              <div class="quote">El objetivo no es “una herramienta”. Es un <b>producto valioso</b> y defendible.</div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Por qué ahora</div>
+                <p class="desc">Los traders están saturados de herramientas fragmentadas. Un sistema cohesivo es un
+                  punto de entrada claro: reduce fricción, estandariza decisiones y permite iterar con datos.</p>
+              </div>
+              <div class="card">
+                <div class="label">Expansión a futuro (opcional)</div>
+                <ul>
+                  <li>Más estrategias y regímenes</li>
+                  <li>Monitoreo continuo de posiciones</li>
+                  <li>Alertas y notificaciones automáticas</li>
+                  <li>Más activos y timeframes</li>
+                  <li>Perfiles y preferencias personalizadas</li>
+                  <li>Ranking público de estrategias</li>
+                  <li>Marketplace de estrategias</li>
+                  <li>Copy-trading</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 9 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">Qué necesitamos</div>
+              <h2 class="h2">Partner temprano para acelerar tracción</h2>
+              <p class="lead">Buscamos una persona que aporte foco, criterio y validación.</p>
+
+              <div class="card">
+                <div class="label">Con tu apoyo, en 45-60 días</div>
+                <ul>
+                  <li>10–20 usuarios piloto</li>
+                  <li>Métricas básicas de retención</li>
+                  <li>Pricing y oferta v1</li>
+                  <li>Demo pulida y repetible</li>
+                </ul>
+              </div>
+              <div class="quote">Si no logramos señales de tracción, paramos o pivotamos.</div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Uso del apoyo</div>
+                <p class="desc">Infra + tiempo + adquisición de pilotos.</p>
+              </div>
+              <div class="card">
+                <div class="label">Rol del partner</div>
+                <p class="desc">Feedback duro + red + revisiones semanales.</p>
+              </div>
+              <div class="card">
+                <div class="label">Criterio de éxito</div>
+                <p class="desc">Usuarios activos + señales evaluadas + conversión a pago.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 10 -->
+        <section class="slide">
+          <div class="grid">
+            <div>
+              <div class="kicker">Cierre</div>
+              <h1 class="h1">TraderCopilot</h1>
+              <p class="lead">Operar con menos ruido. Decidir con más evidencia.</p>
+
+              <div class="card">
+                <div class="label">Idea central</div>
+                <p class="desc">Señales + contexto + validación cuant + Advisor — en un solo flujo.</p>
+              </div>
+              <div class="quote">Siguiente paso: demo en vivo + revisión de roadmap.</div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="label">Contacto</div>
+                <p class="desc">Founder: Francisco Iannicelli<br />Proyecto: TraderCopilot<br />Contacto: @tsmluky
+                  (Telegram)<br />Demo: Disponible en vivo</p>
+              </div>
+              <div class="card">
+                <div class="label">Nota</div>
+                <p class="desc">Este deck prioriza claridad y lógica de producto. Deep-dive técnico y métricas
+                  disponibles si te interesa.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <div class="controls" aria-label="Controls">
+        <div class="dots" id="dots" aria-label="Slides"></div>
+        <button id="prevBtn" aria-label="Previous">←</button>
+        <button id="nextBtn" aria-label="Next">→</button>
+        <span class="sr" id="srStatus" aria-live="polite"></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const slidesEl = document.getElementById('slides');
+      const total = slidesEl.children.length;
+      let idx = 0;
+
+      const sr = document.getElementById('srStatus');
+
+      const dotsEl = document.getElementById('dots');
+      const dots = [];
+      for (let i = 0; i < total; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('role', 'button');
+        dot.setAttribute('tabindex', '0');
+        dot.setAttribute('aria-label', 'Ir a la diapositiva ' + (i + 1));
+        dot.addEventListener('click', () => { idx = i; render(); });
+        dot.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { idx = i; render(); e.preventDefault(); }
+        });
+        dotsEl.appendChild(dot);
+        dotsEl.appendChild(dot);
+        dots.push(dot);
+      }
+
+      function clamp(n) { return Math.max(0, Math.min(total - 1, n)); }
+      function render() {
+        idx = clamp(idx);
+        slidesEl.style.transform = `translateX(${-idx * 100}%)`;
+        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+        sr.textContent = 'Slide ' + (idx + 1) + ' of ' + total;
+      }
+      function next() { idx++; render(); }
+      function prev() { idx--; render(); }
+
+      document.getElementById('nextBtn').addEventListener('click', next);
+      document.getElementById('prevBtn').addEventListener('click', prev);
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { next(); e.preventDefault(); }
+        if (e.key === 'ArrowLeft' || e.key === 'PageUp') { prev(); e.preventDefault(); }
+      });
+
+      // Touch swipe
+      let sx = null;
+      window.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });
+      window.addEventListener('touchend', (e) => {
+        if (sx === null) return;
+        const ex = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : sx;
+        const dx = ex - sx;
+        if (Math.abs(dx) > 40) { if (dx < 0) next(); else prev(); }
+        sx = null;
+      }, { passive: true });
+
+      render();
+    })();
+  </script>
+</body>
+
+</html>
