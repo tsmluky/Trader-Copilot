@@ -6,10 +6,11 @@
 
 @layer base {
   :root {
-    --background: 0.098 0.016 265.75; /* oklch values without function for tailwind opacity support if needed, or just direct string */
+    --background: 0.098 0.016 265.75;
+    /* oklch values without function for tailwind opacity support if needed, or just direct string */
     /* Using direct oklch strings as in the source for now, assuming standard usage */
-    --background-val: 0.098 0.016 265.75; 
-    
+    --background-val: 0.098 0.016 265.75;
+
     /* Mapping to the values from redesign globals.css but adapted for standard Tailwind v3 variable usage if we want opacity, 
        but for simplicity and exact match to redesign, I will copy the declared variables and update tailwind.config.js to perform the wrapping if necessary.
        Or better: I will use the standard shadcn/ui pattern where variables are just channels or full values.
@@ -57,7 +58,8 @@
     --card-foreground: oklch(0.985 0 0);
     --popover: oklch(0.145 0 0);
     --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0); /* This is white in dark mode? Checking redesign... yes line 49 */
+    --primary: oklch(0.985 0 0);
+    /* This is white in dark mode? Checking redesign... yes line 49 */
     --primary-foreground: oklch(0.205 0 0);
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
@@ -86,15 +88,16 @@
   }
 
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
-  
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
 @layer utilities {
+
   /* Premium glass morphism effects */
   .glass {
     background: rgba(255, 255, 255, 0.03);
@@ -110,9 +113,9 @@
   }
 
   .glass-panel {
-     background: rgba(15, 23, 42, 0.6);
-     backdrop-filter: blur(12px);
-     border: 1px solid rgba(148, 163, 184, 0.05);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(148, 163, 184, 0.05);
   }
 
   .glass-header {
@@ -127,7 +130,7 @@
     background-size: 64px 64px;
     mask-image: radial-gradient(circle at center, black 30%, transparent 70%);
   }
-  
+
   /* Text Gradients */
   .text-gradient {
     background: linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%);
@@ -170,7 +173,7 @@
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(99, 102, 241, 0.5);
   }
-  
+
   /* Code Scrollbars */
   .code-scroll::-webkit-scrollbar {
     height: 6px;
@@ -186,82 +189,264 @@
   }
 
   /* Brand and Gradient Utilities */
-  .text-brand-400 { color: #818cf8; }
-  .text-brand-500 { color: #6366f1; }
-  .text-brand-600 { color: #4f46e5; }
-  .bg-brand-400 { background-color: #818cf8; }
-  .bg-brand-500 { background-color: #6366f1; }
-  .from-brand-400 { --tw-gradient-from: #818cf8; --tw-gradient-to: transparent; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
-  .from-brand-500 { --tw-gradient-from: #6366f1; }
-  .from-brand-600 { --tw-gradient-from: #4f46e5; }
-  .to-brand-500 { --tw-gradient-to: #6366f1; }
-  .to-brand-600 { --tw-gradient-to: #4f46e5; }
-  .bg-brand-600 { background-color: #4f46e5; }
-  .bg-brand-900 { background-color: #312e81; }
-  .border-brand-500 { border-color: #6366f1; }
+  .text-brand-400 {
+    color: #818cf8;
+  }
 
-  .text-gold-400 { color: #fbbf24; }
-  .text-gold-500 { color: #f59e0b; }
-  .bg-gold-400 { background-color: #fbbf24; }
-  .bg-gold-500 { background-color: #f59e0b; }
-  .from-gold-400 { --tw-gradient-from: #fbbf24; }
-  .from-gold-500 { --tw-gradient-from: #f59e0b; }
-  .to-gold-400 { --tw-gradient-to: #fbbf24; }
-  .to-gold-500 { --tw-gradient-to: #f59e0b; }
-  .bg-gold-600 { background-color: #d97706; }
-  .bg-gold-900 { background-color: #78350f; }
-  .border-gold-500 { border-color: #f59e0b; }
-  
-  .text-orange-500 { color: #f97316; }
-  .text-orange-600 { color: #ea580c; }
-  .bg-orange-500 { background-color: #f97316; }
-  .bg-orange-600 { background-color: #ea580c; }
-  .from-orange-500 { --tw-gradient-from: #f97316; }
-  .to-orange-500 { --tw-gradient-to: #f97316; }
-  .to-orange-600 { --tw-gradient-to: #ea580c; }
+  .text-brand-500 {
+    color: #6366f1;
+  }
+
+  .text-brand-600 {
+    color: #4f46e5;
+  }
+
+  .bg-brand-400 {
+    background-color: #818cf8;
+  }
+
+  .bg-brand-500 {
+    background-color: #6366f1;
+  }
+
+  .from-brand-400 {
+    --tw-gradient-from: #818cf8;
+    --tw-gradient-to: transparent;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  }
+
+  .from-brand-500 {
+    --tw-gradient-from: #6366f1;
+  }
+
+  .from-brand-600 {
+    --tw-gradient-from: #4f46e5;
+  }
+
+  .to-brand-500 {
+    --tw-gradient-to: #6366f1;
+  }
+
+  .to-brand-600 {
+    --tw-gradient-to: #4f46e5;
+  }
+
+  .bg-brand-600 {
+    background-color: #4f46e5;
+  }
+
+  .bg-brand-900 {
+    background-color: #312e81;
+  }
+
+  .border-brand-500 {
+    border-color: #6366f1;
+  }
+
+  .text-gold-400 {
+    color: #fbbf24;
+  }
+
+  .text-gold-500 {
+    color: #f59e0b;
+  }
+
+  .bg-gold-400 {
+    background-color: #fbbf24;
+  }
+
+  .bg-gold-500 {
+    background-color: #f59e0b;
+  }
+
+  .from-gold-400 {
+    --tw-gradient-from: #fbbf24;
+  }
+
+  .from-gold-500 {
+    --tw-gradient-from: #f59e0b;
+  }
+
+  .to-gold-400 {
+    --tw-gradient-to: #fbbf24;
+  }
+
+  .to-gold-500 {
+    --tw-gradient-to: #f59e0b;
+  }
+
+  .bg-gold-600 {
+    background-color: #d97706;
+  }
+
+  .bg-gold-900 {
+    background-color: #78350f;
+  }
+
+  .border-gold-500 {
+    border-color: #f59e0b;
+  }
+
+  .text-orange-500 {
+    color: #f97316;
+  }
+
+  .text-orange-600 {
+    color: #ea580c;
+  }
+
+  .bg-orange-500 {
+    background-color: #f97316;
+  }
+
+  .bg-orange-600 {
+    background-color: #ea580c;
+  }
+
+  .from-orange-500 {
+    --tw-gradient-from: #f97316;
+  }
+
+  .to-orange-500 {
+    --tw-gradient-to: #f97316;
+  }
+
+  .to-orange-600 {
+    --tw-gradient-to: #ea580c;
+  }
 
   /* Animations */
-  .animate-in { animation: animate-in 0.5s ease-out; }
-  .fade-in { animation: fade-in 0.5s ease-out; }
-  .animate-fade-in { animation: fade-in 0.7s ease-out; }
-  .slide-in-from-top-5 { animation: slide-in-from-top-5 0.7s ease-out; }
-  .slide-in-from-bottom-3 { animation: slide-in-from-bottom-3 0.5s ease-out; }
-  .slide-in-from-bottom-4 { animation: slide-in-from-bottom-4 0.6s ease-out; }
-  .slide-in-from-bottom-5 { animation: slide-in-from-bottom-5 0.7s ease-out; }
-  .slide-in-from-bottom-7 { animation: slide-in-from-bottom-7 0.9s ease-out; }
-  .zoom-in { animation: zoom-in 0.2s ease-out; }
-  .animate-pulse-slow { animation: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  .animate-in {
+    animation: animate-in 0.5s ease-out;
+  }
+
+  .fade-in {
+    animation: fade-in 0.5s ease-out;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.7s ease-out;
+  }
+
+  .slide-in-from-top-5 {
+    animation: slide-in-from-top-5 0.7s ease-out;
+  }
+
+  .slide-in-from-bottom-3 {
+    animation: slide-in-from-bottom-3 0.5s ease-out;
+  }
+
+  .slide-in-from-bottom-4 {
+    animation: slide-in-from-bottom-4 0.6s ease-out;
+  }
+
+  .slide-in-from-bottom-5 {
+    animation: slide-in-from-bottom-5 0.7s ease-out;
+  }
+
+  .slide-in-from-bottom-7 {
+    animation: slide-in-from-bottom-7 0.9s ease-out;
+  }
+
+  .zoom-in {
+    animation: zoom-in 0.2s ease-out;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
 
   @keyframes animate-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
   @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
+
   @keyframes slide-in-from-top-5 {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
   @keyframes slide-in-from-bottom-3 {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
   @keyframes slide-in-from-bottom-4 {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
   @keyframes slide-in-from-bottom-5 {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
   @keyframes slide-in-from-bottom-7 {
-    from { opacity: 0; transform: translateY(28px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(28px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
   @keyframes zoom-in {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 }
