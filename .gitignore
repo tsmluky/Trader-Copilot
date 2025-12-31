@@ -1,45 +1,63 @@
+# General
+.DS_Store
+Thumbs.db
+*.log
+*.zip
+*.tar
+*.gz
+*.rar
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Environment
 .env
 .env.*
 !.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Python
 __pycache__/
-*.pyc
-.venv/
+*.py[cod]
+*.so
+.Python
+env/
 venv/
+.venv/
+backend/venv/
+backend/.venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+backend/*.db
+
+# Node / Web
 node_modules/
 web/node_modules/
-**/logs/
-**/audit/runs/
-**/datasets/
-*.zip
-*.tar
-*.tgz
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db
+web/dist/
+web/build/
+web/.eslintcache
 
-# Sale-ready hygiene
-backend/.env
-.env
-*.db
+# Logs & Audit
+logs/
+backend/logs/
+audit/
+test_output*.txt
+pytest_output.txt
 
-
-# Local test artifacts
-/test_output*.txt
-/backend/pytest_output.txt
-
-
-# Generated bundles / exports (DO NOT COMMIT)
-/_SALE_EXPORT/
-/_KIMI_DUMP/
-/KIMI_MINIBUNDLE.txt
-
-# Python virtualenvs (local)
-/backend/venv/
-/backend/.venv/
-/.venv/
-
-# Python caches
-**/__pycache__/
-**/*.pyc
-
+# TraderCopilot Artifacts
+_SALE_EXPORT/
+_KIMI_DUMP/
+DATA_ROOM/
