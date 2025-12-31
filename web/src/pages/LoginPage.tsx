@@ -171,7 +171,7 @@ export const LoginPage: React.FC = () => {
 
                 <div className="text-center pt-2">
                   <Link to="/register" className="text-xs text-slate-400 hover:text-gold-400 transition-colors">
-                    Don't have an account? <span className="font-bold text-white">Register Access</span>
+                    Don't have an account? <span className="font-bold text-white">Request Access</span>
                   </Link>
                 </div>
               </form>

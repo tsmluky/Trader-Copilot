@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Sheet,
     SheetContent,
@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ArrowRight, Bot, Target, Shield, Clock, MessageSquare, Activity, Waves, Zap } from 'lucide-react';
 import { SignalCard } from '../SignalCard';
+import { AdvisorChat } from '../AdvisorChat';
 
 interface TacticalAnalysisDrawerProps {
     isOpen: boolean;
@@ -20,6 +21,68 @@ interface TacticalAnalysisDrawerProps {
 }
 
 export function TacticalAnalysisDrawer({ isOpen, onClose, signal }: TacticalAnalysisDrawerProps) {
+    const [activeTab, setActiveTab] = useState("overview");
+    const [realMetrics, setRealMetrics] = useState<any>(null);
+    const [loadingMetrics, setLoadingMetrics] = useState(false);
+
+    // Fetch Real OHLCV and Calculate Metrics
+    React.useEffect(() => {
+        if (isOpen && signal?.token) {
+            setLoadingMetrics(true);
+            const fetchMetrics = async () => {
+                try {
+                    // Import dynamically to avoid circular deps if any, or just use api
+                    const { api } = await import('@/services/api');
+                    const data = await api.getOHLCV(signal.token, signal.timeframe || '4h');
+
+                    if (data && data.length > 20) {
+                        const closes = data.map(d => d.close);
+                        // Simple RSI Calculation
+                        const calculateRSI = (prices: number[], period: number = 14) => {
+                            let gains = 0, losses = 0;
+                            for (let i = 1; i <= period; i++) {
+                                const diff = prices[i] - prices[i - 1];
+                                if (diff > 0) gains += diff;
+                                else losses -= diff;
+                            }
+                            let avgGain = gains / period;
+                            let avgLoss = losses / period;
+
+                            // Exponential Moving Average
+                            for (let i = period + 1; i < prices.length; i++) {
+                                const diff = prices[i] - prices[i - 1];
+                                const gain = diff > 0 ? diff : 0;
+                                const loss = diff < 0 ? -diff : 0;
+                                avgGain = (avgGain * 13 + gain) / 14;
+                                avgLoss = (avgLoss * 13 + loss) / 14;
+                            }
+
+                            const rs = avgGain / avgLoss;
+                            return 100 - (100 / (1 + rs));
+                        };
+
+                        const rsi = calculateRSI(closes);
+                        const lastVol = data[data.length - 1].value; // Volume approximation if needed, or just value
+                        // Mocking Volume Status based on simple moving average
+                        const avgVol = data.slice(-20).reduce((a, b) => a + b.value, 0) / 20;
+                        const volStatus = lastVol > avgVol * 1.5 ? "Surge" : lastVol > avgVol ? "High" : "Normal";
+
+                        setRealMetrics({
+                            rsi: rsi.toFixed(1),
+                            volume: volStatus,
+                            macd: rsi > 50 ? "Bullish" : "Bearish" // Simplified MACD proxy
+                        });
+                    }
+                } catch (err) {
+                    console.error("Failed to calculate metrics", err);
+                } finally {
+                    setLoadingMetrics(false);
+                }
+            };
+            fetchMetrics();
+        }
+    }, [isOpen, signal?.token]);
+
     if (!signal) return null;
 
     const isLong = signal.direction?.toLowerCase() === 'long';
@@ -27,8 +90,8 @@ export function TacticalAnalysisDrawer({ isOpen, onClose, signal }: TacticalAnal
     const dateStr = signalDate.toLocaleDateString();
     const timeStr = signalDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // Mock Technicals for Metrics Tab (if not present in signal)
-    const indicators = {
+    // Use Real Metrics if available, else Mock
+    const indicators = realMetrics || {
         rsi: signal.rsi || (isLong ? 35 + Math.random() * 10 : 65 - Math.random() * 10).toFixed(1),
         macd: signal.macd || (isLong ? "Bullish Crossover" : "Bearish Divergence"),
         volume: signal.volume_status || "High Relative Vol"
@@ -65,11 +128,14 @@ export function TacticalAnalysisDrawer({ isOpen, onClose, signal }: TacticalAnal
                 </SheetHeader>
 
                 <div className="p-6 h-[calc(100vh-180px)] overflow-y-auto custom-scrollbar">
-                    <Tabs defaultValue="overview" className="h-full space-y-6">
-                        <TabsList className="bg-black/20 border border-white/5 w-full p-1 h-11 rounded-xl">
-                            <TabsTrigger value="overview" className="flex-1 h-9 rounded-lg data-[state=active]:bg-brand-500 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all">Overview</TabsTrigger>
-                            <TabsTrigger value="metrics" className="flex-1 h-9 rounded-lg data-[state=active]:bg-brand-500 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all">Metrics</TabsTrigger>
-                            <TabsTrigger value="execution" className="flex-1 h-9 rounded-lg data-[state=active]:bg-brand-500 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all">Execution</TabsTrigger>
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full space-y-6">
+                        <TabsList className="bg-black/20 border border-white/5 w-full p-1 h-11 rounded-xl grid grid-cols-4">
+                            <TabsTrigger value="overview" className="h-9 rounded-lg data-[state=active]:bg-brand-500 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all">Overview</TabsTrigger>
+                            <TabsTrigger value="metrics" className="h-9 rounded-lg data-[state=active]:bg-brand-500 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all">Metrics</TabsTrigger>
+                            <TabsTrigger value="execution" className="h-9 rounded-lg data-[state=active]:bg-brand-500 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all">Execution</TabsTrigger>
+                            <TabsTrigger value="chat" className="h-9 rounded-lg data-[state=active]:bg-brand-500 data-[state=active]:text-white font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1">
+                                <MessageSquare size={12} /> Chat
+                            </TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="overview" className="mt-0 space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -119,20 +185,20 @@ export function TacticalAnalysisDrawer({ isOpen, onClose, signal }: TacticalAnal
                             <div className="grid grid-cols-3 gap-3">
                                 <div className="bg-black/20 p-3 rounded-xl border border-white/5 text-center">
                                     <div className="text-[10px] text-slate-500 uppercase mb-1">RSI (14)</div>
-                                    <div className={`font-mono font-bold ${Number(indicators.rsi) > 70 || Number(indicators.rsi) < 30 ? 'text-amber-400' : 'text-white'}`}>
-                                        {indicators.rsi}
+                                    <div className={`font-mono font-bold ${Number(indicators.rsi) > 70 || Number(indicators.rsi) < 30 ? 'text-amber-400' : 'text-white'} ${loadingMetrics ? 'animate-pulse' : ''}`}>
+                                        {loadingMetrics ? '...' : indicators.rsi}
                                     </div>
                                 </div>
                                 <div className="bg-black/20 p-3 rounded-xl border border-white/5 text-center">
                                     <div className="text-[10px] text-slate-500 uppercase mb-1">Volume</div>
-                                    <div className="font-mono font-bold text-emerald-400">
-                                        {indicators.volume}
+                                    <div className={`font-mono font-bold text-emerald-400 ${loadingMetrics ? 'animate-pulse' : ''}`}>
+                                        {loadingMetrics ? '...' : indicators.volume}
                                     </div>
                                 </div>
                                 <div className="bg-black/20 p-3 rounded-xl border border-white/5 text-center">
                                     <div className="text-[10px] text-slate-500 uppercase mb-1">MACD</div>
-                                    <div className="font-mono font-bold text-xs text-brand-400 truncate px-1" title={indicators.macd as string}>
-                                        {indicators.macd}
+                                    <div className={`font-mono font-bold text-xs text-brand-400 truncate px-1 ${loadingMetrics ? 'animate-pulse' : ''}`} title={indicators.macd as string}>
+                                        {loadingMetrics ? '...' : indicators.macd}
                                     </div>
                                 </div>
                             </div>
@@ -189,6 +255,17 @@ export function TacticalAnalysisDrawer({ isOpen, onClose, signal }: TacticalAnal
                                 </Button>
                             </div>
                         </TabsContent>
+
+                        <TabsContent value="chat" className="mt-0 h-[450px] animate-in fade-in slide-in-from-bottom-2 duration-500">
+                            <div className="h-full rounded-xl overflow-hidden border border-white/10 bg-[#0B1121]">
+                                <AdvisorChat
+                                    embedded={true}
+                                    currentToken={signal.token}
+                                    currentTimeframe={signal.timeframe || "1h"}
+                                    initialContext={signal}
+                                />
+                            </div>
+                        </TabsContent>
                     </Tabs>
                 </div>
 
@@ -196,6 +273,7 @@ export function TacticalAnalysisDrawer({ isOpen, onClose, signal }: TacticalAnal
                     <Button
                         variant="secondary"
                         className="flex-1 bg-white/10 hover:bg-white/20 text-white font-bold h-12 border border-white/5"
+                        onClick={() => setActiveTab('chat')}
                     >
                         <MessageSquare size={18} className="mr-2 text-brand-400" />
                         Ask Copilot
