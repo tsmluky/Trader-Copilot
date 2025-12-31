@@ -23,3 +23,23 @@ backend/.env
 .env
 *.db
 
+
+# Local test artifacts
+/test_output*.txt
+/backend/pytest_output.txt
+
+
+# Generated bundles / exports (DO NOT COMMIT)
+/_SALE_EXPORT/
+/_KIMI_DUMP/
+/KIMI_MINIBUNDLE.txt
+
+# Python virtualenvs (local)
+/backend/venv/
+/backend/.venv/
+/.venv/
+
+# Python caches
+**/__pycache__/
+**/*.pyc
+
