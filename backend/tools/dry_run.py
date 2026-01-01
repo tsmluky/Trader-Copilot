@@ -1,4 +1,3 @@
-
 import sys
 import os
 import traceback
@@ -12,8 +11,9 @@ try:
     # Attempt to import main
     # This triggers all top-level imports in main.py and its dependencies
     import main
+
     print("✅ Successfully imported 'main'")
-    
+
     # Check if app exists
     if hasattr(main, "app"):
         print("✅ 'app' object found in main")

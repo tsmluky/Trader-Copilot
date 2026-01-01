@@ -18,14 +18,14 @@ def _format_market_block(market: Dict) -> str:
             "ts": "2025-11-18T23:46:57.294000+00:00"
         }
     """
-    token   = str(market.get("token", "")).upper()
-    symbol  = str(market.get("symbol", "N/D"))
-    exch    = str(market.get("exchange", "N/D"))
-    ts      = str(market.get("ts", "N/D"))
+    token = str(market.get("token", "")).upper()
+    symbol = str(market.get("symbol", "N/D"))
+    exch = str(market.get("exchange", "N/D"))
+    ts = str(market.get("ts", "N/D"))
 
-    price   = market.get("price")
-    chg24   = market.get("change_24h")
-    vol24   = market.get("volume_24h")
+    price = market.get("price")
+    chg24 = market.get("change_24h")
+    vol24 = market.get("volume_24h")
 
     if price is None:
         price_str = "N/D"
@@ -84,8 +84,8 @@ def format_pro_prompt_v2(
         #ANALYSIS_END
     con secciones internas claras.
     """
-    token_up  = token.upper()
-    tf_str    = timeframe
+    token_up = token.upper()
+    tf_str = timeframe
 
     ctxt_block = _format_market_block(market)
 

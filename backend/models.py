@@ -10,17 +10,18 @@ from pydantic import BaseModel, Field
 
 from pydantic import field_validator, ConfigDict
 
+
 class LiteReq(BaseModel):
     token: str = Field(..., description="Token base: eth|btc|sol|xau")
     timeframe: str = Field(..., description="Timeframe, e.g. 30m, 1h, 4h")
-    mode: Literal["LITE"] = "LITE" # Make mode explicit and validated
-    message: Optional[str] = None # For Audit/Persistence Markers
+    mode: Literal["LITE"] = "LITE"  # Make mode explicit and validated
+    message: Optional[str] = None  # For Audit/Persistence Markers
 
     model_config = ConfigDict(extra="forbid")
 
-    @field_validator('timeframe')
+    @field_validator("timeframe")
     def validate_timeframe(cls, v):
-        allowed = {'5m', '15m', '30m', '1h', '4h', '1d', '1w'}
+        allowed = {"5m", "15m", "30m", "1h", "4h", "1d", "1w"}
         if v not in allowed:
             raise ValueError(f"Timeframe must be one of {allowed}")
         return v
@@ -37,14 +38,19 @@ class ProReq(BaseModel):
 
 class AdvisorReq(BaseModel):
     token: str = Field(..., description="Token base: eth|btc|sol|xau")
-    direction: Literal["long", "short"] = Field(..., description="Dirección de la posición")
+    direction: Literal["long", "short"] = Field(
+        ..., description="Dirección de la posición"
+    )
     entry: float = Field(..., description="Precio de entrada de la posición")
     tp: float = Field(..., description="Take profit previsto")
     sl: float = Field(..., description="Stop loss previsto")
-    size_quote: float = Field(..., description="Tamaño de la posición en moneda de cotización (ej. USDT)")
+    size_quote: float = Field(
+        ..., description="Tamaño de la posición en moneda de cotización (ej. USDT)"
+    )
 
 
 # == Response models ==
+
 
 class LiteSignal(BaseModel):
     """
@@ -58,14 +64,23 @@ class LiteSignal(BaseModel):
      "confidence":0.68,"rationale":"≤240c","source":"lite-rule@v1"
     }
     """
-    timestamp: datetime = Field(..., description="Timestamp UTC de generación de la señal")
-    token: str = Field(..., description="Token analizado, en mayúsculas (ETH/BTC/SOL/XAU)")
+
+    timestamp: datetime = Field(
+        ..., description="Timestamp UTC de generación de la señal"
+    )
+    token: str = Field(
+        ..., description="Token analizado, en mayúsculas (ETH/BTC/SOL/XAU)"
+    )
     timeframe: str = Field(..., description="Timeframe, ej. 30m, 1h, 4h")
-    direction: Literal["long", "short"] = Field(..., description="Dirección de la operación propuesta")
+    direction: Literal["long", "short"] = Field(
+        ..., description="Dirección de la operación propuesta"
+    )
     entry: float = Field(..., description="Precio de entrada sugerido")
     tp: float = Field(..., description="Take profit sugerido")
     sl: float = Field(..., description="Stop loss sugerido")
-    confidence: float = Field(..., ge=0.0, le=1.0, description="Confianza 0..1 de la señal")
+    confidence: float = Field(
+        ..., ge=0.0, le=1.0, description="Confianza 0..1 de la señal"
+    )
     rationale: str = Field(..., description="Racional breve de la señal")
     # 🔧 Cambio clave: ahora tiene valor por defecto → si el backend no lo envía, no peta
     source: str = Field(
@@ -73,8 +88,7 @@ class LiteSignal(BaseModel):
         description="Identificador de la regla/versión, ej. lite-rule@v1",
     )
     source_exchange: Optional[str] = Field(
-        None,
-        description="Exchange fuente de los datos (binance, kucoin, mock)"
+        None, description="Exchange fuente de los datos (binance, kucoin, mock)"
     )
 
 
@@ -96,18 +110,28 @@ class AdvisorResp(BaseModel):
      "risk_score":0.44,"confidence":0.63
     }
     """
+
     token: str = Field(..., description="Token de la posición")
-    direction: Literal["long", "short"] = Field(..., description="Dirección de la posición")
+    direction: Literal["long", "short"] = Field(
+        ..., description="Dirección de la posición"
+    )
     entry: float = Field(..., description="Precio de entrada de la posición")
-    size_quote: float = Field(..., description="Tamaño de la posición en moneda de cotización")
+    size_quote: float = Field(
+        ..., description="Tamaño de la posición en moneda de cotización"
+    )
     tp: float = Field(..., description="Take profit actual o recomendado")
     sl: float = Field(..., description="Stop loss actual o recomendado")
     alternatives: List[AdvisorAlternative] = Field(
         default_factory=list,
         description="Escenarios alternativos con acciones condicionales",
     )
-    risk_score: float = Field(..., ge=0.0, le=1.0, description="Score de riesgo 0..1 (1 = riesgo muy bajo)")
-    confidence: float = Field(..., ge=0.0, le=1.0, description="Confianza en el plan propuesto")
+    risk_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Score de riesgo 0..1 (1 = riesgo muy bajo)"
+    )
+    confidence: float = Field(
+        ..., ge=0.0, le=1.0, description="Confianza en el plan propuesto"
+    )
+
 
 class CopilotProfileBase(BaseModel):
     trader_style: Optional[str] = "BALANCED"
@@ -115,11 +139,14 @@ class CopilotProfileBase(BaseModel):
     time_horizon: Optional[str] = "INTRADAY"
     custom_instructions: Optional[str] = None
 
+
 class CopilotProfileCreate(CopilotProfileBase):
     pass
 
+
 class CopilotProfileUpdate(CopilotProfileBase):
     pass
+
 
 class CopilotProfileResp(CopilotProfileBase):
     id: int

@@ -21,7 +21,9 @@ db_url = os.getenv("DATABASE_URL")
 if not db_url:
     print("\n❌ ERROR: DATABASE_URL no encontrada en .env")
     print("\nAsegúrate de tener esta línea en tu .env:")
-    print("DATABASE_URL=postgresql://postgres:SzApckZdqOnbbbyeLeWLRVfBZWZtAaVu@shinkansen.proxy.rlwy.net:37966/railway")
+    print(
+        "DATABASE_URL=postgresql://postgres:SzApckZdqOnbbbyeLeWLRVfBZWZtAaVu@shinkansen.proxy.rlwy.net:37966/railway"
+    )
     sys.exit(1)
 
 print("\n✅ DATABASE_URL encontrada")
@@ -32,11 +34,11 @@ print("\n📡 Probando conexión a Railway...")
 try:
     from database import SessionLocal
     from sqlalchemy import text
-    
+
     db = SessionLocal()
-    result = db.execute(text('SELECT 1')).scalar()
+    result = db.execute(text("SELECT 1")).scalar()
     db.close()
-    
+
     if result == 1:
         print("✅ Conexión exitosa a Railway PostgreSQL!")
     else:
@@ -55,7 +57,7 @@ print("\n🗄️  Verificando tablas...")
 try:
     from models_db import Base
     from database import engine_sync
-    
+
     Base.metadata.create_all(bind=engine_sync)
     print("✅ Tablas verificadas/creadas")
 except Exception as e:
@@ -68,20 +70,31 @@ try:
     from database import SessionLocal
     from models_db import StrategyConfig
     import json
-    
+
     db = SessionLocal()
-    
+
     # Desactivar todas las estrategias viejas
-    old_strategies = ['rsi_macd_divergence_v1', 'ma_cross_v1', 'donchian_breakout_v1', 'bb_mean_reversion_v1']
+    old_strategies = [
+        "rsi_macd_divergence_v1",
+        "ma_cross_v1",
+        "donchian_breakout_v1",
+        "bb_mean_reversion_v1",
+    ]
     for sid in old_strategies:
-        strat = db.query(StrategyConfig).filter(StrategyConfig.strategy_id == sid).first()
+        strat = (
+            db.query(StrategyConfig).filter(StrategyConfig.strategy_id == sid).first()
+        )
         if strat:
             strat.enabled = 0
             print(f"  ❌ Desactivada: {sid}")
-    
+
     # Crear/Actualizar Donchian V2
-    donchian = db.query(StrategyConfig).filter(StrategyConfig.strategy_id == 'donchian_v2').first()
-    
+    donchian = (
+        db.query(StrategyConfig)
+        .filter(StrategyConfig.strategy_id == "donchian_v2")
+        .first()
+    )
+
     if not donchian:
         donchian = StrategyConfig(
             strategy_id="donchian_v2",
@@ -95,12 +108,14 @@ try:
             risk_profile="medium",
             mode="PRO",
             source_type="ENGINE",
-            config_json=json.dumps({
-                "period": 20,
-                "atr_period": 14,
-                "atr_ma_period": 20,
-                "ema_trend_period": 200
-            })
+            config_json=json.dumps(
+                {
+                    "period": 20,
+                    "atr_period": 14,
+                    "atr_ma_period": 20,
+                    "ema_trend_period": 200,
+                }
+            ),
         )
         db.add(donchian)
         print("  ✅ Creada: donchian_v2")
@@ -108,15 +123,16 @@ try:
         donchian.enabled = 1
         donchian.interval_seconds = 3600
         print("  ✅ Actualizada: donchian_v2")
-    
+
     db.commit()
     db.close()
-    
+
     print("\n✅ Configuración de estrategias completada")
-    
+
 except Exception as e:
     print(f"❌ Error configurando estrategias: {e}")
     import traceback
+
     traceback.print_exc()
     sys.exit(1)
 

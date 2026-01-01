@@ -5,9 +5,11 @@ from typing import Dict, Any
 
 LOG_ROOT = Path("backend/logs")
 
+
 def ensure_log_dirs() -> None:
     for d in ["LITE", "PRO", "ADVISOR", "EVALUATED"]:
         (LOG_ROOT / d).mkdir(parents=True, exist_ok=True)
+
 
 def log_row(mode: str, token: str, row: Dict[str, Any]) -> str:
     ensure_log_dirs()
@@ -19,6 +21,7 @@ def log_row(mode: str, token: str, row: Dict[str, Any]) -> str:
             w.writeheader()
         w.writerow(row)
     return str(path)
+
 
 def stream_csv(mode: str, token: str) -> str:
     path = LOG_ROOT / mode.upper() / f"{token.lower()}.csv"

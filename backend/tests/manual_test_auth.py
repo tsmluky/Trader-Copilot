@@ -5,19 +5,20 @@ import uuid
 BASE_URL = "http://127.0.0.1:8000"
 REGISTER_URL = f"{BASE_URL}/auth/register"
 
+
 def test_registration():
     print("=== TEST START: Registration Flow ===")
-    
+
     # Generate unique email
     unique_id = str(uuid.uuid4())[:8]
     email = f"test_{unique_id}@example.com"
-    
+
     payload = {
         "email": email,
         "password": "password123",
-        "name": f"Test User {unique_id}"
+        "name": f"Test User {unique_id}",
     }
-    
+
     # 1. Successful Registration
     print(f"\n[TEST 1] Testing Valid Registration: {email}")
     try:
@@ -44,13 +45,13 @@ def test_registration():
             print(res.text)
     except Exception as e:
         print(f"CRASH: {e}")
-        
+
     # 3. Invalid Email Format
     print("\n[TEST 3] Testing Invalid Email Format")
     bad_payload = {
         "email": "not-an-email",
         "password": "password123",
-        "name": "Bad Email User"
+        "name": "Bad Email User",
     }
     try:
         res = requests.post(REGISTER_URL, json=bad_payload)
@@ -65,6 +66,7 @@ def test_registration():
         print(f"CRASH: {e}")
 
     print("\n=== TEST END ===")
+
 
 if __name__ == "__main__":
     test_registration()

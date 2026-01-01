@@ -1,12 +1,11 @@
 import requests
-import json
-import os
 import sys
 
 # Configuration
 BASE_URL = "http://localhost:8000"
 ADMIN_EMAIL = "admin@tradercopilot.com"
 ADMIN_PASSWORD = "admin123"
+
 
 class VerificationSession:
     def __init__(self):
@@ -19,10 +18,7 @@ class VerificationSession:
     def login(self):
         self.log(f"Attempting login as {ADMIN_EMAIL}...")
         try:
-            payload = {
-                "username": ADMIN_EMAIL,
-                "password": ADMIN_PASSWORD
-            }
+            payload = {"username": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
             resp = self.session.post(f"{BASE_URL}/auth/token", data=payload)
             if resp.status_code == 200:
                 data = resp.json()
@@ -45,20 +41,25 @@ class VerificationSession:
             payload = {
                 "token": "BTC",
                 "timeframe": "1h",
-                "mode": "LITE", # Optional likely
-                "source": "verification_script" # Optional
+                "mode": "LITE",  # Optional likely
+                "source": "verification_script",  # Optional
             }
             resp = self.session.post(f"{BASE_URL}/analyze/lite", json=payload)
             if resp.status_code == 200:
                 data = resp.json()
                 if "direction" in data and "confidence" in data:
-                    self.log(f"Lite Signal OK: {data['direction']} ({data['confidence']}%)", "SUCCESS")
+                    self.log(
+                        f"Lite Signal OK: {data['direction']} ({data['confidence']}%)",
+                        "SUCCESS",
+                    )
                     return True
                 else:
                     self.log(f"Lite Signal format unexpected: {data.keys()}", "WARNING")
-                    return True # Still 200 OK
+                    return True  # Still 200 OK
             else:
-                self.log(f"Lite Signal failed: {resp.status_code} - {resp.text}", "ERROR")
+                self.log(
+                    f"Lite Signal failed: {resp.status_code} - {resp.text}", "ERROR"
+                )
                 return False
         except Exception as e:
             self.log(f"Lite Signal Exception: {e}", "CRITICAL")
@@ -67,12 +68,12 @@ class VerificationSession:
     def check_analysis_pro(self):
         self.log("Testing /analyze/pro (ETH 4h)...")
         try:
-             # Payload based on ProReq likely structure
+            # Payload based on ProReq likely structure
             payload = {
                 "token": "ETH",
                 "timeframe": "4h",
                 "mode": "PRO",
-                "style": "scalping" # Guessing fields
+                "style": "scalping",  # Guessing fields
             }
             resp = self.session.post(f"{BASE_URL}/analyze/pro", json=payload)
             if resp.status_code == 200:
@@ -81,12 +82,16 @@ class VerificationSession:
                     self.log("Pro Analysis OK (Content received).", "SUCCESS")
                     return True
                 else:
-                     self.log(f"Pro Analysis format unexpected: {data.keys()}", "WARNING")
-                     return True
+                    self.log(
+                        f"Pro Analysis format unexpected: {data.keys()}", "WARNING"
+                    )
+                    return True
             else:
                 # 429 is also a "success" in terms of connectivity, but strictly it's a failure for the test intent
                 # However, for verification we want 200.
-                self.log(f"Pro Analysis failed: {resp.status_code} - {resp.text}", "ERROR")
+                self.log(
+                    f"Pro Analysis failed: {resp.status_code} - {resp.text}", "ERROR"
+                )
                 return False
         except Exception as e:
             self.log(f"Pro Analysis Exception: {e}", "CRITICAL")
@@ -116,24 +121,27 @@ class VerificationSession:
                 self.log("Advisor Profile OK.", "SUCCESS")
                 return True
             else:
-                self.log(f"Advisor Profile failed: {resp.status_code} - {resp.text}", "ERROR")
+                self.log(
+                    f"Advisor Profile failed: {resp.status_code} - {resp.text}", "ERROR"
+                )
                 return False
         except Exception as e:
             self.log(f"Advisor Profile Exception: {e}", "CRITICAL")
             return False
+
 
 def main():
     session = VerificationSession()
     if not session.login():
         print("❌ Critical Auth Failure. Aborting.")
         sys.exit(1)
-    
+
     # Run Checks
     results = {
         "Signals LITE": session.check_signals_lite(),
         "Analysis PRO": session.check_analysis_pro(),
         "Logs System": session.check_logs(),
-        "Copilot Profile": session.check_copilot_profile()
+        "Copilot Profile": session.check_copilot_profile(),
     }
 
     print("\n--- SUMMARY ---")
@@ -141,12 +149,14 @@ def main():
     for k, v in results.items():
         icon = "✅" if v else "❌"
         print(f"{icon} {k}")
-        if not v: fail = True
-    
+        if not v:
+            fail = True
+
     if fail:
         sys.exit(1)
     else:
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

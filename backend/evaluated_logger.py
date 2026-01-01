@@ -95,7 +95,11 @@ def _append_evaluations(token: str, rows: List[Dict[str, str]]) -> int:
     # 2. DB
     try:
         from backend.database import SessionLocal
-        from backend.models_db import Signal as SignalDB, SignalEvaluation, StrategyConfig
+        from backend.models_db import (
+            Signal as SignalDB,
+            SignalEvaluation,
+            StrategyConfig,
+        )
         from sqlalchemy import select, func
 
         db = SessionLocal()
@@ -107,7 +111,7 @@ def _append_evaluations(token: str, rows: List[Dict[str, str]]) -> int:
                 ts_str = row.get("signal_ts")
                 if not ts_str:
                     continue
-                
+
                 # Parse timestamp to match DB format
                 try:
                     ts_dt = _parse_iso_ts(ts_str)
@@ -116,17 +120,16 @@ def _append_evaluations(token: str, rows: List[Dict[str, str]]) -> int:
 
                 # Buscar Signal por token y timestamp
                 stmt = select(Signal).where(
-                    Signal.token == token.upper(),
-                    Signal.timestamp == ts_dt
+                    Signal.token == token.upper(), Signal.timestamp == ts_dt
                 )
                 signal_obj = db.execute(stmt).scalars().first()
-                
+
                 if not signal_obj:
                     # Fallback: buscar por rango de 1 segundo
                     stmt = select(Signal).where(
                         Signal.token == token.upper(),
                         Signal.timestamp >= ts_dt - timedelta(seconds=1),
-                        Signal.timestamp <= ts_dt + timedelta(seconds=1)
+                        Signal.timestamp <= ts_dt + timedelta(seconds=1),
                     )
                     signal_obj = db.execute(stmt).scalars().first()
 
@@ -140,7 +143,7 @@ def _append_evaluations(token: str, rows: List[Dict[str, str]]) -> int:
                         signal_id=signal_obj.id,
                         evaluated_at=datetime.utcnow(),
                         result=row.get("result"),
-                        pnl_r=0.0, 
+                        pnl_r=0.0,
                         exit_price=float(row.get("price_at_eval", 0)),
                     )
                     db.add(eval_obj)
@@ -148,9 +151,9 @@ def _append_evaluations(token: str, rows: List[Dict[str, str]]) -> int:
                     # Mark strategy for stats update if present
                     if signal_obj.strategy_id:
                         strategies_to_update.add(signal_obj.strategy_id)
-            
+
             db.commit()
-            
+
             # 3. Update Strategy Stats
             for strat_id in strategies_to_update:
                 _update_strategy_stats(strat_id, db)
@@ -175,25 +178,39 @@ def _update_strategy_stats(strategy_id: str, db) -> None:
     from sqlalchemy import func
 
     # Count total evaluated for this strategy
-    total_eval = db.query(func.count(SignalEvaluation.id))\
-        .join(Signal, Signal.id == SignalEvaluation.signal_id)\
-        .filter(Signal.strategy_id == strategy_id).scalar() or 0
+    total_eval = (
+        db.query(func.count(SignalEvaluation.id))
+        .join(Signal, Signal.id == SignalEvaluation.signal_id)
+        .filter(Signal.strategy_id == strategy_id)
+        .scalar()
+        or 0
+    )
 
     # Count wins (hit-tp)
-    total_wins = db.query(func.count(SignalEvaluation.id))\
-        .join(Signal, Signal.id == SignalEvaluation.signal_id)\
-        .filter(Signal.strategy_id == strategy_id)\
-        .filter(SignalEvaluation.result == "hit-tp").scalar() or 0
+    total_wins = (
+        db.query(func.count(SignalEvaluation.id))
+        .join(Signal, Signal.id == SignalEvaluation.signal_id)
+        .filter(Signal.strategy_id == strategy_id)
+        .filter(SignalEvaluation.result == "hit-tp")
+        .scalar()
+        or 0
+    )
 
     # Calculate Rate
     win_rate = (total_wins / total_eval) if total_eval > 0 else 0.0
 
     # Update Config
-    strat_config = db.query(StrategyConfig).filter(StrategyConfig.strategy_id == strategy_id).first()
+    strat_config = (
+        db.query(StrategyConfig)
+        .filter(StrategyConfig.strategy_id == strategy_id)
+        .first()
+    )
     if strat_config:
         strat_config.win_rate = win_rate
         db.commit()
-        print(f"[STATS] Updated {strategy_id}: WinRate={win_rate:.2%} ({total_wins}/{total_eval})")
+        print(
+            f"[STATS] Updated {strategy_id}: WinRate={win_rate:.2%} ({total_wins}/{total_eval})"
+        )
 
 
 def _evaluate_signal_row(row: Dict[str, str]) -> Dict[str, str]:
@@ -267,7 +284,11 @@ def _evaluate_signal_row(row: Dict[str, str]) -> Dict[str, str]:
         # Ajuste a neutral si el movimiento es insignificante Y ha pasado tiempo (2h)
         ts_dt = _parse_iso_ts(signal_ts_str)
         age = datetime.utcnow() - ts_dt
-        if result == "open" and age > timedelta(hours=2) and abs(move_pct_pct) < NEUTRAL_THRESHOLD_PCT:
+        if (
+            result == "open"
+            and age > timedelta(hours=2)
+            and abs(move_pct_pct) < NEUTRAL_THRESHOLD_PCT
+        ):
             result = "neutral"
 
     eval_row = {
@@ -348,8 +369,8 @@ def evaluate_all_tokens() -> Tuple[int, int]:
         eval_rows_to_save: List[Dict[str, str]] = []
         for row in pending_rows:
             eval_result = _evaluate_signal_row(row)
-            
-            # SOLO guardar si es terminal (TP/SL/Neutral). 
+
+            # SOLO guardar si es terminal (TP/SL/Neutral).
             # Si sigue OPEN, la ignoramos para que se re-evalue luego.
             if eval_result["result"] in ["hit-tp", "hit-sl", "neutral"]:
                 eval_rows_to_save.append(eval_result)
@@ -363,7 +384,9 @@ def evaluate_all_tokens() -> Tuple[int, int]:
             print(f"[EVAL] {token}: {written} señales finalizadas (TP/SL/Neutral).")
 
     if total_evals > 0:
-        print(f"[EVAL] Resumen → tokens: {total_tokens}, evaluaciones nuevas: {total_evals}")
+        print(
+            f"[EVAL] Resumen → tokens: {total_tokens}, evaluaciones nuevas: {total_evals}"
+        )
     return total_tokens, total_evals
 
 

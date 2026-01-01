@@ -3,11 +3,13 @@ import os
 import json
 from typing import Any, Optional
 
+
 class CacheService:
     """
     Servicio de caché híbrido (Memoria + Redis opcional).
     Por defecto usa memoria para cero-configuración.
     """
+
     _instance = None
     _memory_storage = {}
 
@@ -24,10 +26,13 @@ class CacheService:
         if redis_url:
             try:
                 import redis
+
                 self.redis_client = redis.from_url(redis_url, decode_responses=True)
                 print(f"[CACHE] Connected to Redis at {redis_url}")
             except ImportError:
-                print("[CACHE] Redis URL found but 'redis' lib not installed. Using Memory.")
+                print(
+                    "[CACHE] Redis URL found but 'redis' lib not installed. Using Memory."
+                )
             except Exception as e:
                 print(f"[CACHE] Redis connection failed: {e}. Using Memory.")
         else:
@@ -42,7 +47,7 @@ class CacheService:
                     return json.loads(val)
             except Exception as e:
                 print(f"[CACHE] Redis GET Error: {e}")
-        
+
         # 2. Memory
         data = self._memory_storage.get(key)
         if data:
@@ -50,7 +55,7 @@ class CacheService:
             if time.time() < expiry:
                 return val
             else:
-                del self._memory_storage[key] # Expired
+                del self._memory_storage[key]  # Expired
         return None
 
     def set(self, key: str, value: Any, ttl: int = 60):
@@ -75,6 +80,7 @@ class CacheService:
         keys_to_del = [k for k, v in self._memory_storage.items() if now > v[1]]
         for k in keys_to_del:
             del self._memory_storage[k]
+
 
 # Global Instance
 cache = CacheService()

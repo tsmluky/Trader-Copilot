@@ -21,25 +21,20 @@ else:
 
 payload = {
     "model": MODEL,
-    "messages": [
-        {"role": "user", "content": "Say 'DeepSeek Online' in Spanish."}
-    ],
-    "max_tokens": 10
+    "messages": [{"role": "user", "content": "Say 'DeepSeek Online' in Spanish."}],
+    "max_tokens": 10,
 }
 
-headers = {
-    "Authorization": f"Bearer {API_KEY}",
-    "Content-Type": "application/json"
-}
+headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
 
 try:
     print("Sending request...")
     resp = requests.post(API_URL, json=payload, headers=headers, timeout=10)
     print(f"Status Code: {resp.status_code}")
-    
+
     if resp.status_code == 200:
         data = resp.json()
-        content = data['choices'][0]['message']['content']
+        content = data["choices"][0]["message"]["content"]
         print(f"Response: {content}")
         print("✅ SUCCESS: DeepSeek API is working.")
     else:

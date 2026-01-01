@@ -1,5 +1,3 @@
-
-
 file_path = "backend/main.py"
 
 with open(file_path, "r", encoding="utf-8") as f:
@@ -120,7 +118,7 @@ SL: {lite.sl}
 """
 
 # Replace content
-final_lines = lines[:start_idx] + [new_code + "\n"] + lines[end_idx+1:]
+final_lines = lines[:start_idx] + [new_code + "\n"] + lines[end_idx + 1 :]
 
 with open(file_path, "w", encoding="utf-8") as f:
     f.writelines(final_lines)

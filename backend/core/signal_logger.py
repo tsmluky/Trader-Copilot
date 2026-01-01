@@ -48,13 +48,13 @@ def log_signal(signal: Signal) -> None:
     Comportamiento:
     - CSV: logs/{MODE}/{token}.csv (token en minúsculas)
     - DB: tabla Signal con todos los campos del modelo
-    
+
     Notas:
     - El campo 'extra' (dict libre) se convierte a string JSON para CSV
     - El modo EVALUATED tiene fichero especial: {token}.evaluated.csv
       (pero se recomienda usar evaluated_logger.py para ese caso específico)
     """
-    
+
     mode = signal.mode.upper()
     token_lower = signal.token.lower()
 
@@ -68,7 +68,7 @@ def log_signal(signal: Signal) -> None:
 def _write_to_csv(signal: Signal, mode: str, token_lower: str) -> None:
     """
     Escritura exclusiva de CSV para una señal.
-    
+
     Estructura de directorios:
     - logs/LITE/{token}.csv
     - logs/PRO/{token}.csv
@@ -118,18 +118,21 @@ def _write_to_csv(signal: Signal, mode: str, token_lower: str) -> None:
 def _write_to_db(signal: Signal, mode: str) -> None:
     """
     Escritura exclusiva de DB para una señal.
-    
+
     Guarda en la tabla Signal usando el ORM de SQLAlchemy.
     Si falla, no interrumpe el flujo (ya se guardó en CSV).
     """
     try:
         from database import SessionLocal
-        from models_db import Signal as SignalDB # Explicit import from backend package
+        from models_db import Signal as SignalDB  # Explicit import from backend package
         from sqlalchemy.exc import IntegrityError
 
         # Compute Idempotency Key
         ts_iso = signal.timestamp.isoformat()
-        idem_key = f"{signal.strategy_id}|{signal.token.upper()}|{signal.timeframe}|{ts_iso}|{signal.user_id}|{signal.mode}"
+        idem_key = (
+            f"{signal.strategy_id}|{signal.token.upper()}|{signal.timeframe}|"
+            f"{ts_iso}|{signal.user_id}|{signal.mode}"
+        )
 
         # Preparar datos para el modelo DB
         db_signal = SignalDB(
@@ -147,7 +150,7 @@ def _write_to_db(signal: Signal, mode: str) -> None:
             raw_response=str(signal.extra) if signal.extra else None,
             strategy_id=signal.strategy_id,
             idempotency_key=idem_key,
-            user_id=signal.user_id
+            user_id=signal.user_id,
         )
 
         db = SessionLocal()
@@ -156,18 +159,27 @@ def _write_to_db(signal: Signal, mode: str) -> None:
             db.commit()
             ts_str = signal.timestamp.replace(microsecond=0).isoformat() + "Z"
             print(f"[DB] ✅ Señal guardada en DB: {mode} - {signal.token} - {ts_str}")
-            
+
             # --- NOTIFICACIÓN PUSH ---
             try:
                 from notify import send_push_notification
+
                 title = f"New Signal: {signal.direction.upper()} {signal.token}"
-                body = f"Entry: {signal.entry} | TP: {signal.tp} | SL: {signal.sl}\nStrategy: {signal.strategy_id or 'Unknown'}"
-                res = send_push_notification(title, body, data={"token": signal.token, "type": "signal"})
+                body = (
+                    f"Entry: {signal.entry} | TP: {signal.tp} | SL: {signal.sl}\n"
+                    f"Strategy: {signal.strategy_id or 'Unknown'}"
+                )
+                res = send_push_notification(
+                    title, body, data={"token": signal.token, "type": "signal"}
+                )
                 if res.get("success", 0) > 0:
-                    devices = res['success']
+                    devices = res["success"]
                     print(f"[PUSH] 🔔 Notificación enviada a {devices} dispositivos.")
                 elif res.get("failed", 0) > 0:
-                    print(f"[PUSH] ⚠️ Fallo al enviar notificaciones ({res['failed']} fallidos).")
+                    print(
+                        f"[PUSH] ⚠️ Fallo al enviar notificaciones "
+                        f"({res['failed']} fallidos)."
+                    )
             except Exception as push_err:
                 print(f"[PUSH] ❌ Error enviando push: {push_err}")
             # -------------------------
@@ -188,22 +200,24 @@ def _write_to_db(signal: Signal, mode: str) -> None:
     except Exception as e:
         print(f"[DB] ⚠️  Error inesperado en _write_to_db: {e}")
         import traceback
+
         traceback.print_exc()
 
 
 # === Funciones auxiliares para migración/transición ===
 
+
 def signal_from_dict(data: Dict[str, Any], mode: str, strategy_id: str) -> Signal:
     """
     Helper para crear una instancia Signal desde un diccionario legacy.
-    
+
     Útil para refactorizar código existente que usa dicts en vez de Signal.
-    
+
     Args:
         data: Diccionario con campos de señal
         mode: Modo del análisis (LITE, PRO, ADVISOR, etc.)
         strategy_id: ID de la estrategia generadora
-        
+
     Returns:
         Instancia de Signal lista para usar con log_signal()
     """
@@ -229,7 +243,9 @@ def signal_from_dict(data: Dict[str, Any], mode: str, strategy_id: str) -> Signa
         entry=float(data.get("entry", 0)),
         tp=float(data["tp"]) if data.get("tp") else None,
         sl=float(data["sl"]) if data.get("sl") else None,
-        confidence=float(data["confidence"]) if data.get("confidence") is not None else None,
+        confidence=(
+            float(data["confidence"]) if data.get("confidence") is not None else None
+        ),
         rationale=data.get("rationale"),
         source=data.get("source", "UNKNOWN"),
         extra=data.get("extra"),

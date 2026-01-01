@@ -1,4 +1,3 @@
-
 import sys
 import os
 import json
@@ -9,6 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from database import SessionLocal
 from models_db import StrategyConfig
+
 
 def seed_quant_configs():
     session = SessionLocal()
@@ -23,13 +23,13 @@ def seed_quant_configs():
                 "description": "Trend following strategy using EMA crossovers (Fast/Slow).",
                 "version": "1.0.0",
                 "enabled": 1,
-                "interval_seconds": 3600, # Run every 1 hour
+                "interval_seconds": 3600,  # Run every 1 hour
                 "tokens": json.dumps(["BTC", "ETH", "SOL"]),
                 "timeframes": json.dumps(["1h", "4h"]),
                 "risk_profile": "medium",
                 "mode": "QUANT",
                 "source_type": "ENGINE",
-                "config_json": json.dumps({"fast_period": 9, "slow_period": 21})
+                "config_json": json.dumps({"fast_period": 9, "slow_period": 21}),
             },
             {
                 "strategy_id": "bb_mean_reversion_v1",
@@ -37,18 +37,22 @@ def seed_quant_configs():
                 "description": "Counter-trend strategy exploiting Bollinger Band breakouts.",
                 "version": "1.0.0",
                 "enabled": 1,
-                "interval_seconds": 3600, # Run every 1 hour
+                "interval_seconds": 3600,  # Run every 1 hour
                 "tokens": json.dumps(["BTC", "ETH", "SOL"]),
                 "timeframes": json.dumps(["1h", "15m"]),
                 "risk_profile": "high",
                 "mode": "QUANT",
                 "source_type": "ENGINE",
-                "config_json": json.dumps({"period": 20, "std_dev": 2.0})
-            }
+                "config_json": json.dumps({"period": 20, "std_dev": 2.0}),
+            },
         ]
 
         for cfg in configs:
-            existing = session.query(StrategyConfig).filter_by(strategy_id=cfg["strategy_id"]).first()
+            existing = (
+                session.query(StrategyConfig)
+                .filter_by(strategy_id=cfg["strategy_id"])
+                .first()
+            )
             if existing:
                 print(f"   Refreshed {cfg['name']}...")
                 existing.name = cfg["name"]
@@ -62,7 +66,7 @@ def seed_quant_configs():
                 print(f"   Created {cfg['name']}...")
                 new_strat = StrategyConfig(**cfg)
                 session.add(new_strat)
-        
+
         session.commit()
         print("✅ Seeding Complete. Strategies are READY for Scheduler.")
 
@@ -71,6 +75,7 @@ def seed_quant_configs():
         session.rollback()
     finally:
         session.close()
+
 
 if __name__ == "__main__":
     seed_quant_configs()

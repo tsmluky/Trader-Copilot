@@ -17,6 +17,7 @@ class PriceSnapshot(BaseModel):
     - cambio 24h
     - volumen 24h
     """
+
     token: str
     symbol: str
     exchange: str
@@ -30,6 +31,7 @@ class Candle(BaseModel):
     """
     Una vela OHLCV estándar.
     """
+
     ts: datetime
     o: float
     h: float
@@ -42,6 +44,7 @@ class OHLCVSlice(BaseModel):
     """
     Conjunto de velas para un token/timeframe concreto.
     """
+
     token: str
     symbol: str
     exchange: str

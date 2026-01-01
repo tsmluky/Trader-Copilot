@@ -1,4 +1,3 @@
-
 import sys
 import os
 import json
@@ -6,7 +5,12 @@ import json
 # Add backend to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from main import _build_lite_from_market, _inject_rag_into_lite_rationale, _build_pro_markdown, _load_brain_context
+from main import (
+    _build_lite_from_market,
+    _inject_rag_into_lite_rationale,
+    _build_pro_markdown,
+    _load_brain_context,
+)
 from models import ProReq
 
 # Mock Data
@@ -19,7 +23,7 @@ mock_market = {
     "macd_hist": -2.0,
     "atr": 50.0,
     "trend": "BEARISH",
-    "price_change_24h": -6.0 
+    "price_change_24h": -6.0,
 }
 
 token = "eth"
@@ -42,7 +46,9 @@ print("\n>>> TESTING RAG INJECTION...")
 brain = _load_brain_context(token)
 print(f"Loaded brain keys: {list(brain.keys())}")
 
-enriched_rationale = _inject_rag_into_lite_rationale(token, timeframe, lite_signal, mock_market)
+enriched_rationale = _inject_rag_into_lite_rationale(
+    token, timeframe, lite_signal, mock_market
+)
 print(f"Enriched Rationale: {enriched_rationale}")
 
 # 3. Test PRO Markdown Construction

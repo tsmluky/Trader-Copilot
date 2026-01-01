@@ -1,5 +1,5 @@
 import requests
-import time
+
 
 def check():
     url = "http://127.0.0.1:8000/health"
@@ -18,6 +18,7 @@ def check():
         print("1. Backend is not running.")
         print("2. It's listening on a different port (check console output).")
         print("3. Firewall is blocking connection.")
+
 
 if __name__ == "__main__":
     check()

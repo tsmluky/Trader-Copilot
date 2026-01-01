@@ -16,9 +16,11 @@ if config.config_file_name is not None:
 
 import sys
 import os
+
 sys.path.append(os.getcwd())
 try:
     from models_db import Base
+
     target_metadata = Base.metadata
 except ImportError:
     target_metadata = None
@@ -67,9 +69,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

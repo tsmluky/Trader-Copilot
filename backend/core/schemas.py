@@ -111,16 +111,14 @@ class Signal(BaseModel):
         description="Origen de la señal: 'LLM', 'ENGINE', 'MANUAL', 'LAB', etc.",
         max_length=50,
     )
-    
+
     category: Optional[str] = Field(
-        None,
-        description="Categoría de estrategia: TREND | REVERSION",
-        max_length=20
+        None, description="Categoría de estrategia: TREND | REVERSION", max_length=20
     )
 
     user_id: Optional[int] = Field(
         None,
-        description="ID del usuario propietario de la señal (isolation). Null = Sistema/Global."
+        description="ID del usuario propietario de la señal (isolation). Null = Sistema/Global.",
     )
 
     extra: Optional[Dict[str, Any]] = Field(
@@ -167,11 +165,15 @@ class SignalCreate(BaseModel):
     mode: str = Field(..., description="Modo del análisis", max_length=50)
     token: str = Field(..., description="Token analizado", max_length=50)
     timeframe: str = Field(..., description="Temporalidad", max_length=10)
-    direction: str = Field(..., description="Dirección: long|short|neutral", max_length=10)
+    direction: str = Field(
+        ..., description="Dirección: long|short|neutral", max_length=10
+    )
     entry: float = Field(..., description="Precio de entrada", gt=0)
     tp: Optional[float] = Field(None, description="Take profit", gt=0)
     sl: Optional[float] = Field(None, description="Stop loss", gt=0)
-    confidence: Optional[float] = Field(None, description="Confianza 0-1", ge=0.0, le=1.0)
+    confidence: Optional[float] = Field(
+        None, description="Confianza 0-1", ge=0.0, le=1.0
+    )
     rationale: Optional[str] = Field(None, description="Justificación breve")
     source: str = Field(..., description="Origen de la señal", max_length=50)
     extra: Optional[Dict[str, Any]] = Field(None, description="Metadatos adicionales")
@@ -181,6 +183,7 @@ class UserCreate(BaseModel):
     """
     Schema for user registration request.
     """
+
     email: EmailStr = Field(..., description="User email (unique)")
     password: str = Field(..., description="Password (min 8 chars)", min_length=8)
     name: str = Field("Trader", description="User display name")
@@ -190,6 +193,7 @@ class UserResponse(BaseModel):
     """
     Schema for user response (safe DTO, no password).
     """
+
     id: int
     email: str
     name: str
@@ -199,6 +203,6 @@ class UserResponse(BaseModel):
     telegram_chat_id: Optional[str] = None
     timezone: Optional[str] = "UTC"
     created_at: datetime
-    
+
     class Config:
         from_attributes = True

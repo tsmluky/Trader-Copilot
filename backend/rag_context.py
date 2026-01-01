@@ -85,22 +85,25 @@ def _get_realtime_snapshot(token: str) -> Optional[str]:
 
 from narrative_engine import generate_narrative
 
-def build_token_context(token: str, market_data: Optional[Dict[str, Any]] = None) -> Dict[str, str]:
+
+def build_token_context(
+    token: str, market_data: Optional[Dict[str, Any]] = None
+) -> Dict[str, str]:
     """
     Devuelve un diccionario con contexto RAG listo.
-    Prioriza el MOTOR NARRATIVO DINÁMICO para asegurar calidad en todos los tokens 
+    Prioriza el MOTOR NARRATIVO DINÁMICO para asegurar calidad en todos los tokens
     (no solo los que tienen archivos estáticos).
-    
+
     Si existen archivos manuales en brain/, los usa como "override" o complemento.
     """
     token_upper = token.upper()
-    
+
     # 1. Cargar Archivos Manuales (si existen "Overrides" específicos)
     file_insights = _load_snippet(token_upper, "insights")
     file_news = _load_snippet(token_upper, "news")
     file_sentiment = _load_snippet(token_upper, "sentiment")
     file_onchain = _load_snippet(token_upper, "onchain")
-    
+
     snapshot = _get_realtime_snapshot(token_upper)
 
     # 2. Generar Narrativa Dinámica (Fallback de Alta Calidad)
@@ -108,7 +111,7 @@ def build_token_context(token: str, market_data: Optional[Dict[str, Any]] = None
     if not market_data:
         # Minimal dummy data to prevent crash if backend didn't pass it yet
         market_data = {"price": 0, "change_24h": 0, "rsi": 50, "trend": "NEUTRAL"}
-        
+
     try:
         dynamic = generate_narrative(token_upper, market_data)
     except Exception as e:
@@ -117,19 +120,19 @@ def build_token_context(token: str, market_data: Optional[Dict[str, Any]] = None
         dynamic = {
             "news": "Análisis técnico en curso.",
             "sentiment": "Mercado mixto a la espera de dirección.",
-            "insights": "Monitorear volumen en zonas clave."
+            "insights": "Monitorear volumen en zonas clave.",
         }
 
     # 3. Decidir Fuente Final (Preferimos Dynamic si no hay File, o mezclamos)
     # Estrategia: "Dynamic First" para Sentiment/News (más fresco), "File First" para Insights (más profundo si existe)
-    
+
     final_sentiment = file_sentiment if file_sentiment else dynamic["sentiment"]
     final_news = file_news if file_news else dynamic["news"]
     # Insights: Los del engine son buenos, pero si escribí algo a mano en .md, úsalo.
     final_insights = file_insights if file_insights else dynamic["insights"]
-    
+
     # Onchain suele ser específico, si no hay file, usamos el insight onchain generico del engine si existe o nada
-    final_onchain = file_onchain 
+    final_onchain = file_onchain
 
     context_blocks = []
 

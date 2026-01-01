@@ -4,7 +4,12 @@ from models_db import StrategyConfig
 db = SessionLocal()
 
 # Desactivar todas excepto donchian_v2
-to_disable = ['ma_cross_v1', 'donchian_breakout_v1', 'bb_mean_reversion_v1', 'rsi_macd_divergence_v1']
+to_disable = [
+    "ma_cross_v1",
+    "donchian_breakout_v1",
+    "bb_mean_reversion_v1",
+    "rsi_macd_divergence_v1",
+]
 
 for sid in to_disable:
     strat = db.query(StrategyConfig).filter(StrategyConfig.strategy_id == sid).first()

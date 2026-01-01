@@ -28,7 +28,7 @@ RATIONALES_WIN = [
     "Fibonacci retracement 0.618 held perfectly. "
     "Stochastic oscillator exiting oversold territory.",
     "Symmetrical triangle breakout to the upside. "
-    "Funding rates imply bearish sentiment squeeze."
+    "Funding rates imply bearish sentiment squeeze.",
 ]
 
 RATIONALES_LOSS = [
@@ -41,8 +41,9 @@ RATIONALES_LOSS = [
     "False breakout (bull trap) followed by heavy selling. "
     "liquidity grab below swing low likely.",
     "Double top formation at key psychological level. "
-    "RSI overbought condition triggered sell-off."
+    "RSI overbought condition triggered sell-off.",
 ]
+
 
 def create_demo_user(db: Session):
     """Ensure the demo user exists."""
@@ -53,24 +54,41 @@ def create_demo_user(db: Session):
         user = User(
             email=demo_email,
             name="Analista Institucional",
-            hashed_password="demo", # Plaintext for MVP/Demo simplicity as requested
-            role="admin"
+            hashed_password="demo",  # Plaintext for MVP/Demo simplicity as requested
+            role="admin",
         )
         db.add(user)
         db.commit()
     else:
         print(f"Demo user already exists: {demo_email}")
 
+
 def create_strategies(db: Session):
     """Ensure basic strategies exist."""
     strategies = [
-        {"id": "rsi_divergence", "name": "RSI Divergence 2.0", "desc": "Counter-trend strategy based on RSI momentum divergence."},
-        {"id": "donchian_breakout", "name": "Donchian Trend", "desc": "Trend following system using Donchian Channels."},
-        {"id": "smart_money_concept", "name": "Institutional Flow", "desc": "Tracks large wallet movements and liquidity zones."}
+        {
+            "id": "rsi_divergence",
+            "name": "RSI Divergence 2.0",
+            "desc": "Counter-trend strategy based on RSI momentum divergence.",
+        },
+        {
+            "id": "donchian_breakout",
+            "name": "Donchian Trend",
+            "desc": "Trend following system using Donchian Channels.",
+        },
+        {
+            "id": "smart_money_concept",
+            "name": "Institutional Flow",
+            "desc": "Tracks large wallet movements and liquidity zones.",
+        },
     ]
-    
+
     for s in strategies:
-        strat = db.query(StrategyConfig).filter(StrategyConfig.strategy_id == s["id"]).first()
+        strat = (
+            db.query(StrategyConfig)
+            .filter(StrategyConfig.strategy_id == s["id"])
+            .first()
+        )
         if not strat:
             print(f"Creating strategy: {s['name']}")
             new_strat = StrategyConfig(
@@ -79,14 +97,15 @@ def create_strategies(db: Session):
                 description=s["desc"],
                 enabled=1,
                 tokens='["BTC", "ETH", "SOL"]',
-                timeframes='["1h", "4h"]'
+                timeframes='["1h", "4h"]',
             )
             db.add(new_strat)
     db.commit()
 
+
 def generate_signals(db: Session):
     """Generate realistic history."""
-    
+
     # Check if we already have enough data
     count = db.query(Signal).count()
     if count > 10:
@@ -94,20 +113,20 @@ def generate_signals(db: Session):
         # Optionally continue to add just a few fresh ones?
         # return
         print("Adding a few fresh signals anyway...")
-        
+
     print(f"Seeding {NUM_PAST_SIGNALS} signals...")
-    
+
     now = datetime.utcnow()
-    
+
     for i in range(NUM_PAST_SIGNALS):
         # Time distribution: denser in recent days
         days_back = random.uniform(0, DAYS_HISTORY)
         ts = now - timedelta(days=days_back)
-        
+
         token = random.choice(TOKENS)
         tf = random.choice(TIMEFRAMES)
         direction = random.choice(DIRECTIONS)
-        
+
         # Realistic Price Simulation (mock)
         # Use simple logic to avoid overly long line
         if token == "ETH":
@@ -118,22 +137,22 @@ def generate_signals(db: Session):
             base_price = 150
         else:
             base_price = 20
-            
+
         noise = random.uniform(-0.05, 0.05)
         entry_price = base_price * (1 + noise)
-        
+
         # Determine outcome first to write the narrative
         is_win = random.random() < 0.65  # 65% Win rate for demo "Wow" factor
-        
+
         result_status = "WIN" if is_win else "LOSS"
         # Format rationale
         chosen_rat = random.choice(RATIONALES_WIN if is_win else RATIONALES_LOSS)
         rationale = chosen_rat.format(price=f"{entry_price:.2f}")
-        
+
         # Calculate TP/SL Logic
         risk_reward = random.uniform(1.5, 3.0)
-        risk_pct = 0.015 # 1.5% stop loss
-        
+        risk_pct = 0.015  # 1.5% stop loss
+
         if direction == "LONG":
             sl_price = entry_price * (1 - risk_pct)
             tp_price = entry_price * (1 + (risk_pct * risk_reward))
@@ -156,24 +175,22 @@ def generate_signals(db: Session):
             sl=round(sl_price, 4),
             confidence=round(random.uniform(75, 95), 1),
             rationale=rationale,
-            source="Pro_Analyst_AI", # Premium sounding source
+            source="Pro_Analyst_AI",  # Premium sounding source
             mode="PRO",
-            strategy_id=random.choice(
-                ["rsi_divergence", "smart_money_concept"]
-            )
+            strategy_id=random.choice(["rsi_divergence", "smart_money_concept"]),
         )
         db.add(sig)
-        db.flush() # get ID
-        
+        db.flush()  # get ID
+
         # Create Evaluation (Result)
         # Randomly leave some recent ones open (no evaluation)
-        if (now - ts).total_seconds() > 3600 * 4: # Older than 4 hours -> Closed
+        if (now - ts).total_seconds() > 3600 * 4:  # Older than 4 hours -> Closed
             eval_obj = SignalEvaluation(
                 signal_id=sig.id,
-                evaluated_at=ts + timedelta(hours=4), # Assume closed 4h later
+                evaluated_at=ts + timedelta(hours=4),  # Assume closed 4h later
                 result=result_status,
                 pnl_r=round(pnl_r, 2),
-                exit_price=round(exit_price, 4)
+                exit_price=round(exit_price, 4),
             )
             db.add(eval_obj)
         else:
@@ -184,12 +201,13 @@ def generate_signals(db: Session):
     db.commit()
     print("Seeding complete.")
 
+
 def main():
     print("--- Starting Demo Data Seed ---")
     try:
         # Create Tables if not exist (sync way)
         Base.metadata.create_all(bind=engine_sync)
-        
+
         db = SessionLocal()
         create_demo_user(db)
         create_strategies(db)
@@ -199,7 +217,9 @@ def main():
     except Exception as e:
         print(f"Seed Failed: {e}")
         import traceback
+
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     main()

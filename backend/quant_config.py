@@ -13,14 +13,14 @@ from typing import TypedDict, List, Dict, Literal
 
 
 class QuantStrategy(TypedDict):
-    id: str                     # identificador interno único
-    label: str                  # nombre legible para UI
-    symbol: str                 # par, ej. "ETHUSDT"
-    token: str                  # token normalizado, ej. "ETH"
-    timeframe: str              # ej. "4h"
-    engine_id: str              # nombre de la estrategia en trading_lab (ma_cross_v1, etc.)
+    id: str  # identificador interno único
+    label: str  # nombre legible para UI
+    symbol: str  # par, ej. "ETHUSDT"
+    token: str  # token normalizado, ej. "ETH"
+    timeframe: str  # ej. "4h"
+    engine_id: str  # nombre de la estrategia en trading_lab (ma_cross_v1, etc.)
     profile: Literal["core", "experimental"]
-    params: Dict[str, float]    # parámetros específicos (fast, slow, etc.)
+    params: Dict[str, float]  # parámetros específicos (fast, slow, etc.)
 
 
 # Estrategias CORE del MVP

@@ -27,21 +27,21 @@ import json
 def register_built_in_strategies():
     """Registra estrategias built-in en el registry."""
     print("\n📦 Registering built-in strategies...")
-    
+
     registry = get_registry()
-    
+
     # 1. RSI MACD
     registry.register(RSIMACDDivergenceStrategy)
-    
+
     # 2. Donchian V2
     registry.register(DonchianBreakoutV2)
-    
+
     # 3. SuperTrend Flow
     registry.register(SuperTrendFlowStrategy)
 
     # 4. VWAP Intraday
     registry.register(VWAPIntradayStrategy)
-    
+
     print("✅ Built-in strategies registered")
 
 
@@ -50,15 +50,17 @@ def setup_db_configs():
     Crea configuraciones iniciales en la DB para estrategias.
     """
     print("\n💾 Setting up DB configurations...")
-    
+
     db = SessionLocal()
-    
+
     try:
         # Configuración para RSI MACD
-        existing = db.query(StrategyConfig).filter(
-            StrategyConfig.strategy_id == "rsi_macd_divergence_v1"
-        ).first()
-        
+        existing = (
+            db.query(StrategyConfig)
+            .filter(StrategyConfig.strategy_id == "rsi_macd_divergence_v1")
+            .first()
+        )
+
         if not existing:
             config = StrategyConfig(
                 strategy_id="rsi_macd_divergence_v1",
@@ -72,22 +74,26 @@ def setup_db_configs():
                 risk_profile="medium",
                 mode="CUSTOM",
                 source_type="ENGINE",
-                config_json=json.dumps({
-                    "rsi_period": 14,
-                    "rsi_oversold": 30,
-                    "rsi_overbought": 70,
-                    "min_confidence": 0.65
-                })
+                config_json=json.dumps(
+                    {
+                        "rsi_period": 14,
+                        "rsi_oversold": 30,
+                        "rsi_overbought": 70,
+                        "min_confidence": 0.65,
+                    }
+                ),
             )
             db.add(config)
             db.commit()
             print("  ✅ Created config for: rsi_macd_divergence_v1")
-        
+
         # Configuración para DonchianBreakoutV2
-        existing_donchian = db.query(StrategyConfig).filter(
-            StrategyConfig.strategy_id == "donchian_v2"
-        ).first()
-        
+        existing_donchian = (
+            db.query(StrategyConfig)
+            .filter(StrategyConfig.strategy_id == "donchian_v2")
+            .first()
+        )
+
         if not existing_donchian:
             config_donchian = StrategyConfig(
                 strategy_id="donchian_v2",
@@ -101,22 +107,26 @@ def setup_db_configs():
                 risk_profile="medium-high",
                 mode="PRO",
                 source_type="ENGINE",
-                config_json=json.dumps({
-                    "period": 20,
-                    "atr_period": 14,
-                    "atr_ma_period": 20,
-                    "ema_trend_period": 200
-                })
+                config_json=json.dumps(
+                    {
+                        "period": 20,
+                        "atr_period": 14,
+                        "atr_ma_period": 20,
+                        "ema_trend_period": 200,
+                    }
+                ),
             )
             db.add(config_donchian)
             db.commit()
             print("  ✅ Created config for: donchian_v2")
 
         # Configuración para SuperTrend
-        existing_st = db.query(StrategyConfig).filter(
-            StrategyConfig.strategy_id == "supertrend_flow_v1"
-        ).first()
-        
+        existing_st = (
+            db.query(StrategyConfig)
+            .filter(StrategyConfig.strategy_id == "supertrend_flow_v1")
+            .first()
+        )
+
         if not existing_st:
             config_st = StrategyConfig(
                 strategy_id="supertrend_flow_v1",
@@ -130,22 +140,26 @@ def setup_db_configs():
                 risk_profile="medium",
                 mode="CUSTOM",
                 source_type="ENGINE",
-                config_json=json.dumps({
-                    "atr_period": 10,
-                    "atr_multiplier": 3.0,
-                    "tp_atr_mult": 3.0,
-                    "sl_atr_mult": 1.5
-                })
+                config_json=json.dumps(
+                    {
+                        "atr_period": 10,
+                        "atr_multiplier": 3.0,
+                        "tp_atr_mult": 3.0,
+                        "sl_atr_mult": 1.5,
+                    }
+                ),
             )
             db.add(config_st)
             db.commit()
             print("  ✅ Created config for: supertrend_flow_v1")
 
         # Configuración para VWAP
-        existing_vwap = db.query(StrategyConfig).filter(
-            StrategyConfig.strategy_id == "vwap_intraday_v1"
-        ).first()
-        
+        existing_vwap = (
+            db.query(StrategyConfig)
+            .filter(StrategyConfig.strategy_id == "vwap_intraday_v1")
+            .first()
+        )
+
         if not existing_vwap:
             config_vwap = StrategyConfig(
                 strategy_id="vwap_intraday_v1",
@@ -159,18 +173,20 @@ def setup_db_configs():
                 risk_profile="medium",
                 mode="CUSTOM",
                 source_type="ENGINE",
-                config_json=json.dumps({
-                    "vwap_bands_std": 1.0,
-                    "volume_ma_period": 20,
-                    "volume_threshold": 1.2,
-                    "tp_pct": 0.015,
-                    "sl_pct": 0.008
-                })
+                config_json=json.dumps(
+                    {
+                        "vwap_bands_std": 1.0,
+                        "volume_ma_period": 20,
+                        "volume_threshold": 1.2,
+                        "tp_pct": 0.015,
+                        "sl_pct": 0.008,
+                    }
+                ),
             )
             db.add(config_vwap)
             db.commit()
             print("  ✅ Created config for: vwap_intraday_v1")
-        
+
     except Exception as e:
         print(f"  ❌ Error: {e}")
         db.rollback()
@@ -179,25 +195,25 @@ def setup_db_configs():
 
 
 def main():
-    print("="*60)
+    print("=" * 60)
     print("⚙️  TraderCopilot - Strategy Setup")
-    print("="*60)
-    
+    print("=" * 60)
+
     # 1. Registrar estrategias en registry
     register_built_in_strategies()
-    
+
     # 2. Crear configs en DB
     setup_db_configs()
-    
-    print("\n" + "="*60)
+
+    print("\n" + "=" * 60)
     print("✅ Setup completed successfully!")
-    print("="*60)
+    print("=" * 60)
     print("\nNext steps:")
     print("  1. Start backend: python main.py")
     print("  2. Check strategies: curl http://localhost:8000/strategies/")
     print("  3. Start scheduler: python scheduler.py")
     print("\n💡 Tip: Activate strategies via PATCH /strategies/{id}")
-    print("="*60)
+    print("=" * 60)
 
 
 if __name__ == "__main__":

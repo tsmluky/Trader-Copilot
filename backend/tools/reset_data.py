@@ -1,4 +1,3 @@
-
 import sys
 import os
 from pathlib import Path
@@ -9,13 +8,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from database import SessionLocal
 
+
 def reset_system():
     print("🧹 Starting System Reset / Clean Slate...")
 
     # 1. Clear Logs (CSV)
     logs_dir = Path(__file__).resolve().parent.parent / "logs"
     subdirs = ["LITE", "PRO", "ADVISOR", "EVALUATED", "CUSTOM"]
-    
+
     for subdir in subdirs:
         dir_path = logs_dir / subdir
         if dir_path.exists():
@@ -29,7 +29,7 @@ def reset_system():
     # 2. Add Database Reset
     # We want to delete rows from 'signals' and 'signal_evaluations'
     # And reset stats in 'strategy_configs', but KEEP the configs themselves (so we don't need to re-seed)
-    
+
     session = SessionLocal()
     try:
         print("   Truncating Signals & Evaluations...")
@@ -37,13 +37,17 @@ def reset_system():
         # Order matters due to FK
         session.execute(text("DELETE FROM signal_evaluations"))
         session.execute(text("DELETE FROM signals"))
-        
+
         print("   Resetting Strategy Stats...")
-        session.execute(text("UPDATE strategy_configs SET total_signals=0, win_rate=0.0, avg_confidence=0.0, last_execution=NULL"))
-        
+        session.execute(
+            text(
+                "UPDATE strategy_configs SET total_signals=0, win_rate=0.0, avg_confidence=0.0, last_execution=NULL"
+            )
+        )
+
         session.commit()
         print("✅ Database tables cleared and stats reset.")
-        
+
     except Exception as e:
         print(f"❌ Database error: {e}")
         session.rollback()
@@ -52,9 +56,12 @@ def reset_system():
 
     print("\n✨ System is clean and ready for fresh testing.")
 
+
 if __name__ == "__main__":
-    confirmation = input("⚠️  This will DELETE ALL SIGNALS and HISTORY. Are you sure? (y/n): ")
-    if confirmation.lower() == 'y':
+    confirmation = input(
+        "⚠️  This will DELETE ALL SIGNALS and HISTORY. Are you sure? (y/n): "
+    )
+    if confirmation.lower() == "y":
         reset_system()
     else:
         print("Aborted.")

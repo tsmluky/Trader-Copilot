@@ -11,7 +11,11 @@ import pytz
 
 from backend.deepseek_client import get_response_from_llm
 from backend.market_data import get_market_data
-from backend.logs.signal_logger import log_lite_signal, log_pro_signal, log_advisor_interaction
+from backend.logs.signal_logger import (
+    log_lite_signal,
+    log_pro_signal,
+    log_advisor_interaction,
+)
 from backend.utils.prompt_compiler import compile_prompt
 from backend.utils.session_logger import log_advisor_session
 from backend.routes.logs_routes import router as logs_router  # ✅ NUEVO
@@ -20,7 +24,9 @@ app = FastAPI()
 
 app.include_router(logs_router)  # ✅ INCLUIMOS EL ROUTER
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
+)
 logger = logging.getLogger("signalbot")
 
 app.add_middleware(
@@ -31,10 +37,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 class AnalysisRequest(BaseModel):
     token: str
     message: str
     mode: str = "pro"
+
 
 def is_valid_response(mode: str, response: str) -> bool:
     if not response or "❌" in response:
@@ -46,16 +54,23 @@ def is_valid_response(mode: str, response: str) -> bool:
     elif mode == "pro":
         if "#ANALYSIS_START" in response and "#ANALYSIS_END" in response:
             try:
-                content = response.split("#ANALYSIS_START", 1)[1].split("#ANALYSIS_END", 1)[0].strip()
+                content = (
+                    response.split("#ANALYSIS_START", 1)[1]
+                    .split("#ANALYSIS_END", 1)[0]
+                    .strip()
+                )
                 return len(content) > 100
             except Exception:
                 return False
         else:
-            return len(response) > 300 and ("ETH" in response.upper() or "Ethereum" in response)
+            return len(response) > 300 and (
+                "ETH" in response.upper() or "Ethereum" in response
+            )
     elif mode == "advisor":
         return len(response.strip()) > 50
 
     return False
+
 
 def build_markdown_from_analysis(text: str) -> str:
     try:
@@ -66,7 +81,7 @@ def build_markdown_from_analysis(text: str) -> str:
             "PLAN": "📅 Plan de Acción",
             "INSIGHT": "🧠 Insight",
             "PARAMS": "⚙️ Parámetros",
-            "RECO": "🎯 Recomendación Operativa"
+            "RECO": "🎯 Recomendación Operativa",
         }
 
         current_section = None
@@ -84,9 +99,15 @@ def build_markdown_from_analysis(text: str) -> str:
         for key, title in sections.items():
             content = parsed[key].strip()
             if content:
-                content = re.sub(r"(^|\n)([-•→]? ?)([\w\s]+?):", r"\1\2**\3:**", content)
+                content = re.sub(
+                    r"(^|\n)([-•→]? ?)([\w\s]+?):", r"\1\2**\3:**", content
+                )
                 content = "\n".join(
-                    f"• {line.strip()}" if line.strip() and not line.strip().startswith(("•", "-", "→")) else line
+                    (
+                        f"• {line.strip()}"
+                        if line.strip() and not line.strip().startswith(("•", "-", "→"))
+                        else line
+                    )
                     for line in content.splitlines()
                 )
                 markdown += f"---\n\n### {title}\n\n{content.strip()}\n\n"
@@ -97,6 +118,7 @@ def build_markdown_from_analysis(text: str) -> str:
         logger.warning(f"[⚠️ Error al formatear análisis PRO]: {e}")
         return "⚠️ Error al formatear análisis técnico. Intenta nuevamente."
 
+
 @app.post("/analyze")
 async def analyze_token(req: AnalysisRequest):
     try:
@@ -105,9 +127,16 @@ async def analyze_token(req: AnalysisRequest):
         message = req.message.strip().lower()
 
         generic_inputs = {
-            "dame un análisis", "análisis", "análisis de hoy", "análisis técnico",
-            "análisis profundo", "qué opinas", "qué piensas", "qué ves",
-            "ver análisis", "análisis del mercado"
+            "dame un análisis",
+            "análisis",
+            "análisis de hoy",
+            "análisis técnico",
+            "análisis profundo",
+            "qué opinas",
+            "qué piensas",
+            "qué ves",
+            "ver análisis",
+            "análisis del mercado",
         }
 
         if not token or not message:
@@ -120,9 +149,13 @@ async def analyze_token(req: AnalysisRequest):
         price = market_data.get("price")
 
         if not market_data or price is None or str(price).lower() in ["nan", "n/d", ""]:
-            raise ValueError(f"No se pudo obtener información válida del token '{token}'.")
+            raise ValueError(
+                f"No se pudo obtener información válida del token '{token}'."
+            )
 
-        prompt = compile_prompt(mode=mode, token=token, user_message=message, market_data=market_data)
+        prompt = compile_prompt(
+            mode=mode, token=token, user_message=message, market_data=market_data
+        )
         logger.info(f"[🧠 Prompt generado] [{mode.upper()}] {token}")
         print("📤 PROMPT COMPLETO:\n", prompt)
 
@@ -141,8 +174,10 @@ async def analyze_token(req: AnalysisRequest):
                     "mode": mode,
                     "prompt": prompt,
                     "raw_response": response,
-                    "timestamp": datetime.now(pytz.timezone("Europe/Madrid")).isoformat()
-                }
+                    "timestamp": datetime.now(
+                        pytz.timezone("Europe/Madrid")
+                    ).isoformat(),
+                },
             )
 
         if mode == "lite":
@@ -182,7 +217,7 @@ async def analyze_token(req: AnalysisRequest):
             "price": float(price),
             "analysis": formatted_response,
             "prompt": prompt,
-            "timestamp": datetime.now(pytz.timezone("Europe/Madrid")).isoformat()
+            "timestamp": datetime.now(pytz.timezone("Europe/Madrid")).isoformat(),
         }
 
     except Exception as e:
@@ -193,6 +228,6 @@ async def analyze_token(req: AnalysisRequest):
                 "status": "error",
                 "message": "No se pudo completar el análisis.",
                 "details": str(e),
-                "analysis": "❌ Error interno. Intenta de nuevo más tarde."
-            }
+                "analysis": "❌ Error interno. Intenta de nuevo más tarde.",
+            },
         )

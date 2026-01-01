@@ -1,4 +1,3 @@
-
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
@@ -20,7 +19,7 @@ print("API key detected (masked).")
 try:
     genai.configure(api_key=api_key)
     models_to_test = ["gemini-2.5-flash"]
-    
+
     for m_name in models_to_test:
         print(f"\nTesting {m_name}...")
         try:

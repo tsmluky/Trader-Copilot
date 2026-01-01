@@ -1,4 +1,3 @@
-
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
@@ -18,9 +17,9 @@ print(f"🔑 Key encontrada: {api_key[:5]}...{api_key[-3:]}")
 try:
     genai.configure(api_key=api_key)
     print("📡 Conectando a Google AI Studio...")
-    
+
     models = list(genai.list_models())
-    
+
     print("\n✅ Modelos Disponibles:")
     for m in models:
         print(f" - {m.name}")

@@ -3,18 +3,22 @@ import sys
 import os
 
 # 1. Force Loop Policy
-if sys.platform == 'win32':
+if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 import psycopg
 
+
 def get_railway_url():
-    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "backend", ".env")
+    env_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "backend", ".env"
+    )
     with open(env_path, "r") as f:
         for line in f:
             if "shinkansen.proxy.rlwy.net" in line and "DATABASE_URL" in line:
                 return line.replace("#", "").replace("DATABASE_URL=", "").strip()
     return None
+
 
 DB_URL = get_railway_url()
 if not DB_URL:
@@ -28,6 +32,7 @@ if "sslmode=require" not in DB_URL:
 
 print(f"Testing URL: {DB_URL}")
 
+
 def test_sync():
     print("\n--- Sync Test (psycopg3) ---")
     try:
@@ -38,6 +43,7 @@ def test_sync():
                 print(f"   Query Result: {cur.fetchone()}")
     except Exception as e:
         print(f"❌ Sync Failed: {e}")
+
 
 async def test_async():
     print("\n--- Async Test (psycopg3) ---")
@@ -50,6 +56,7 @@ async def test_async():
                 print(f"   Query Result: {await cur.fetchone()}")
     except Exception as e:
         print(f"❌ Async Failed: {e}")
+
 
 if __name__ == "__main__":
     test_sync()

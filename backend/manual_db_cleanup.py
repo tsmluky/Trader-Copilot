@@ -8,6 +8,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 # Check local backend .env
 load_dotenv(os.path.join(current_dir, ".env"))
 
+
 def run_analysis():
     print("==========================================")
     print("      TRADERCOPILOT DB INSPECTOR          ")
@@ -16,7 +17,7 @@ def run_analysis():
     # Priority: 1. Arg, 2. Env
     if len(sys.argv) > 1:
         db_url = sys.argv[1]
-    
+
     if not db_url or "localhost" in db_url:
         print(f"⚠️  Current DB URL points to implies LOCALHOST: {db_url}")
         print("To fix the Production/Railway issue, we need the REMOTE URL.")
@@ -26,13 +27,17 @@ def run_analysis():
             if "railway.internal" in inp:
                 print("\n⚠️  WARNING: You pasted an INTERNAL Railway URL.")
                 print("   Your local computer cannot reach this address.")
-                print("   Please go to Railway -> Postgres -> Variables and copy 'DATABASE_PUBLIC_URL'.")
-                print("   It should look like: postgresql://postgres:...@roundhouse.proxy.rlwy.net:...\n")
+                print(
+                    "   Please go to Railway -> Postgres -> Variables and copy 'DATABASE_PUBLIC_URL'."
+                )
+                print(
+                    "   It should look like: postgresql://postgres:...@roundhouse.proxy.rlwy.net:...\n"
+                )
                 retry = input("Try again? Paste PUBLIC URL > ").strip()
                 if retry:
                     db_url = retry
                 else:
-                    db_url = inp # Fallback to trying anyway if they insist
+                    db_url = inp  # Fallback to trying anyway if they insist
             else:
                 db_url = inp
 
@@ -69,24 +74,31 @@ def run_analysis():
                     print(f"{r.id:<10} | {r.token:<6} | {r.entry:<10} | {r.timestamp}")
 
                 # 2. ACTION
-                print(f"\n⚠️ These values (e.g. {rows[0].entry}) are impossible for DOGE.")
-                confirm = input(f"💥 DELETE these {len(rows)} records permanently? (y/n): ")
-                
-                if confirm.lower().strip() == 'y':
-                    delete_query = text("DELETE FROM signals WHERE token = 'DOGE' AND entry > 1.0")
+                print(
+                    f"\n⚠️ These values (e.g. {rows[0].entry}) are impossible for DOGE."
+                )
+                confirm = input(
+                    f"💥 DELETE these {len(rows)} records permanently? (y/n): "
+                )
+
+                if confirm.lower().strip() == "y":
+                    delete_query = text(
+                        "DELETE FROM signals WHERE token = 'DOGE' AND entry > 1.0"
+                    )
                     res = conn.execute(delete_query)
                     conn.commit()
                     print(f"\n✅ SUCCESS: Deleted {res.rowcount} records.")
                     print("👉 Please refresh your Dashboard now.")
                 else:
                     print("\n🚫 Operation cancelled.")
-    
+
     except Exception as e:
         print(f"\n❌ Connection Error: {e}")
         print(
             "Tip: Ensure you are connected to the internet and "
             "the DATABASE_URL is correct."
         )
+
 
 if __name__ == "__main__":
     run_analysis()

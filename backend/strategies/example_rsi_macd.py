@@ -19,15 +19,15 @@ from core.schemas import Signal
 class RSIMACDDivergenceStrategy(Strategy):
     """
     Estrategia que detecta divergencias entre RSI y MACD.
-    
+
     Señales:
     - LONG: RSI hace mínimo más alto + MACD hace mínimo más bajo (divergencia alcista)
     - SHORT: RSI hace máximo más bajo + MACD hace máximo más alto (divergencia bajista)
-    
+
     Perfil de riesgo: MEDIUM
     Timeframe recomendado: 1h, 4h
     """
-    
+
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """
         Args:
@@ -44,7 +44,7 @@ class RSIMACDDivergenceStrategy(Strategy):
         self.rsi_oversold = self.config.get("rsi_oversold", 30)
         self.rsi_overbought = self.config.get("rsi_overbought", 70)
         self.min_confidence = self.config.get("min_confidence", 0.65)
-    
+
     def metadata(self) -> StrategyMetadata:
         """Metadatos de la estrategia."""
         return StrategyMetadata(
@@ -66,9 +66,9 @@ class RSIMACDDivergenceStrategy(Strategy):
                 "rsi_oversold": self.rsi_oversold,
                 "rsi_overbought": self.rsi_overbought,
                 "min_confidence": self.min_confidence,
-            }
+            },
         )
-    
+
     def generate_signals(
         self,
         tokens: List[str],
@@ -77,12 +77,12 @@ class RSIMACDDivergenceStrategy(Strategy):
     ) -> List[Signal]:
         """
         Genera señales para los tokens especificados.
-        
+
         Args:
             tokens: Lista de tokens a analizar
             timeframe: Timeframe del análisis
             context: Contexto adicional con market data
-        
+
         Returns:
             Lista de señales generadas (puede ser vacía si no hay setups)
         """
@@ -90,49 +90,46 @@ class RSIMACDDivergenceStrategy(Strategy):
         valid_tokens = self.validate_tokens(tokens)
         if not valid_tokens:
             return []
-        
+
         signals = []
-        
+
         for token in valid_tokens:
             # En producción, aquí iría la lógica real:
             # 1. Obtener datos OHLCV (desde context o API)
             # 2. Calcular RSI y MACD
             # 3. Detectar divergencias
             # 4. Generar señal si hay setup válido
-            
+
             # Para este ejemplo, simulamos la detección:
             setup = self._detect_setup(token, timeframe, context)
-            
+
             if setup:
                 signal = self._create_signal(token, timeframe, setup)
                 if signal.confidence and signal.confidence >= self.min_confidence:
                     signals.append(signal)
-        
+
         return signals
-    
+
     def _detect_setup(
-        self,
-        token: str,
-        timeframe: str,
-        context: Optional[Dict[str, Any]]
+        self, token: str, timeframe: str, context: Optional[Dict[str, Any]]
     ) -> Optional[Dict[str, Any]]:
         """
         Detecta si hay un setup válido para el token.
-        
+
         En producción, aquí va la lógica de indicadores técnicos.
         Para el ejemplo, devolvemos un setup simulado.
-        
+
         Returns:
             Dict con info del setup o None si no hay
         """
         # SIMULACIÓN: En producción reemplazar con cálculos reales
-        
+
         # Ejemplo de cálculo real (comentado):
         # from indicators.market import get_market_data
         # df, market = get_market_data(token, timeframe)
         # rsi = market.get("rsi")
         # macd = market.get("macd")
-        # 
+        #
         # # Lógica de divergencia
         # if rsi < self.rsi_oversold and macd < -5:
         #     return {
@@ -142,30 +139,27 @@ class RSIMACDDivergenceStrategy(Strategy):
         #         "confidence": 0.75,
         #         "rationale": f"Bullish divergence: RSI {rsi:.1f}, MACD crossing up"
         #     }
-        
+
         # Para demo, retornamos None (sin setup)
         return None
-    
+
     def _create_signal(
-        self,
-        token: str,
-        timeframe: str,
-        setup: Dict[str, Any]
+        self, token: str, timeframe: str, setup: Dict[str, Any]
     ) -> Signal:
         """
         Crea una instancia Signal a partir de un setup detectado.
-        
+
         Args:
             token: Token del setup
             timeframe: Timeframe
             setup: Info del setup detectado
-        
+
         Returns:
             Instancia de Signal
         """
         direction = setup.get("direction", "neutral")
         entry = setup.get("entry", 0.0)
-        
+
         # Calcular TP/SL según dirección
         if direction == "long":
             tp = entry * 1.05  # +5% objetivo
@@ -176,7 +170,7 @@ class RSIMACDDivergenceStrategy(Strategy):
         else:
             tp = entry
             sl = entry
-        
+
         return Signal(
             timestamp=datetime.utcnow(),
             strategy_id=self.metadata().id,
@@ -194,7 +188,7 @@ class RSIMACDDivergenceStrategy(Strategy):
                 "rsi": setup.get("rsi"),
                 "macd": setup.get("macd"),
                 "strategy_version": self.metadata().version,
-            }
+            },
         )
 
 
@@ -202,12 +196,10 @@ class RSIMACDDivergenceStrategy(Strategy):
 
 if __name__ == "__main__":
     # Crear instancia de la estrategia
-    strategy = RSIMACDDivergenceStrategy(config={
-        "rsi_oversold": 25,
-        "rsi_overbought": 75,
-        "min_confidence": 0.70
-    })
-    
+    strategy = RSIMACDDivergenceStrategy(
+        config={"rsi_oversold": 25, "rsi_overbought": 75, "min_confidence": 0.70}
+    )
+
     # Ver metadatos
     meta = strategy.metadata()
     print(f"Estrategia: {meta.name}")
@@ -215,17 +207,16 @@ if __name__ == "__main__":
     print(f"Versión: {meta.version}")
     print(f"Tokens soportados: {meta.universe}")
     print(f"Risk Profile: {meta.risk_profile}")
-    
+
     # Generar señales
     tokens = ["ETH", "BTC", "SOL"]
     timeframe = "1h"
-    
+
     signals = strategy.generate_signals(tokens, timeframe)
-    
+
     print(f"\nSeñales generadas: {len(signals)}")
     for signal in signals:
         print(f"  - {signal.token} {signal.direction} @ {signal.entry}")
         print(f"    TP: {signal.tp} | SL: {signal.sl}")
         print(f"    Confidence: {signal.confidence}")
         print(f"    Rationale: {signal.rationale}")
-

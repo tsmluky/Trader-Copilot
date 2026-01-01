@@ -11,10 +11,10 @@ ENV_PATH = BASE_DIR / ".env"
 # ==== Adaptadores /analyze/{lite,pro} ====
 # NOTE: /analyze/advisor removed (unified in main.py via advisor router)
 
+
 class LiteIn(BaseModel):
     token: str
     timeframe: str = "30m"
-
 
 
 async def _call_analyze(payload: dict):
@@ -23,15 +23,15 @@ async def _call_analyze(payload: dict):
         # Truco para importar main.py desde routers/ sin ser paquete
         import sys
         import os
-        
+
         # Añadir directorio padre (backend) al path si no está
         current = os.path.dirname(os.path.abspath(__file__))
         parent = os.path.dirname(current)
         if parent not in sys.path:
             sys.path.append(parent)
-            
+
         import main
-        
+
         # Reconstruir el objeto request usando la clase definida en main
         # Nota: main.AnalysisRequest debe estar disponible
         req = main.AnalysisRequest(**payload)
@@ -39,7 +39,7 @@ async def _call_analyze(payload: dict):
     except Exception as e:
         print(f"[COMPAT ERROR] Internal import failed: {e}")
         import httpx
-        
+
         port = os.getenv("PORT", "8010")
         url = os.getenv("SELF_ANALYZE_URL", f"http://127.0.0.1:{port}/analyze")
         async with httpx.AsyncClient(timeout=30) as client:
@@ -84,6 +84,3 @@ async def analyze_pro(body: ProIn):
         "timeframe": body.timeframe,
     }
     return await _call_analyze(payload)
-
-
-

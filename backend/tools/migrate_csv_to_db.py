@@ -27,7 +27,7 @@ def parse_timestamp(ts_str):
     if not ts_str:
         return None
     try:
-        ts_str = ts_str.replace('Z', '+00:00')
+        ts_str = ts_str.replace("Z", "+00:00")
         return datetime.fromisoformat(ts_str)
     except:
         try:
@@ -41,68 +41,72 @@ def migrate_signals():
     db = database.SessionLocal()
     migrated = 0
     skipped = 0
-    
+
     print("🔄 Migrating signals from CSV to database...")
-    
-    for mode in ['LITE', 'PRO', 'ADVISOR']:
+
+    for mode in ["LITE", "PRO", "ADVISOR"]:
         mode_dir = LOGS_DIR / mode
         if not mode_dir.exists():
             print(f"  ⚠️  Directory not found: {mode_dir}")
             continue
-            
+
         print(f"\n📁 Processing {mode} signals...")
-        
+
         for csv_file in mode_dir.glob("*.csv"):
             token = csv_file.stem.upper()
             print(f"  📄 {csv_file.name}...", end=" ")
-            
+
             try:
-                with open(csv_file, 'r', encoding='utf-8') as f:
+                with open(csv_file, "r", encoding="utf-8") as f:
                     reader = csv.DictReader(f)
                     count = 0
-                    
+
                     for row in reader:
-                        timestamp = parse_timestamp(row.get('timestamp'))
+                        timestamp = parse_timestamp(row.get("timestamp"))
                         if not timestamp:
                             skipped += 1
                             continue
-                        
-                        existing = db.query(models_db.Signal).filter(
-                            models_db.Signal.timestamp == timestamp,
-                            models_db.Signal.token == token,
-                            models_db.Signal.mode == mode
-                        ).first()
-                        
+
+                        existing = (
+                            db.query(models_db.Signal)
+                            .filter(
+                                models_db.Signal.timestamp == timestamp,
+                                models_db.Signal.token == token,
+                                models_db.Signal.mode == mode,
+                            )
+                            .first()
+                        )
+
                         if existing:
                             skipped += 1
                             continue
-                        
+
                         signal = models_db.Signal(
                             timestamp=timestamp,
                             token=token,
-                            timeframe=row.get('timeframe', ''),
-                            direction=row.get('direction', ''),
-                            entry=float(row.get('entry', 0) or 0),
-                            tp=float(row.get('tp', 0) or 0),
-                            sl=float(row.get('sl', 0) or 0),
-                            confidence=float(row.get('confidence', 0) or 0),
-                            rationale=row.get('rationale', ''),
-                            source=row.get('source', ''),
+                            timeframe=row.get("timeframe", ""),
+                            direction=row.get("direction", ""),
+                            entry=float(row.get("entry", 0) or 0),
+                            tp=float(row.get("tp", 0) or 0),
+                            sl=float(row.get("sl", 0) or 0),
+                            confidence=float(row.get("confidence", 0) or 0),
+                            rationale=row.get("rationale", ""),
+                            source=row.get("source", ""),
                             mode=mode,
-                            raw_response=None
+                            raw_response=None,
                         )
-                        
+
                         db.add(signal)
                         count += 1
                         migrated += 1
-                    
+
                     db.commit()
                     print(f"✅ {count} signals migrated")
-                    
+
             except Exception as e:
                 print(f"❌ Error: {e}")
                 db.rollback()
-    
+
     db.close()
     return migrated, skipped
 
@@ -111,9 +115,9 @@ def main():
     print("=" * 60)
     print("📊 TraderCopilot - CSV to Database Migration")
     print("=" * 60)
-    
+
     signals_migrated, signals_skipped = migrate_signals()
-    
+
     print("\n" + "=" * 60)
     print("✨ Migration Summary")
     print("=" * 60)

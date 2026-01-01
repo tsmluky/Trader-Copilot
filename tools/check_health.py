@@ -1,6 +1,7 @@
 import requests
 import time
 
+
 def check_health():
     url = "http://127.0.0.1:8000/health"
     print(f"Pinging {url}...")
@@ -13,6 +14,7 @@ def check_health():
         print(f"Time: {elapsed:.2f}s")
     except Exception as e:
         print(f"❌ Failed: {e}")
+
 
 if __name__ == "__main__":
     check_health()

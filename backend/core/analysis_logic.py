@@ -4,12 +4,16 @@ from datetime import datetime
 # Imports from project
 from models import LiteSignal, ProReq
 from rag_context import build_token_context
+
 # from deepseek_client import generate_pro_analysis # REMOVED (Legacy)
 # from narrative_engine import generate_dynamic_rationale
 
 from fastapi import HTTPException
 
-def _build_lite_from_market(token: str, timeframe: str, market: Dict[str, Any]) -> Tuple[LiteSignal, Dict[str, Any]]:
+
+def _build_lite_from_market(
+    token: str, timeframe: str, market: Dict[str, Any]
+) -> Tuple[LiteSignal, Dict[str, Any]]:
     """
     Aplica la lógica LITE v2 sobre los datos de mercado y devuelve:
     - LiteSignal (modelo oficial)
@@ -112,15 +116,15 @@ def _build_lite_from_market(token: str, timeframe: str, market: Dict[str, Any]) 
 
     lite = LiteSignal(
         timestamp=now_dt,
-        token=token.upper(),      # ETH/BTC/SOL/XAU
+        token=token.upper(),  # ETH/BTC/SOL/XAU
         timeframe=timeframe,
-        direction=direction,      # type: ignore[arg-type]
-        entry=round(price, 6),    # Increased precision for low-cap tokens
+        direction=direction,  # type: ignore[arg-type]
+        entry=round(price, 6),  # Increased precision for low-cap tokens
         tp=round(tp, 6),
         sl=round(sl, 6),
         confidence=round(confidence, 2),
         rationale=rationale,
-        source="lite-rule@v2",    # versión de la regla LITE
+        source="lite-rule@v2",  # versión de la regla LITE
     )
 
     indicators = {
@@ -129,12 +133,15 @@ def _build_lite_from_market(token: str, timeframe: str, market: Dict[str, Any]) 
         "macd": round(macd, 2),
         "ema21": round(ema21, 2),
         "atr": atr,
-        "source_exchange": market.get("source_exchange", "unknown")
+        "source_exchange": market.get("source_exchange", "unknown"),
     }
 
     return lite, indicators
 
-def _load_brain_context(token: str, market_data: Dict[str, Any] = None) -> Dict[str, str]:
+
+def _load_brain_context(
+    token: str, market_data: Dict[str, Any] = None
+) -> Dict[str, str]:
     """
     Wrapper sobre build_token_context(token)
     """
@@ -169,7 +176,9 @@ def _inject_rag_into_lite_rationale(
     if isinstance(change_24h, (int, float)):
         ch = round(change_24h, 2)
         if ch <= -5 and lite.direction == "long":
-            extra_parts.append("24h en fuerte caída; usar tamaño de posición conservador.")
+            extra_parts.append(
+                "24h en fuerte caída; usar tamaño de posición conservador."
+            )
         elif ch >= 5 and lite.direction == "short":
             extra_parts.append("24h muy alcistas; evitar shorts agresivos.")
         elif abs(ch) >= 4:
@@ -177,7 +186,9 @@ def _inject_rag_into_lite_rationale(
 
     # 2) Frase de contexto desde RAG
     try:
-        brain = _load_brain_context(token, market) # Optim: pass market if possible or just token
+        brain = _load_brain_context(
+            token, market
+        )  # Optim: pass market if possible or just token
         # main.py called _load_brain_context(token). It's fine.
         raw_sentiment = (brain.get("sentiment") or "").strip()
         raw_news = (brain.get("news") or "").strip()
@@ -206,6 +217,7 @@ def _inject_rag_into_lite_rationale(
 
     return combined
 
+
 async def _build_pro_markdown(
     req: ProReq,
     lite: LiteSignal,
@@ -223,7 +235,7 @@ async def _build_pro_markdown(
     rsi = indicators.get("rsi", "N/D")
     trend = indicators.get("trend", "NEUTRAL")
     ema21 = indicators.get("ema21", "N/D")
-    
+
     # Format numbers
     rsi_str = f"{rsi:.1f}" if isinstance(rsi, (int, float)) else str(rsi)
     ema21_str = f"{ema21:.2f}" if isinstance(ema21, (int, float)) else str(ema21)
@@ -237,7 +249,7 @@ async def _build_pro_markdown(
     # 2. Build Prompt
     # from gemini_client import generate_pro  <-- REMOVED
     from core.ai_service import get_ai_service
-    
+
     system_instruction = (
         "Eres TraderCopilot, un analista técnico de élite institucional y asesor de posiciones para trading.\n"
         "Tu objetivo es impresionar al usuario con la profundidad y claridad de tu análisis.\n"
@@ -298,14 +310,9 @@ SL: {lite.sl}
 
     # 3. Offload blocking LLM call to threadpool (using ai_service)
     from fastapi.concurrency import run_in_threadpool
-    
+
     def _generate_safe():
         service = get_ai_service()
         return service.generate_analysis(prompt, system_instruction=system_instruction)
 
     return await run_in_threadpool(_generate_safe)
-
-
-
-
-

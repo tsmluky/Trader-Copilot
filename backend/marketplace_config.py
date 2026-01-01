@@ -29,9 +29,8 @@ SYSTEM_PERSONAS = [
         "frequency": "Low (1 trade / 3 days)",
         "color": "amber",
         "is_active": True,
-        "is_custom": False
+        "is_custom": False,
     },
-
     {
         "id": "titan_btc",
         "name": "Titan Fortress",
@@ -45,7 +44,7 @@ SYSTEM_PERSONAS = [
         "frequency": "Very Low",
         "color": "slate",
         "is_active": True,
-        "is_custom": False
+        "is_custom": False,
     },
     {
         "id": "eth_breaker",
@@ -60,7 +59,7 @@ SYSTEM_PERSONAS = [
         "frequency": "Medium (3 trades/week)",
         "color": "indigo",
         "is_active": True,
-        "is_custom": False
+        "is_custom": False,
     },
     {
         "id": "doge_runner",
@@ -75,7 +74,7 @@ SYSTEM_PERSONAS = [
         "frequency": "Low (1 trade/week)",
         "color": "amber",
         "is_active": True,
-        "is_custom": False
+        "is_custom": False,
     },
     {
         "id": "flow_avax",
@@ -90,7 +89,7 @@ SYSTEM_PERSONAS = [
         "frequency": "Medium",
         "color": "indigo",
         "is_active": True,
-        "is_custom": False
+        "is_custom": False,
     },
     {
         "id": "system_scanner",
@@ -105,12 +104,13 @@ SYSTEM_PERSONAS = [
         "frequency": "High",
         "color": "cyan",
         "is_active": True,
-        "is_custom": False
-    }
+        "is_custom": False,
+    },
 ]
 
 
 SYSTEM_OVERRIDES_FILE = DATA_DIR / "system_overrides.json"
+
 
 def load_user_strategies():
     """Load strategies from JSON file."""
@@ -123,6 +123,7 @@ def load_user_strategies():
     except Exception as e:
         print(f"Error loading user strategies: {e}")
         return []
+
 
 def save_user_strategies(strategies: List[Dict[str, Any]]):
     """Save user strategies to JSON file."""
@@ -145,6 +146,7 @@ def load_system_overrides():
         print(f"Error loading system overrides: {e}")
         return {}
 
+
 def save_system_overrides(overrides: Dict[str, Any]):
     """Save system persona overrides."""
     try:
@@ -153,15 +155,17 @@ def save_system_overrides(overrides: Dict[str, Any]):
     except Exception as e:
         print(f"Error saving system overrides: {e}")
 
+
 MARKETPLACE_PERSONAS = []
+
 
 def refresh_personas():
     """Reloads MARKETPLACE_PERSONAS to include latest file changes and overrides"""
     global MARKETPLACE_PERSONAS
-    
+
     # 1. Load Overrides
     overrides = load_system_overrides()
-    
+
     # 2. Apply Overrides to System Personas
     current_system = []
     for p in SYSTEM_PERSONAS:
@@ -169,15 +173,15 @@ def refresh_personas():
         if p["id"] in overrides:
             p_copy.update(overrides[p["id"]])
         current_system.append(p_copy)
-        
+
     # 3. Load User Strategies
     user_strategies = load_user_strategies()
-    
+
     MARKETPLACE_PERSONAS = current_system + user_strategies
     return MARKETPLACE_PERSONAS
 
+
 def get_active_strategies():
     """Returns list of strategies to run in the scheduler"""
-    refresh_personas() # Ensure latest
+    refresh_personas()  # Ensure latest
     return [p for p in MARKETPLACE_PERSONAS if p.get("is_active", True)]
-

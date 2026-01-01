@@ -2,6 +2,7 @@ import requests
 
 BASE_URL = "http://localhost:8000"
 
+
 def check(name, url):
     try:
         res = requests.get(url, timeout=5)
@@ -14,6 +15,7 @@ def check(name, url):
     except Exception as e:
         print(f"[FAIL] {name}: {e}")
         return False
+
 
 def check_json(name, url, key=None):
     try:
@@ -31,13 +33,14 @@ def check_json(name, url, key=None):
         print(f"[FAIL] {name}: {e}")
         return False
 
+
 print("=== TraderCopilot System Verification ===")
 check("Backend Health", f"{BASE_URL}/health")
 check_json("Marketplace Strategies", f"{BASE_URL}/strategies/marketplace")
 check_json("System Config", f"{BASE_URL}/system/config")
 
 # Check if public endpoints are up
-check("Logs Endpoint (Auth Required - Expect 401)", f"{BASE_URL}/logs/recent") 
+check("Logs Endpoint (Auth Required - Expect 401)", f"{BASE_URL}/logs/recent")
 
 # Wait, logs might be protected.
 try:

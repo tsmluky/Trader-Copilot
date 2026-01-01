@@ -7,6 +7,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from database import engine, Base
 
+
 def manual_reset():
     """
     FACTORY RESET: Borra la base de datos y logs.
@@ -35,8 +36,9 @@ def manual_reset():
             print("Logs folder wiped.")
         except Exception as e:
             print(f"Error wiping logs: {e}")
-            
+
     print("System Factory Reset Complete.")
+
 
 if __name__ == "__main__":
     manual_reset()

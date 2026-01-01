@@ -25,5 +25,4 @@ __all__ = [
     "RSIDivergenceStrategy",
     "VWAPIntradayStrategy",
     "TrendFollowingNative",
-
 ]

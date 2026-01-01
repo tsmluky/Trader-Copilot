@@ -9,6 +9,7 @@ BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 # Global app instance for shutdown
 telegram_app = None
 
+
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /start command"""
     await update.message.reply_text(
@@ -18,36 +19,38 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "1. Copy your Chat ID using `/myid`\n"
         "2. Paste it in your TraderCopilot Settings\n\n"
         "Use `/help` for more info.",
-        parse_mode='Markdown'
+        parse_mode="Markdown",
     )
+
 
 async def myid_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /myid command - Returns the user's chat ID"""
     chat_id = update.effective_chat.id
     username = update.effective_user.username or "Trader"
-    
+
     # Monospace for easy copying
     response = (
         f"**Your Chat ID**\n"
         f"`{chat_id}`\n\n"
         f"Copy this number and paste it into the **Telegram Chat ID** field in your Settings."
     )
-    
-    await update.message.reply_text(response, parse_mode='Markdown')
+
+    await update.message.reply_text(response, parse_mode="Markdown")
+
 
 async def start_telegram_bot():
     """Start the bot in non-blocking mode"""
     global telegram_app
-    
+
     if not BOT_TOKEN:
         print("[TELEGRAM BOT] No Token found. Bot waiting...")
         return
 
     print("[TELEGRAM BOT] Initializing Bot...")
-    
+
     # Build Application
     telegram_app = Application.builder().token(BOT_TOKEN).build()
-    
+
     # Register Handlers
     telegram_app.add_handler(CommandHandler("start", start_command))
     telegram_app.add_handler(CommandHandler("myid", myid_command))
@@ -57,8 +60,9 @@ async def start_telegram_bot():
     await telegram_app.initialize()
     await telegram_app.start()
     await telegram_app.updater.start_polling(allowed_updates=Update.ALL_TYPES)
-    
+
     print(f"[TELEGRAM BOT] Bot is listening (Username: @{telegram_app.bot.username})")
+
 
 async def stop_telegram_bot():
     """Stop the bot cleanly"""
@@ -69,6 +73,7 @@ async def stop_telegram_bot():
         await telegram_app.stop()
         await telegram_app.shutdown()
         print("[TELEGRAM BOT] Bot Stopped.")
+
 
 if __name__ == "__main__":
     # Standalone testing

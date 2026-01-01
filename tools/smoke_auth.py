@@ -1,15 +1,14 @@
 import urllib.request
 import urllib.parse
-import json
 import sys
+
 
 def smoke_auth():
     url = "http://127.0.0.1:8000/auth/token"
-    data = urllib.parse.urlencode({
-        "username": "admin@tradercopilot.com",
-        "password": "secure_start"
-    }).encode()
-    
+    data = urllib.parse.urlencode(
+        {"username": "admin@tradercopilot.com", "password": "secure_start"}
+    ).encode()
+
     req = urllib.request.Request(url, data=data, method="POST")
     try:
         with urllib.request.urlopen(req) as response:
@@ -28,6 +27,7 @@ def smoke_auth():
     except Exception as e:
         print(f"Connection Error: {e}", file=sys.stderr)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     smoke_auth()
