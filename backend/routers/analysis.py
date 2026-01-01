@@ -20,15 +20,10 @@ from core.analysis_logic import (
 # Entitlements
 from core.entitlements import assert_token_allowed, check_and_increment_quota
 from sqlalchemy.orm import Session
-from database import SessionLocal
+from database import get_db
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+
 
 
 router = APIRouter()

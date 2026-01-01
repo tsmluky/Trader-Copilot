@@ -11,7 +11,7 @@ import json
 import re
 
 
-from database import SessionLocal
+from database import get_db
 from models_db import StrategyConfig, User, Signal, SignalEvaluation
 from pydantic import BaseModel
 from routers.auth_new import get_current_user
@@ -19,12 +19,7 @@ from dependencies import require_plan
 
 
 # === Dependency ===
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+
 
 
 router = APIRouter(tags=["strategies"])

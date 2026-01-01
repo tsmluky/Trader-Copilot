@@ -135,10 +135,50 @@ export function ProAnalysisViewer({ raw, token }: ProAnalysisViewerProps) {
 
             {/* Render Params if available */}
             {sections.params && (
-              <div className="bg-white/5 rounded-xl p-4 border border-white/10 font-mono text-xs">
-                <div className="text-slate-500 mb-2 uppercase font-bold tracking-widest">Confirmed Levels</div>
-                <div className="whitespace-pre-wrap text-slate-300">
-                  {sections.params}
+              <div className="bg-gradient-to-br from-brand-900/20 to-black/40 rounded-xl p-0 border border-brand-500/20 overflow-hidden">
+                <div className="px-4 py-3 border-b border-brand-500/10 bg-brand-500/5 flex items-center justify-between">
+                  <div className="text-brand-300 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                    <ListChecks size={14} /> Confirmed Levels
+                  </div>
+                  <Badge variant="outline" className="border-brand-500/20 text-brand-400 text-[10px] bg-brand-500/5">
+                    EXECUTION
+                  </Badge>
+                </div>
+
+                <div className="p-4 grid grid-cols-3 gap-4">
+                  {(() => {
+                    // Simple Parser for Entry/TP/SL
+                    const entryMatch = sections.params.match(/Entry:\s*([\d\.]+)/i);
+                    const tpMatch = sections.params.match(/TP:\s*([\d\.]+)/i);
+                    const slMatch = sections.params.match(/SL:\s*([\d\.]+)/i);
+
+                    const entry = entryMatch ? entryMatch[1] : "N/A";
+                    const tp = tpMatch ? tpMatch[1] : "N/A";
+                    const sl = slMatch ? slMatch[1] : "N/A";
+
+                    return (
+                      <>
+                        <div className="bg-black/20 rounded-lg p-3 border border-white/5 flex flex-col items-center justify-center text-center">
+                          <span className="text-xs text-slate-500 uppercase font-mono mb-1">Entry Zone</span>
+                          <span className="text-lg font-bold text-white font-mono tracking-tight">{entry}</span>
+                        </div>
+                        <div className="bg-emerald-500/10 rounded-lg p-3 border border-emerald-500/20 flex flex-col items-center justify-center text-center">
+                          <span className="text-xs text-emerald-400 uppercase font-mono mb-1">Target (TP)</span>
+                          <span className="text-lg font-bold text-emerald-300 font-mono tracking-tight">{tp}</span>
+                        </div>
+                        <div className="bg-rose-500/10 rounded-lg p-3 border border-rose-500/20 flex flex-col items-center justify-center text-center">
+                          <span className="text-xs text-rose-400 uppercase font-mono mb-1">Stop (SL)</span>
+                          <span className="text-lg font-bold text-rose-300 font-mono tracking-tight">{sl}</span>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+                {/* Fallback for rationale or extra text in params if needed */}
+                <div className="px-4 pb-4 pt-0">
+                  <p className="text-[10px] text-slate-500 text-center font-mono">
+                    * Risk management is mandatory.
+                  </p>
                 </div>
               </div>
             )}

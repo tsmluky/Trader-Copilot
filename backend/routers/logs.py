@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
-from database import SessionLocal
+from database import get_db
 from models_db import Signal, SignalEvaluation
 from pydantic import BaseModel
 from datetime import datetime
@@ -33,12 +33,7 @@ class LogEntry(BaseModel):
         from_attributes = True
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+
 
 
 @router.get("/recent", response_model=List[LogEntry])
