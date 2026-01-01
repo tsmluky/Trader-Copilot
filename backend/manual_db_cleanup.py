@@ -51,7 +51,11 @@ def run_analysis():
         with engine.connect() as conn:
             # 1. ANALYZE
             print("\n🔍 Scanning for suspicious DOGE signals (Price > $1.0)...")
-            query = text("SELECT id, token, entry, direction, timestamp FROM signals WHERE token = 'DOGE' AND entry > 1.0 ORDER BY entry DESC")
+            query = text(
+                "SELECT id, token, entry, direction, timestamp "
+                "FROM signals WHERE token = 'DOGE' AND entry > 1.0 "
+                "ORDER BY entry DESC"
+            )
             result = conn.execute(query)
             rows = result.fetchall()
 
@@ -79,7 +83,10 @@ def run_analysis():
     
     except Exception as e:
         print(f"\n❌ Connection Error: {e}")
-        print("Tip: Ensure you are connected to the internet and the DATABASE_URL is correct.")
+        print(
+            "Tip: Ensure you are connected to the internet and "
+            "the DATABASE_URL is correct."
+        )
 
 if __name__ == "__main__":
     run_analysis()

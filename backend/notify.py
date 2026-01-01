@@ -7,15 +7,23 @@ from database import SessionLocal
 from models_db import PushSubscription
 
 def send_telegram(text: str, chat_id: str = None) -> dict:
-    token = os.getenv("TRADERCOPILOT_BOT_TOKEN","").strip() or os.getenv("TELEGRAM_BOT_TOKEN","").strip()
+    token = (
+        os.getenv("TRADERCOPILOT_BOT_TOKEN", "").strip() or 
+        os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
+    )
     
     # Priority: Explicit Argument > Env Var
-    target_id = chat_id if chat_id else os.getenv("TELEGRAM_CHAT_ID","").strip()
+    target_id = chat_id if chat_id else os.getenv("TELEGRAM_CHAT_ID", "").strip()
     
     if not token or not target_id:
         return {"ok": False, "error": "Missing bot token or chat id"}
     url = f"https://api.telegram.org/bot{token}/sendMessage"
-    payload = {"chat_id": target_id, "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}
+    payload = {
+        "chat_id": target_id, 
+        "text": text, 
+        "parse_mode": "HTML", 
+        "disable_web_page_preview": True
+    }
     try:
         r = requests.post(url, json=payload, timeout=8)
         ok = r.status_code == 200

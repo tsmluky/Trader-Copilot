@@ -602,17 +602,8 @@ def stats_summary(current_user: User = Depends(get_current_user)):
 
 # ==== 11. Fallback global ====
 
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    """Manejo genÃ©rico de errores inesperados."""
-    if isinstance(exc, HTTPException):
-        # Dejamos que FastAPI maneje HTTPException como siempre
-        raise exc
-
-    return {
-        "error": str(exc),
-        "message": "Unexpected server error."
-    }
+# (Removed duplicate global_exception_handler to avoid redefinition error. 
+# The primary handler is defined at the top of the file.)
 
 
 

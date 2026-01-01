@@ -19,19 +19,29 @@ TIMEFRAMES = ["15m", "1h", "4h"]
 
 # "Pro" rationales for demo
 RATIONALES_WIN = [
-    "Bullish divergence on RSI (14) coincident with support retest at {price}. Volume profile suggests accumulation.",
-    "Golden Cross (EMA 50/200) confirmed on 4h timeframe. Breakout above key resistance level with strong momentum.",
-    "Inverse Head and Shoulders pattern completion. Neckline breach confirmed. Smart money inflow detected.",
-    "Fibonacci retracement 0.618 held perfectly. Stochastic oscillator exiting oversold territory.",
-    "Symmetrical triangle breakout to the upside. Funding rates imply bearish sentiment squeeze."
+    "Bullish divergence on RSI (14) coincident with support retest at {price}. "
+    "Volume profile suggests accumulation.",
+    "Golden Cross (EMA 50/200) confirmed on 4h timeframe. "
+    "Breakout above key resistance level with strong momentum.",
+    "Inverse Head and Shoulders pattern completion. "
+    "Neckline breach confirmed. Smart money inflow detected.",
+    "Fibonacci retracement 0.618 held perfectly. "
+    "Stochastic oscillator exiting oversold territory.",
+    "Symmetrical triangle breakout to the upside. "
+    "Funding rates imply bearish sentiment squeeze."
 ]
 
 RATIONALES_LOSS = [
-    "Failed auction at resistance. Price unable to hold above VWAP. Momentum divergence suggests exhaustion.",
-    "Bear flag breakdown confirmed. High sell volume at local top suggests distribution.",
-    "Rejected from daily supply zone. Macd crossover indicates shifting momentum to bearish.",
-    "False breakout (bull trap) followed by heavy selling. liquidity grab below swing low likely.",
-    "Double top formation at key psychological level. RSI overbought condition triggered sell-off."
+    "Failed auction at resistance. Price unable to hold above VWAP. "
+    "Momentum divergence suggests exhaustion.",
+    "Bear flag breakdown confirmed. "
+    "High sell volume at local top suggests distribution.",
+    "Rejected from daily supply zone. "
+    "Macd crossover indicates shifting momentum to bearish.",
+    "False breakout (bull trap) followed by heavy selling. "
+    "liquidity grab below swing low likely.",
+    "Double top formation at key psychological level. "
+    "RSI overbought condition triggered sell-off."
 ]
 
 def create_demo_user(db: Session):
@@ -99,7 +109,16 @@ def generate_signals(db: Session):
         direction = random.choice(DIRECTIONS)
         
         # Realistic Price Simulation (mock)
-        base_price = 2500 if token == "ETH" else 65000 if token == "BTC" else 150 if token == "SOL" else 20
+        # Use simple logic to avoid overly long line
+        if token == "ETH":
+            base_price = 2500
+        elif token == "BTC":
+            base_price = 65000
+        elif token == "SOL":
+            base_price = 150
+        else:
+            base_price = 20
+            
         noise = random.uniform(-0.05, 0.05)
         entry_price = base_price * (1 + noise)
         
@@ -107,7 +126,9 @@ def generate_signals(db: Session):
         is_win = random.random() < 0.65  # 65% Win rate for demo "Wow" factor
         
         result_status = "WIN" if is_win else "LOSS"
-        rationale = random.choice(RATIONALES_WIN if is_win else RATIONALES_LOSS).format(price=f"{entry_price:.2f}")
+        # Format rationale
+        chosen_rat = random.choice(RATIONALES_WIN if is_win else RATIONALES_LOSS)
+        rationale = chosen_rat.format(price=f"{entry_price:.2f}")
         
         # Calculate TP/SL Logic
         risk_reward = random.uniform(1.5, 3.0)
@@ -137,7 +158,9 @@ def generate_signals(db: Session):
             rationale=rationale,
             source="Pro_Analyst_AI", # Premium sounding source
             mode="PRO",
-            strategy_id=random.choice(["rsi_divergence", "smart_money_concept"])
+            strategy_id=random.choice(
+                ["rsi_divergence", "smart_money_concept"]
+            )
         )
         db.add(sig)
         db.flush() # get ID
