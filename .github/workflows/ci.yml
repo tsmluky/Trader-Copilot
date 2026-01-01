@@ -40,6 +40,7 @@ jobs:
       run: |
         export DATABASE_URL=sqlite:///../dev_local.db
         export SECRET_KEY=testing_secret
+        export PYTHONPATH=$PYTHONPATH:.
         pytest tests/test_auth_flow_v2.py
 
   web-build:

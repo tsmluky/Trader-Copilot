@@ -4,18 +4,16 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-import sys
-import os
 
-# Add backend to path (match main.py behavior)
-current_dir = os.path.dirname(os.path.abspath(__file__))
-backend_dir = os.path.dirname(current_dir)
-sys.path.insert(0, backend_dir)
+
+
 
 from main import app, get_db
 from database import Base
 from models_db import User
 from core.brand_guard import check_brand_safety
+
+
 
 # Import dependency from the MODULE THAT USES IT to ensure key match
 from routers.advisor import get_current_user
