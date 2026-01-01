@@ -142,56 +142,59 @@ def get_market_summary(symbols: List[str]) -> List[Dict[str, Any]]:
     if cached:
         return cached
 
-    # 2. Try Fetch
-    try:
-        exchange = ccxt.binance(
-            {
-                "enableRateLimit": True,
-                "timeout": 3000,  # 3s strict timeout for ticker to prevent UI hang
-            }
-        )
+    # 2. Try Fetch with Fallbacks
+    exchanges_config = [
+        {"id": "binance", "class": ccxt.binance},
+        {"id": "kucoin", "class": ccxt.kucoin},
+        {"id": "bybit", "class": ccxt.bybit},
+        {"id": "kraken", "class": ccxt.kraken}, # Kraken often reliable in US/EU
+    ]
 
-        # Normalize: ensure no duplicates and proper format
-        unique_syms = list(
-            set([s.upper().replace("USDT", "").replace("-", "") for s in symbols])
-        )
-        pairs = [f"{s}/USDT" for s in unique_syms]
+    unique_syms = list(set([s.upper().replace("USDT", "").replace("-", "") for s in symbols]))
+    # Pairs format might differ slightly per exchange, but "BTC/USDT" is fairly standard. 
+    # Some exchanges need specific handling if strictly needed, but CCXT handles most "/"
+    pairs = [f"{s}/USDT" for s in unique_syms]
 
-        # Intentar fetch_tickers (Batch)
+    for cfg in exchanges_config:
+        ex_id = cfg["id"]
         try:
+            exchange = cfg["class"]({
+                "enableRateLimit": True,
+                "timeout": 4000
+            })
+            
+            # Special handling for Kraken pairs if needed (often XBT/USD or similar), 
+            # but let's stick to standard USDT pairs for crypto-to-crypto exchanges.
+            # If Kraken fails on USDT pairs, loop continues.
+            
             tickers = exchange.fetch_tickers(pairs)
-        except Exception as e:
-            print(f"[MARKET] Wrappper fetch_tickers failed: {e}")
-            # Fallback will return empty list or partials
-            tickers = {}
-
-        summary = []
-        for p in pairs:
-            t = tickers.get(p)
-            if t:
-                # Calculate change if not provided
-                change = t.get("percentage")
-                if change is None and t.get("open") and t["open"] > 0:
-                    change = ((t["last"] - t["open"]) / t["open"]) * 100
-
-                summary.append(
-                    {
+            
+            summary = []
+            for p in pairs:
+                t = tickers.get(p)
+                # Some exchanges return different keys, but CCXT standardizes most.
+                if t:
+                    change = t.get("percentage")
+                    if change is None and t.get("open") and t["open"] > 0:
+                        change = ((t["last"] - t["open"]) / t["open"]) * 100
+                    
+                    summary.append({
                         "symbol": p.replace("/USDT", ""),
                         "price": t["last"],
-                        "change_24h": change or 0.0,
-                    }
-                )
+                        "change_24h": change or 0.0
+                    })
+            
+            if summary:
+                # 3. Set Cache: 15s TTL
+                cache.set(cache_key, summary, ttl=15)
+                # print(f"[MARKET] Got summary from {ex_id}")
+                return summary
 
-        # 3. Set Cache: 10s TTL - increased slightly to reduce spam
-        if summary:
-            cache.set(cache_key, summary, ttl=10)
+        except Exception as e:
+            print(f"[MARKET] Failed to fetch summary from {ex_id}: {e}")
+            continue
 
-        return summary
-
-    except Exception as e:
-        print(f"[MARKET DATA] Error getting summary: {e}")
-        # Return empty list so UI handles "loading" or empty state gracefully instead of 500
-        return []
+    return []
 
 
 def get_current_price(symbol: str) -> Optional[float]:

@@ -55,6 +55,18 @@ def fix_schema():
             else:
                 print("✅ Column 'is_hidden' already exists.")
 
+            # Check for 'extra'
+            if "extra" not in columns:
+                print("⚠️ Column 'extra' MISSING. Attempting to add it...")
+                try:
+                    conn.execute(text("ALTER TABLE signals ADD COLUMN extra TEXT"))
+                    conn.commit()
+                    print("✅ SUCCESS: Added 'extra' column.")
+                except Exception as e:
+                    print(f"❌ Failed to add 'extra': {e}")
+            else:
+                print("✅ Column 'extra' already exists.")
+
     except Exception as e:
         print(f"❌ CRITICAL ERROR: {e}")
 
