@@ -3,7 +3,10 @@ import os
 import random
 import string
 
-sys.path.append(os.path.join(os.getcwd(), "backend"))
+# Add the parent directory (backend root) to sys.path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+backend_dir = os.path.dirname(current_dir)
+sys.path.insert(0, backend_dir)
 os.environ["DATABASE_URL"] = "sqlite:///./dev_local.db"
 os.environ["AI_PROVIDER"] = (
     "deepseek"  # Force DeepSeek or dummy to avoid Gemini failing in test if key missing

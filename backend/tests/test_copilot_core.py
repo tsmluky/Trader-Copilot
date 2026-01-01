@@ -8,7 +8,9 @@ import sys
 import os
 
 # Add backend to path (match main.py behavior)
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+backend_dir = os.path.dirname(current_dir)
+sys.path.insert(0, backend_dir)
 
 from main import app, get_db
 from database import Base
@@ -86,7 +88,7 @@ def test_repair_response():
 # === Profile API Tests ===
 
 
-@pytest.mark.skip(reason="Fix import path mismatch in CI causing 401")
+@pytest.mark.skip(reason="Fix import path mismatch in CI causing 401: Temporarily skipped")
 def test_get_create_profile():
     # Initial GET should create default
     response = client.get("/advisor/profile")
@@ -96,7 +98,7 @@ def test_get_create_profile():
     assert data["trader_style"] == "BALANCED"  # Default
 
 
-@pytest.mark.skip(reason="Fix import path mismatch in CI causing 401")
+
 def test_update_profile():
     # Update
     payload = {
