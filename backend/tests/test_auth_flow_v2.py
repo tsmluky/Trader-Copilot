@@ -7,6 +7,7 @@ from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
 from main import app
 from database import Base, get_db
+from models_db import User
 
 # Setup In-Memory DB for testing
 SQLALCHEMY_DATABASE_URL = "sqlite://"
@@ -27,11 +28,11 @@ def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 
-from models_db import User
+
 
 @pytest.fixture(scope="module", autouse=True)
 def setup_db():
-    print(f"[TEST DEBUG] Creating tables: {Base.metadata.tables.keys()}")
+    print(f"[TEST DEBUG] Creating tables: {Base.metadata.tables.keys()} (User table: {User.__tablename__})")
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
