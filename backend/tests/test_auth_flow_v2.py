@@ -1,16 +1,40 @@
-
-import os
+import pytest
 import random
 import string
-
-
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
 from main import app
-os.environ["DATABASE_URL"] = "sqlite:///./dev_local.db"
-os.environ["AI_PROVIDER"] = (
-    "deepseek"  # Force DeepSeek or dummy to avoid Gemini failing in test if key missing
-)
+from database import Base, get_db
 
+# Setup In-Memory DB for testing
+SQLALCHEMY_DATABASE_URL = "sqlite://"
+
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+def override_get_db():
+    try:
+        db = TestingSessionLocal()
+        yield db
+    finally:
+        db.close()
+
+app.dependency_overrides[get_db] = override_get_db
+
+from models_db import User
+
+@pytest.fixture(scope="module", autouse=True)
+def setup_db():
+    print(f"[TEST DEBUG] Creating tables: {Base.metadata.tables.keys()}")
+    Base.metadata.create_all(bind=engine)
+    yield
+    Base.metadata.drop_all(bind=engine)
 
 client = TestClient(app)
 
