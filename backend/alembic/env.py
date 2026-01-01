@@ -14,8 +14,8 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-import sys
-import os
+import sys  # noqa: E402
+import os  # noqa: E402
 
 sys.path.append(os.getcwd())
 try:

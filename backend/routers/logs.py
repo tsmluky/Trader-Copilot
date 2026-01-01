@@ -71,7 +71,7 @@ def get_recent_logs(
             # Show User's OR System's (user_id is None)
             # This is for Radar/Scanner Page
             query = query.filter(
-                or_(Signal.user_id == current_user.id, Signal.user_id == None)
+                or_(Signal.user_id == current_user.id, Signal.user_id.is_(None))
             )
         else:
             # Show ONLY User's Explicitly Saved signals (Clean Dashboard)
@@ -187,7 +187,7 @@ def get_logs_by_token(
 
         query = db.query(Signal).filter(
             Signal.mode == mode.upper(),
-            or_(Signal.user_id == current_user.id, Signal.user_id == None),
+            or_(Signal.user_id == current_user.id, Signal.user_id.is_(None)),
         )
 
         if token.lower() != "all":
@@ -378,7 +378,7 @@ def toggle_save_signal(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-from notify import send_telegram
+from notify import send_telegram  # noqa: E402
 
 
 class TelegramPayload(BaseModel):

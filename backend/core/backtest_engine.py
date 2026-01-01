@@ -79,7 +79,7 @@ class BacktestEngine:
             if math.isnan(f) or math.isinf(f):
                 return 0.0
             return f
-        except:
+        except Exception:
             return 0.0
 
     def run(

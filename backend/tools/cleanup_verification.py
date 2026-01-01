@@ -6,8 +6,8 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 backend_root = os.path.dirname(current_dir)
 sys.path.append(backend_root)
 
-from database import SessionLocal
-from models_db import User, Signal, SignalEvaluation
+from database import SessionLocal  # noqa: E402
+from models_db import User, Signal, SignalEvaluation  # noqa: E402
 
 
 def cleanup():

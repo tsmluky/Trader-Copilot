@@ -29,10 +29,10 @@ def parse_timestamp(ts_str):
     try:
         ts_str = ts_str.replace("Z", "+00:00")
         return datetime.fromisoformat(ts_str)
-    except:
+    except Exception:
         try:
             return datetime.fromisoformat(ts_str)
-        except:
+        except Exception:
             return None
 
 

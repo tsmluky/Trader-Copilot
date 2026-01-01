@@ -226,7 +226,7 @@ def signal_from_dict(data: Dict[str, Any], mode: str, strategy_id: str) -> Signa
     if isinstance(ts, str):
         try:
             timestamp = datetime.fromisoformat(ts.replace("Z", "+00:00"))
-        except:
+        except Exception:
             timestamp = datetime.utcnow()
     elif isinstance(ts, datetime):
         timestamp = ts

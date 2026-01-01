@@ -115,7 +115,7 @@ class MACrossStrategy(Strategy):
                 # Attempt to convert or fallback strictly to avoid 'repainting' timestamps
                 try:
                     signal_ts = pd.to_datetime(ts).to_pydatetime()
-                except:
+                except Exception:
                     # This should not happen if setup is correct, but if it does,
                     # we must not use utcnow() implies a new unique signal every ms.
                     # We will use the last known valid index if possible or skip.

@@ -18,7 +18,7 @@ TOKEN_ALIASES = {
 STABLECOINS = {"USDT", "USDC", "DAI", "FDUSD", "TUSD", "USDD", "BUSD", "USDE", "PYUSD"}
 
 # Allow-lists (Canonical Symbols) imported from CENTRAL SOURCE
-from data.supported_tokens import VALID_TOKENS_FREE, VALID_TOKENS_FULL
+from data.supported_tokens import VALID_TOKENS_FREE, VALID_TOKENS_FULL  # noqa: E402
 
 TOKENS_FREE = set(VALID_TOKENS_FREE)
 

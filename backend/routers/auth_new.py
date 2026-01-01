@@ -211,8 +211,6 @@ async def read_users_me(current_user: User = fastapi.Depends(get_current_user)):
     """
     Get current user profile (synced with frontend requirements).
     """
-    plan_upper = current_user.plan.upper() if current_user.plan else "FREE"
-    # Get allowed tokens from entitlements
     from core.entitlements import TokenCatalog
 
     plan = current_user.plan or "FREE"

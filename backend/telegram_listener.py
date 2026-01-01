@@ -26,7 +26,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def myid_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /myid command - Returns the user's chat ID"""
     chat_id = update.effective_chat.id
-    username = update.effective_user.username or "Trader"
+    # username = update.effective_user.username or "Trader"
 
     # Monospace for easy copying
     response = (

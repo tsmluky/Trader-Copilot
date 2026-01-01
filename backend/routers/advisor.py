@@ -96,7 +96,7 @@ def advisor_chat(
         try:
             ohlcv = get_ohlcv_data(token, tf, limit=1)
             price = ohlcv[0]["close"] if ohlcv else "Unknown"
-        except:
+        except Exception:
             price = "Unavailable"
 
         # B. Fetch RAG Context
@@ -291,10 +291,10 @@ def update_advisor_profile(
 
 
 # ==== Endpoint Analysis Advisor (Legacy V1 Local) ====
-from models import CopilotProfileResp, CopilotProfileUpdate
-from core.schemas import Signal
-from core.signal_logger import log_signal
-from datetime import datetime
+from models import CopilotProfileResp, CopilotProfileUpdate  # noqa: E402
+from core.schemas import Signal  # noqa: E402
+from core.signal_logger import log_signal  # noqa: E402
+from datetime import datetime  # noqa: E402
 
 
 @router.post("/")

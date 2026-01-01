@@ -15,12 +15,12 @@ import fastapi
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 
-from core.config import load_env_if_needed
+from core.config import load_env_if_needed  # noqa: E402
 
 load_env_if_needed()
 
-from routers.analysis import router as analysis_router
-from routers.auth_new import router as auth_router
+from routers.analysis import router as analysis_router  # noqa: E402
+from routers.auth_new import router as auth_router  # noqa: E402
 
 # Startup Banner (Single Source of Truth Check)
 db_url = os.getenv("DATABASE_URL", "sqlite:///./dev_local.db")
@@ -38,9 +38,9 @@ print(f" [BOOT] DB_URL_MASKED: {masked_url}")
 print("==================================================")
 
 # ==== 2. Imports locales (safe to import now) ====
-from pydantic import BaseModel
+from pydantic import BaseModel  # noqa: E402
 
-# === 2b. Imports del Signal Hub unificado ===
+from fastapi.responses import JSONResponse  # noqa: E402
 
 # === 2c. RAG Context ===
 
@@ -49,7 +49,7 @@ from pydantic import BaseModel
 # FIX: Windows + Async PG functionality requires SelectorEventLoopPolicy
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-from core.limiter import limiter
+from core.limiter import limiter  # noqa: E402
 
 # === App Initialization ===
 print(f"[BOOT] CWD: {os.getcwd()}")
@@ -70,7 +70,7 @@ def root_check():
 
 
 # --- Telegram Bot Lifecycle ---
-from telegram_listener import start_telegram_bot, stop_telegram_bot
+from telegram_listener import start_telegram_bot, stop_telegram_bot  # noqa: E402
 
 
 @app.on_event("startup")
@@ -113,8 +113,8 @@ async def shutdown_event():
     await stop_telegram_bot()
 
 
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.trustedhost import TrustedHostMiddleware  # noqa: E402
+from fastapi.exceptions import RequestValidationError  # noqa: E402
 
 # === Security: Trusted Host ===
 allowed_hosts = os.getenv("ALLOWED_HOSTS", "*").split(",")
@@ -146,7 +146,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 # Rate Limiter Handler
 app.state.limiter = limiter
-from slowapi.errors import RateLimitExceeded
+from slowapi.errors import RateLimitExceeded  # noqa: E402
 
 
 @app.exception_handler(RateLimitExceeded)
@@ -263,9 +263,9 @@ app.add_middleware(
 )
 
 # ==== DB Init ====
-from database import engine, Base, get_db
-from sqlalchemy.orm import Session
-from models_db import User  # Import models to register them
+from database import engine, Base, get_db  # noqa: E402
+from sqlalchemy.orm import Session  # noqa: E402
+from models_db import User  # Import models to register them  # noqa: E402
 
 
 @app.on_event("startup")
@@ -301,7 +301,7 @@ async def startup():
                     conn.execute(
                         text("ALTER TABLE signals ALTER COLUMN rationale TYPE TEXT;")
                     )
-                except:
+                except Exception:
                     pass
 
             print("🔧 [DB MIGRATION] Update StrategyConfig/User schemas...")
@@ -310,7 +310,7 @@ async def startup():
                 conn.execute(
                     text("ALTER TABLE users ADD COLUMN telegram_chat_id VARCHAR;")
                 )
-            except:
+            except Exception:
                 pass
 
             # 3. Add is_saved (Analyst Tracking)
@@ -319,7 +319,7 @@ async def startup():
                     text("ALTER TABLE signals ADD COLUMN is_saved INTEGER DEFAULT 0;")
                 )
                 print("🔧 [DB MIGRATION] Added 'is_saved' column to signals.")
-            except:
+            except Exception:
                 pass
 
             # --- 1. Schema Constraints Fix (Critical for Multiple Personas) ---
@@ -522,7 +522,7 @@ async def notify_telegram(
 
 # ==== 9. Stats & Metrics para Dashboard ====
 # Moved to routers/stats.py
-from routers.stats import router as stats_router
+from routers.stats import router as stats_router  # noqa: E402
 
 app.include_router(stats_router, prefix="/stats", tags=["Stats"])
 
@@ -571,7 +571,7 @@ def compute_stats_summary(user: Optional[User] = None) -> Dict[str, Any]:
 
                     # 2. Ownership Isolation
                     # Show User Signals OR System Signals (user_id=None)
-                    q = q.filter(or_(Signal.user_id == user.id, Signal.user_id == None))
+                    q = q.filter(or_(Signal.user_id == user.id, Signal.user_id.is_(None)))
 
                 # REQ: Only show TRACKED (Saved) signals in Stats/Dashboard
                 q = q.filter(Signal.is_saved == 1)
@@ -663,9 +663,9 @@ def compute_stats_summary(user: Optional[User] = None) -> Dict[str, Any]:
         }
 
 
-from fastapi import Depends
-from routers.auth_new import get_current_user
-from models_db import User
+from fastapi import Depends  # noqa: E402
+from routers.auth_new import get_current_user  # noqa: E402
+from models_db import User  # noqa: E402
 
 
 @app.get("/stats/summary")
@@ -764,9 +764,9 @@ async def telegram_webhook(request: Request):
 
 
 # ==== SCHEDULER AUTO-START ====
-import threading
-from scheduler import scheduler_instance
-from strategies.registry import load_default_strategies
+import threading  # noqa: E402
+from scheduler import scheduler_instance  # noqa: E402
+from strategies.registry import load_default_strategies  # noqa: E402
 
 
 @app.on_event("startup")
@@ -793,14 +793,13 @@ if __name__ == "__main__":
 
 # ==== 11.1 Endpoint ADVISOR CHAT (Unified Router Mount) ====
 # Double-mount technique: Official + Legacy (Hidden)
-from routers.advisor import router as advisor_router
-from routers.strategies import router as strategies_router
-from routers.admin import router as admin_router
+from routers.advisor import router as advisor_router  # noqa: E402
+from routers.strategies import router as strategies_router  # noqa: E402
+from routers.admin import router as admin_router  # noqa: E402
 
-from routers.logs import router as logs_router
-from routers.backtest import router as backtest_router  # Fix 404 logic
-
-from routers.market import router as market_router
+from routers.logs import router as logs_router  # noqa: E402
+from routers.backtest import router as backtest_router  # Fix 404 logic  # noqa: E402
+from routers.market import router as market_router  # noqa: E402
 
 app.include_router(advisor_router, prefix="/advisor", tags=["Advisor"])
 app.include_router(advisor_router, prefix="/analyze/advisor", include_in_schema=False)
@@ -811,7 +810,7 @@ app.include_router(logs_router, prefix="/logs", tags=["Logs"])
 app.include_router(market_router, prefix="/market", tags=["Market"])
 app.include_router(auth_router, tags=["Auth"])
 app.include_router(admin_router, prefix="/admin", tags=["Admin"])
-from routers.system import router as system_router
+from routers.system import router as system_router  # noqa: E402
 
 app.include_router(system_router, prefix="/system", tags=["System"])
 # app.include_router(auth_router, prefix="/auth", tags=["Auth"]) # DOUBLE PREFIX AVOIDANCE

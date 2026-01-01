@@ -14,14 +14,14 @@ from pathlib import Path
 current_dir = Path(__file__).parent
 sys.path.insert(0, str(current_dir))
 
-from strategies.registry import get_registry
-from strategies.example_rsi_macd import RSIMACDDivergenceStrategy
-from strategies.DonchianBreakoutV2 import DonchianBreakoutV2
-from strategies.supertrend_flow import SuperTrendFlowStrategy
-from strategies.vwap_intraday import VWAPIntradayStrategy
-from database import SessionLocal
-from models_db import StrategyConfig
-import json
+from strategies.registry import get_registry  # noqa: E402
+from strategies.example_rsi_macd import RSIMACDDivergenceStrategy  # noqa: E402
+from strategies.DonchianBreakoutV2 import DonchianBreakoutV2  # noqa: E402
+from strategies.supertrend_flow import SuperTrendFlowStrategy  # noqa: E402
+from strategies.vwap_intraday import VWAPIntradayStrategy  # noqa: E402
+from database import SessionLocal  # noqa: E402
+from models_db import StrategyConfig  # noqa: E402
+import json  # noqa: E402
 
 
 def register_built_in_strategies():

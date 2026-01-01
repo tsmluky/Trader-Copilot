@@ -8,7 +8,7 @@ from backend.core.config import load_env_if_needed
 
 load_env_if_needed()
 
-from database import DATABASE_URL
+from database import DATABASE_URL  # noqa: E402
 
 
 def fix_schema():

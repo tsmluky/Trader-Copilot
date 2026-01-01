@@ -5,13 +5,13 @@ import os
 current_dir = os.path.dirname(os.path.abspath(__file__))
 backend_root = os.path.dirname(current_dir)  # points to .../backend
 sys.path.append(backend_root)
-from backend.core.config import load_env_if_needed
+from backend.core.config import load_env_if_needed  # noqa: E402
 
 load_env_if_needed()
 
-import asyncio
-from database import AsyncSessionLocal
-from sqlalchemy import text
+import asyncio  # noqa: E402
+from database import AsyncSessionLocal  # noqa: E402
+from sqlalchemy import text  # noqa: E402
 
 
 async def reset_db():

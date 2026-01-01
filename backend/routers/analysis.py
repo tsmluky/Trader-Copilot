@@ -36,10 +36,10 @@ router = APIRouter()
 # ==== 9. Endpoint LITE ====
 
 # Auth Dependency
-from routers.auth_new import get_current_user
-from models_db import User
-from core.limiter import limiter
-from fastapi import Request
+from routers.auth_new import get_current_user  # noqa: E402
+from models_db import User  # noqa: E402
+from core.limiter import limiter  # noqa: E402
+from fastapi import Request  # noqa: E402
 
 
 @router.post("/lite")
@@ -111,30 +111,30 @@ def _analyze_lite_unsafe(req: LiteReq, user: User):
 
     # 4. Log & Response
     # Convert to unified Signal model for logging
-    log_payload = lite_signal.dict()
+    # log_payload = lite_signal.dict()
     # Need to adapt to unified Signal manually or use helper?
     # In main.py lines 800+ it did manual logging.
     # Let's use the Unified Signal schema directly if possible, or mapping.
     # Actually, lite_signal is LiteSignal model.
 
     # Create Unified Signal for Logger
-    unified_sig = Signal(
-        timestamp=lite_signal.timestamp,
-        strategy_id="lite_v2_router",
-        mode="LITE",
-        token=lite_signal.token,
-        timeframe=lite_signal.timeframe,
-        direction=lite_signal.direction,
-        entry=lite_signal.entry,
-        tp=lite_signal.tp,
-        sl=lite_signal.sl,
-        confidence=lite_signal.confidence,
-        rationale=lite_signal.rationale,
-        source=lite_signal.source,
-        extra=indicators,
-        user_id=user.id,
-        is_saved=0,  # Default transient
-    )
+    # unified_sig = Signal(
+    #     timestamp=lite_signal.timestamp,
+    #     strategy_id="lite_v2_router",
+    #     mode="LITE",
+    #     token=lite_signal.token,
+    #     timeframe=lite_signal.timeframe,
+    #     direction=lite_signal.direction,
+    #     entry=lite_signal.entry,
+    #     tp=lite_signal.tp,
+    #     sl=lite_signal.sl,
+    #     confidence=lite_signal.confidence,
+    #     rationale=lite_signal.rationale,
+    #     source=lite_signal.source,
+    #     extra=indicators,
+    #     user_id=user.id,
+    #     is_saved=0,  # Default transient
+    # )
 
     # Log and get the ID back if possible, or just log
     # log_signal returns the DB object or similar? It returns void in many impls

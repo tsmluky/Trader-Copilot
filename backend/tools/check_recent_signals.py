@@ -7,8 +7,8 @@ from backend.core.config import load_env_if_needed
 
 load_env_if_needed()
 
-from database import SessionLocal
-from models_db import Signal
+from database import SessionLocal  # noqa: E402
+from models_db import Signal  # noqa: E402
 
 
 def check_signals():

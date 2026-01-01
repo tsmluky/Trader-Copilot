@@ -202,6 +202,6 @@ def get_current_price(symbol: str) -> Optional[float]:
         data = get_ohlcv_data(symbol, limit=1)
         if data:
             return data[-1]["close"]
-    except:
+    except Exception:
         pass
     return None

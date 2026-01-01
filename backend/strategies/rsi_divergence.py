@@ -272,7 +272,7 @@ class RSIDivergenceStrategy(Strategy):
             else:
                 try:
                     signal_ts = pd.to_datetime(ts_idx).to_pydatetime()
-                except:
+                except Exception:
                     signal_ts = None
 
             if signal_ts:
@@ -328,7 +328,7 @@ class RSIDivergenceStrategy(Strategy):
             else:
                 try:
                     signal_ts = pd.to_datetime(ts_idx).to_pydatetime()
-                except:
+                except Exception:
                     signal_ts = None
 
             if signal_ts:

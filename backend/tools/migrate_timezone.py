@@ -9,6 +9,7 @@ DB_FILE = "dev_local.db"
 
 def migrate():
     print("Checking for 'timezone' column in 'users' table...")
+    global DB_FILE
 
     if not os.path.exists(DB_FILE):
         print(f"Database file {DB_FILE} not found in current directory: {os.getcwd()}")

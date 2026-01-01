@@ -46,7 +46,7 @@ def save_backtest_results(db, strategy_id, token, results):
         try:
             entry_dt = datetime.strptime(t["entry_time"], "%Y-%m-%d %H:%M:%S")
             exit_dt = datetime.strptime(t["exit_time"], "%Y-%m-%d %H:%M:%S")
-        except:
+        except Exception:
             # Fallback if format differs
             entry_dt = datetime.utcnow()  # Should not happen if data is good
             exit_dt = datetime.utcnow()

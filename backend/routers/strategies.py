@@ -10,6 +10,7 @@ from typing import List, Dict, Any
 import json
 import re
 
+
 from database import SessionLocal
 from models_db import StrategyConfig, User, Signal, SignalEvaluation
 from pydantic import BaseModel
@@ -86,7 +87,7 @@ async def get_marketplace(
 
     query = db.query(StrategyConfig).filter(
         or_(
-            StrategyConfig.user_id == None,  # System/Public
+            StrategyConfig.user_id.is_(None),  # System/Public
             StrategyConfig.user_id == current_user.id,  # User's own
         )
     )
@@ -101,12 +102,12 @@ async def get_marketplace(
         # Parse JSON lists safely
         try:
             tokens = json.loads(c.tokens)[0] if c.tokens else "Unknown"
-        except:
+        except Exception:
             tokens = c.tokens
 
         try:
             tf = json.loads(c.timeframes)[0] if c.timeframes else "Unknown"
-        except:
+        except Exception:
             tf = c.timeframes
 
         # Stats Real (if signals exist)
@@ -151,12 +152,12 @@ async def get_marketplace(
 
         if c.config_json:
             try:
-                import json
+
 
                 conf = json.loads(c.config_json)
                 if "frequency" in conf:
                     freq_label = conf["frequency"]
-            except:
+            except Exception:
                 pass
 
         personas.append(

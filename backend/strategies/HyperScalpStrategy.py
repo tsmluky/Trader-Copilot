@@ -72,7 +72,7 @@ class HyperScalpStrategy(Strategy):
         rsi_col = f"RSI_{self.rsi_period}"
         lower_col = f"BBL_{self.bb_length}_{self.bb_std}"
         upper_col = f"BBU_{self.bb_length}_{self.bb_std}"
-        mid_col = f"BBM_{self.bb_length}_{self.bb_std}"
+
 
         # Cleanup
         d = d.dropna()
@@ -86,11 +86,11 @@ class HyperScalpStrategy(Strategy):
 
         rsi = curr.get(rsi_col)
         lower = curr.get(lower_col)
-        upper = curr.get(upper_col)
-        mid = curr.get(mid_col)
-        close = curr["close"]
-        low = curr["low"]
-        high = curr["high"]
+        # upper = curr.get(upper_col)
+        # mid = curr.get(mid_col)
+        # close = curr["close"]
+        # low = curr["low"]
+        # high = curr["high"]
 
         if rsi is None or lower is None:
             return []

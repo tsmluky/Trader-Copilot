@@ -35,7 +35,7 @@ class Candle(BaseModel):
     ts: datetime
     o: float
     h: float
-    l: float
+    l: float  # noqa: E741
     c: float
     v: float
 

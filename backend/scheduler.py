@@ -21,12 +21,12 @@ from sqlalchemy.orm import Session
 current_dir = Path(__file__).parent
 sys.path.insert(0, str(current_dir))
 
-from database import SessionLocal
-from strategies.registry import get_registry
-from core.signal_evaluator import evaluate_pending_signals
-from models_db import StrategyConfig, User
-from notify import send_telegram
-from data.supported_tokens import VALID_TOKENS_FULL
+from database import SessionLocal  # noqa: E402
+from strategies.registry import get_registry  # noqa: E402
+from core.signal_evaluator import evaluate_pending_signals  # noqa: E402
+from models_db import StrategyConfig, User  # noqa: E402
+from notify import send_telegram  # noqa: E402
+from data.supported_tokens import VALID_TOKENS_FULL  # noqa: E402
 
 # Configuración de Logging
 logging.basicConfig(
@@ -57,12 +57,12 @@ def get_active_strategies_from_db():
             # Parse JSON fields safely
             try:
                 tokens_list = json.loads(c.tokens) if c.tokens else []
-            except:
+            except Exception:
                 tokens_list = []
 
             try:
                 tf_list = json.loads(c.timeframes) if c.timeframes else []
-            except:
+            except Exception:
                 tf_list = []
 
             # --- TOKEN LIST LOGIC ---
@@ -182,7 +182,7 @@ class StrategyScheduler:
                 db.commit()
                 print(f"🔒 Lock acquired (new): {self.lock_id}")
                 return True
-            except:
+            except Exception:
                 db.rollback()
                 return False
 

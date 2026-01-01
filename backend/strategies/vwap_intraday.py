@@ -118,7 +118,7 @@ class VWAPIntradayStrategy(Strategy):
 
         last = recent.iloc[-1]
         prev = recent.iloc[-2]
-        prev2 = recent.iloc[-3]
+        # prev2 = recent.iloc[-3]
 
         close = float(last["close"])
         vwap = float(last["vwap"])

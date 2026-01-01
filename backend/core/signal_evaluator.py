@@ -1,6 +1,9 @@
+
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from typing import List, Dict
+
+
 
 from models_db import Signal, SignalEvaluation, StrategyConfig
 from core.market_data_api import get_current_price
@@ -25,7 +28,7 @@ def evaluate_pending_signals(db: Session) -> int:
     pending_signals = (
         db.query(Signal)
         .outerjoin(SignalEvaluation, Signal.id == SignalEvaluation.signal_id)
-        .filter(SignalEvaluation.id == None, Signal.timestamp < cutoff_time)
+        .filter(SignalEvaluation.id.is_(None), Signal.timestamp < cutoff_time)
         .all()
     )
 
@@ -176,3 +179,4 @@ def _update_strategy_stats(db: Session, persona_id: str):
 
     except Exception as e:
         print(f"[EVAL] Error updating stats for {persona_id}: {e}")
+

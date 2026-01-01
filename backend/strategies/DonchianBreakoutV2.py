@@ -94,8 +94,8 @@ class DonchianBreakoutV2(Strategy):
                 # 3. Logic (on the last closed candle)
                 curr_idx = -1
                 curr_close = close.iloc[curr_idx]
-                curr_high = high.iloc[curr_idx]
-                curr_low = low.iloc[curr_idx]
+                # curr_high = high.iloc[curr_idx]
+                # curr_low = low.iloc[curr_idx]
                 curr_dc_upper = dc_upper.iloc[curr_idx]
                 curr_dc_lower = dc_lower.iloc[curr_idx]
                 curr_dc_mid = dc_mid.iloc[curr_idx]

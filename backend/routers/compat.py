@@ -1,8 +1,10 @@
 from __future__ import annotations
-from fastapi import HTTPException
+from fastapi import HTTPException, APIRouter
 from pydantic import BaseModel
 from typing import Optional
 import pathlib
+
+router = APIRouter()
 
 
 # === Cargar .env directamente desde backend/.env ===

@@ -71,7 +71,7 @@ def fetch_ohlcv_slice(token: str, timeframe: Timeframe, limit: int = 200) -> OHL
     raw = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
 
     candles: List[Candle] = []
-    for ts_ms, o, h, l, c, v in raw:
+    for ts_ms, o, h, l, c, v in raw:  # noqa: E741
         candles.append(
             Candle(
                 ts=datetime.fromtimestamp(ts_ms / 1000, tz=timezone.utc),

@@ -6,13 +6,13 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, current_dir)
 
 # Load Env BEFORE imports
-from core.config import load_env_if_needed
+from core.config import load_env_if_needed  # noqa: E402
 
 load_env_if_needed()
 
-from database import SessionLocal
-from models_db import Signal, SignalEvaluation
-from sqlalchemy import delete
+from database import SessionLocal  # noqa: E402
+from models_db import Signal, SignalEvaluation  # noqa: E402
+from sqlalchemy import delete  # noqa: E402
 
 
 def purge_signals(strategy_id=None, execute=False):

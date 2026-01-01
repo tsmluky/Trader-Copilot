@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import random
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 import requests
 
@@ -83,7 +83,7 @@ def _get_realtime_snapshot(token: str) -> Optional[str]:
         return None
 
 
-from narrative_engine import generate_narrative
+from narrative_engine import generate_narrative  # noqa: E402
 
 
 def build_token_context(

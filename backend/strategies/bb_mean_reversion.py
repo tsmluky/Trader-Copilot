@@ -99,7 +99,7 @@ class BBMeanReversionStrategy(Strategy):
                         else pd.to_datetime(d["timestamp"].iloc[-1], unit="ms")
                     )
                     ts_val = ts_raw
-                except:
+                except Exception:
                     pass
 
             signal = None

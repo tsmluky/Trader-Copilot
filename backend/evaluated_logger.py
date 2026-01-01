@@ -96,11 +96,10 @@ def _append_evaluations(token: str, rows: List[Dict[str, str]]) -> int:
     try:
         from backend.database import SessionLocal
         from backend.models_db import (
-            Signal as SignalDB,
+            Signal,
             SignalEvaluation,
-            StrategyConfig,
         )
-        from sqlalchemy import select, func
+        from sqlalchemy import select
 
         db = SessionLocal()
         strategies_to_update = set()
@@ -115,7 +114,7 @@ def _append_evaluations(token: str, rows: List[Dict[str, str]]) -> int:
                 # Parse timestamp to match DB format
                 try:
                     ts_dt = _parse_iso_ts(ts_str)
-                except:
+                except Exception:
                     continue
 
                 # Buscar Signal por token y timestamp

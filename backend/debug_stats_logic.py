@@ -37,7 +37,7 @@ def test_query():
         if user.created_at:
             q_lite = q_lite.filter(Signal.timestamp >= user.created_at)
 
-        q_lite = q_lite.filter(or_(Signal.user_id == user.id, Signal.user_id == None))
+        q_lite = q_lite.filter(or_(Signal.user_id == user.id, Signal.user_id.is_(None)))
 
     # Hypothetically this is where indentation matters.
     # If I put it here (inside if user, effectively)

@@ -19,7 +19,7 @@ def _normalize_sync_db_url(url: str) -> str:
     return url
 
 
-from sqlalchemy.pool import StaticPool
+from sqlalchemy.pool import StaticPool  # noqa: E402
 
 # NOTE: Environment should be loaded BEFORE importing this module via core.config.load_env_if_needed()
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./dev_local.db")
