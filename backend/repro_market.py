@@ -1,5 +1,5 @@
 import ccxt
-import sys
+
 
 def test_market():
     print("Trying to fetch tickers from Binance via CCXT...")
