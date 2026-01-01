@@ -54,17 +54,17 @@ Built with a **Local-First** philosophy, TraderCopilot ensures your strategies a
 
 ```mermaid
 graph TD
-    User[User / Frontend] <-->|Rest API / WS| API[FastAPI Backend]
+    User["User / Frontend"] <-->|"Rest API / WS"| API["FastAPI Backend"]
     
     subgraph "Core Engine"
-        API <-->|Tasks| Scheduler[Scheduler / Cron]
-        API <-->|Query| Quant[Quant Strategies]
-        API <-->|Prompt| AI[AI Service (Gemini/DeepSeek)]
+        API <-->|Tasks| Scheduler["Scheduler / Cron"]
+        API <-->|Query| Quant["Quant Strategies"]
+        API <-->|Prompt| AI["AI Service (Gemini/DeepSeek)"]
     end
 
     subgraph "Data Layer"
-        Quant <-->|Fetch| CCXT[Exchange Data]
-        Quant -->|Store| DB[(PostgreSQL / SQLite)]
+        Quant <-->|Fetch| CCXT["Exchange Data"]
+        Quant -->|Store| DB[("PostgreSQL / SQLite")]
         AI <-->|RAG| DB
     end
 
