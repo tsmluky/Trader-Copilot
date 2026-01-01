@@ -183,7 +183,7 @@ async def create_persona(
     if exists:
         import random
         new_id = f"{new_id}_{random.randint(1000,9999)}"
-        
+
     # 2. Create DB Entry
     new_strat = StrategyConfig(
         persona_id=new_id,

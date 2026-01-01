@@ -150,7 +150,8 @@ async def analyze_pro(
     request: Request, 
     req: ProReq, 
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user) # Removed require_pro to allow Free/Trader to TRY and fail quotas
+    # Removed require_pro to allow Free/Trader to TRY and fail quotas
+    current_user: User = Depends(get_current_user)
 ):
     """
     Generates a deep AI analysis using Gemini/DeepSeek.

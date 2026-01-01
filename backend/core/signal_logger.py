@@ -164,7 +164,8 @@ def _write_to_db(signal: Signal, mode: str) -> None:
                 body = f"Entry: {signal.entry} | TP: {signal.tp} | SL: {signal.sl}\nStrategy: {signal.strategy_id or 'Unknown'}"
                 res = send_push_notification(title, body, data={"token": signal.token, "type": "signal"})
                 if res.get("success", 0) > 0:
-                    print(f"[PUSH] 🔔 Notificación enviada a {res['success']} dispositivos.")
+                    devices = res['success']
+                    print(f"[PUSH] 🔔 Notificación enviada a {devices} dispositivos.")
                 elif res.get("failed", 0) > 0:
                     print(f"[PUSH] ⚠️ Fallo al enviar notificaciones ({res['failed']} fallidos).")
             except Exception as push_err:

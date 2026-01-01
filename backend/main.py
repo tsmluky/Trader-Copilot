@@ -1,4 +1,5 @@
 ﻿import sys
+import traceback
 import os
 import asyncio
 from datetime import datetime, timedelta
@@ -304,7 +305,11 @@ async def startup():
         try:
             # Check if constraint exists (PostgreSQL specific)
             from sqlalchemy import text
-            check_sql = "SELECT constraint_name FROM information_schema.table_constraints WHERE table_name = 'strategy_configs' AND constraint_type = 'UNIQUE' AND constraint_name LIKE '%strategy_id%'"
+            check_sql = (
+                "SELECT constraint_name FROM information_schema.table_constraints "
+                "WHERE table_name = 'strategy_configs' AND constraint_type = 'UNIQUE' "
+                "AND constraint_name LIKE '%strategy_id%'"
+            )
             result = db.execute(text(check_sql)).fetchone()
             if result:
                 constraint = result[0]

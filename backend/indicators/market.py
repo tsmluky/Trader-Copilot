@@ -15,7 +15,7 @@ def get_market_data(symbol: str, timeframe: str = "1h", limit: int = 1000):
         # Usar la API robusta con fallback
         import inspect
         from core import market_data_api
-        print(f"[DEBUG MARKET] API File: {market_data_api.__file__}")
+
         print(f"[DEBUG MARKET] Signature: {inspect.signature(market_data_api.get_ohlcv_data)}")
         
         ohlcv_data, source_id = get_ohlcv_data(symbol, timeframe, limit, return_source=True)
