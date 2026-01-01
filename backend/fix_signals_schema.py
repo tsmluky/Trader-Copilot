@@ -14,7 +14,7 @@ if not DATABASE_URL:
     sys.exit(1)
 
 def fix_schema():
-    print(f"🔌 Connecting to database...")
+    print("🔌 Connecting to database...")
     try:
         engine = create_engine(DATABASE_URL)
         inspector = inspect(engine)
