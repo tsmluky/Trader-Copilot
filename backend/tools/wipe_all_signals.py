@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../.env'))
 dotenv.load_dotenv(env_path)
 
-from database import SessionLocal, engine
+from database import SessionLocal, engine  # noqa: E402
 
 def wipe_signals():
     print(f"⚠️  DANGER ZONE: Wiping ALL signals from {engine.url}...")

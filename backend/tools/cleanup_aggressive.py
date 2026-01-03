@@ -43,7 +43,7 @@ def clean_aggressive():
                     ts = datetime.fromisoformat(ts_str.replace("Z", ""))
                 else:
                     ts = datetime.strptime(ts_str[:19], "%Y-%m-%d %H:%M:%S")
-            except:
+            except Exception:
                 # Fallback
                 continue
                 

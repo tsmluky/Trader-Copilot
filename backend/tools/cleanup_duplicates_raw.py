@@ -1,7 +1,5 @@
-
 import sqlite3
 import os
-from datetime import datetime
 
 # Path to database. 
 # backend/database.py typically uses "dev_local.db" in the root or backend folder.
@@ -32,7 +30,10 @@ def clean_duplicates_sql():
     try:
         # Get all signals
         # We assume columns: id, strategy_id, token, timeframe, direction, timestamp
-        cursor.execute("SELECT id, strategy_id, token, timeframe, direction, timestamp FROM signals ORDER BY timestamp DESC")
+        cursor.execute(
+            "SELECT id, strategy_id, token, timeframe, direction, timestamp "
+            "FROM signals ORDER BY timestamp DESC"
+        )
         rows = cursor.fetchall()
         
         print(f"🔍 Scanned {len(rows)} signals.")
@@ -57,7 +58,7 @@ def clean_duplicates_sql():
                     ts_key = timestamp_str[:16] # "2023-01-01 12:00"
                 else:
                     ts_key = "none"
-            except:
+            except Exception:
                 ts_key = str(timestamp_str)
                 
             key = (strategy_id, token, timeframe, direction, ts_key)

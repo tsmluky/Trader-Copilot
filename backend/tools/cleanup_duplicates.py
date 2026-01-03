@@ -1,14 +1,12 @@
 
 import sys
 import os
-from datetime import datetime, timedelta
-
 # Ensure we can import from backend root (where 'database.py' and 'core/' exist)
 # Script: backend/tools/cleanup_duplicates.py
 # Needed Path: backend/
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
-from database import SessionLocal, engine
+from database import SessionLocal  # noqa: E402
 from models_db import Signal # ORM Model
 
 def clean_duplicates():

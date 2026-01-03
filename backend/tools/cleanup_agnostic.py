@@ -13,8 +13,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../.env'))
 dotenv.load_dotenv(env_path)
 
-from database import SessionLocal, engine
-from models_db import Signal
+from database import SessionLocal, engine  # noqa: E402
+
 
 def clean_agnostic():
     print(f"📦 Database URL: {engine.url}")
@@ -50,7 +50,7 @@ def clean_agnostic():
             if isinstance(ts, str):
                 try:
                     ts = datetime.fromisoformat(ts.replace("Z", ""))
-                except:
+                except Exception:
                     continue
             
             key = (strat, tok, direction)

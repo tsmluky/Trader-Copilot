@@ -283,47 +283,51 @@ class StrategyScheduler:
                             finally:
                                 dedupe_db.close()
 
+                            # 2. In-Memory Deduplication (Fast)
+                            # Create a unique key for this exact signal instance
+                            ts_key = f"{p_id}_{sig.token}_{sig.direction}_{sig.timestamp}"
+                            
+                            last_ts = self.processed_signals.get(ts_key)
                             if last_ts and sig.timestamp <= last_ts:
                                 continue
 
-                            # 2. Prevent same-side spam (Visual Clarity)
-                            last_dir = self.last_signal_direction.get(ts_key)
+                            # 3. Prevent same-side spam (Visual Clarity)
+                            # Check the last direction for this specific persona/token combo
+                            direction_key = f"{p_id}_{sig.token}"
+                            last_dir = self.last_signal_direction.get(direction_key)
                             if last_dir == sig.direction:
-                                continue
-
-                            # 3. Valid New Signal
+                                # Only skip if timestamps are very close (e.g. same candle repaint)
+                                if last_ts and (sig.timestamp - last_ts).total_seconds() < 60:
+                                    continue
 
                             # ==== 4. Coherence Guard (Anti-Chop) ====
                             # Ensures we don't flip-flop direction too fast for the same token
                             coherence_key = sig.token
                             last_state = self.token_coherence.get(coherence_key)
+                            
+                            now_utc = datetime.utcnow() # Use local variable for consistency
 
                             if last_state:
-                                last_dir = last_state["direction"]
-                                last_ts = last_state["ts"]
+                                last_global_dir = last_state["direction"]
+                                last_global_ts = last_state["ts"]
 
                                 # Conflict detected? (Opposite direction)
-                                if last_dir != sig.direction:
-                                    # If conflict happens within 30 minutes, it's likely noise/chop. Suppress.
-                                    if (now - last_ts) < timedelta(minutes=30):
-                                        # print(f"    🛡️ Suppressing {sig.direction} on {sig.token}")
-                                        # print(f"       (Trend is {last_dir})")
+                                if last_global_dir != sig.direction:
+                                    # If conflict happens within 30 minutes, likely noise. Suppress.
+                                    if (now_utc - last_global_ts) < timedelta(minutes=30):
                                         continue
-                                    else:
-                                        # Valid Reversal (enough time passed)
-                                        pass
-                                else:
-                                    # Confirmation (Same direction), beneficial to update TS to keep trend "alive"
-                                    pass
+
+
+
 
                             # Update Global Coherence State
                             self.token_coherence[coherence_key] = {
                                 "direction": sig.direction,
-                                "ts": now,
+                                "ts": now_utc,
                             }
 
                             self.processed_signals[ts_key] = sig.timestamp
-                            self.last_signal_direction[ts_key] = sig.direction
+                            self.last_signal_direction[direction_key] = sig.direction
 
                             # Enriquecer source con el ID de la persona
                             # Fix user confusion: Use the Human Readable Name? No, Marketplace:{ID}
