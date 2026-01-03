@@ -259,23 +259,22 @@ class StrategyScheduler:
 
                         count = 0
                         for sig in signals:
-                            # 1. Deduplication (DB Weak Check + Memory)
-                            # Check DB for recent identical signal (2h window)
-                            # This prevents duplicates if scheduler restarts
+                            # 1. Deduplication (DB Strict Check)
+                            # Check DB for EXACT signal (same timestamp)
+                            # This prevents duplicates if scheduler restarts and the candle is still valid
                             dedupe_db = SessionLocal()
                             try:
                                 from models_db import Signal as SignalModel
-                                two_hours_ago = datetime.utcnow() - timedelta(hours=2)
                                 exists = dedupe_db.query(SignalModel).filter(
                                     SignalModel.strategy_id == p_id,
                                     SignalModel.token == sig.token,
                                     SignalModel.direction == sig.direction,
-                                    SignalModel.timestamp >= two_hours_ago,
+                                    SignalModel.timestamp == sig.timestamp, # [FIX] Strict timestamp match
                                     SignalModel.is_saved == 1
                                 ).first()
                                 
                                 if exists:
-                                    # print(f"    🔕 DB Dedupe: Skipping {sig.token} {sig.direction} (last 2h)")
+                                    # print(f"    🔕 DB Dedupe: Skipping {sig.token} {sig.direction} (already processed)")
                                     dedupe_db.close()
                                     continue
                             except Exception as e:

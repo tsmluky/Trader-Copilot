@@ -129,13 +129,13 @@ class TrendFollowingNative(Strategy):
                     token=token.upper(),
                     timeframe=timeframe,
                     direction="long",
-                    entry=round(close, 2),
-                    tp=round(tp, 2),
-                    sl=round(sl, 2),
-                    confidence=round(confidence, 2),
+                    entry=close,
+                    tp=tp,
+                    sl=sl,
+                    confidence=confidence,
                     rationale=f"Golden Cross (EMA {self.ema_fast_len} > {self.ema_slow_len}) with ADX {adx:.1f}",
                     source="ENGINE",
-                    extra={"adx": round(adx, 2), "atr": round(atr, 2)},
+                    extra={"adx": adx, "atr": atr},
                 )
                 signals.append(signal)
 
@@ -159,13 +159,13 @@ class TrendFollowingNative(Strategy):
                     token=token.upper(),
                     timeframe=timeframe,
                     direction="short",
-                    entry=round(close, 2),
-                    tp=round(tp, 2),
-                    sl=round(sl, 2),
-                    confidence=round(confidence, 2),
+                    entry=close,
+                    tp=tp,
+                    sl=sl,
+                    confidence=confidence,
                     rationale=f"Death Cross (EMA {self.ema_fast_len} < {self.ema_slow_len}) with ADX {adx:.1f}",
                     source="ENGINE",
-                    extra={"adx": round(adx, 2), "atr": round(atr, 2)},
+                    extra={"adx": adx, "atr": atr},
                 )
                 signals.append(signal)
 
