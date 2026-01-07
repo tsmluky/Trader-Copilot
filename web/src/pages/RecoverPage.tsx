@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mail, ArrowLeft, Send } from "lucide-react";
 
+import { API_BASE_URL } from "../constants";
+
 export default function RecoverPage() {
     const [email, setEmail] = useState("");
     const [submitted, setSubmitted] = useState(false);
@@ -14,7 +16,7 @@ export default function RecoverPage() {
         setError("");
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/recover`, {
+            const res = await fetch(`${API_BASE_URL}/auth/recover`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email }),

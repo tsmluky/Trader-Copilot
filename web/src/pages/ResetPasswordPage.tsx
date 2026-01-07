@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Lock, ArrowLeft, CheckCircle } from "lucide-react";
 
+import { API_BASE_URL } from "../constants";
+
 export default function ResetPasswordPage() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -37,7 +39,7 @@ export default function ResetPasswordPage() {
         }
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/reset`, {
+            const res = await fetch(`${API_BASE_URL}/auth/reset`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ token, new_password: password }),
