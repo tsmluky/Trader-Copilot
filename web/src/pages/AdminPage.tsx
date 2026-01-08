@@ -5,9 +5,12 @@ import { toast } from 'react-hot-toast';
 
 interface AdminStats {
     total_users: number;
+    users_24h: number;
     active_plans: number;
     hidden_signals: number;
     total_signals: number;
+    signals_24h: number;
+    system_status: string;
 }
 
 interface UserData {
@@ -112,12 +115,20 @@ export const AdminPage: React.FC = () => {
     return (
         <div className="space-y-8 animate-fade-in text-slate-200">
             {/* Header */}
-            <div>
-                <h1 className="text-4xl font-black text-white flex items-center gap-3">
-                    <Shield className="w-10 h-10 text-red-500" />
-                    Admin Control
-                </h1>
-                <p className="text-slate-400 mt-2">System Management & Audits</p>
+            <div className="flex justify-between items-end">
+                <div>
+                    <h1 className="text-4xl font-black text-white flex items-center gap-3">
+                        <Shield className="w-10 h-10 text-red-500" />
+                        Admin Control
+                    </h1>
+                    <p className="text-slate-400 mt-2">System Management & Audits</p>
+                </div>
+                {stats && (
+                    <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 px-4 py-2 rounded-lg">
+                        <div className={`w-2 h-2 rounded-full ${stats.system_status.includes("ONLINE") ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`}></div>
+                        <span className="text-xs font-bold font-mono text-slate-300">{stats.system_status}</span>
+                    </div>
+                )}
             </div>
 
             {/* KPI Cards */}
@@ -127,7 +138,10 @@ export const AdminPage: React.FC = () => {
                         <div className="flex items-center gap-2 text-slate-400 mb-2">
                             <Users className="w-4 h-4" /> Total Users
                         </div>
-                        <div className="text-2xl font-bold text-white">{stats.total_users}</div>
+                        <div className="flex items-baseline gap-2">
+                            <div className="text-2xl font-bold text-white">{stats.total_users}</div>
+                            {stats.users_24h > 0 && <div className="text-xs text-emerald-400 font-bold">+{stats.users_24h} today</div>}
+                        </div>
                     </div>
                     <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
                         <div className="flex items-center gap-2 text-emerald-400 mb-2">
@@ -139,7 +153,10 @@ export const AdminPage: React.FC = () => {
                         <div className="flex items-center gap-2 text-slate-400 mb-2">
                             <Activity className="w-4 h-4" /> Total Signals
                         </div>
-                        <div className="text-2xl font-bold text-white">{stats.total_signals}</div>
+                        <div className="flex items-baseline gap-2">
+                            <div className="text-2xl font-bold text-white">{stats.total_signals}</div>
+                            {stats.signals_24h > 0 && <div className="text-xs text-blue-400 font-bold">+{stats.signals_24h} 24h</div>}
+                        </div>
                     </div>
                     <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
                         <div className="flex items-center gap-2 text-amber-500 mb-2">
