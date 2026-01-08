@@ -52,20 +52,33 @@ class PaginatedResponse(BaseModel):
 @router.get("/stats")
 async def get_admin_stats(db: Session = Depends(get_db)):
     """KPIs for Admin Dashboard."""
+    from datetime import datetime, timedelta
+    
+    now = datetime.utcnow()
+    last_24h = now - timedelta(hours=24)
+
     total_users = db.query(func.count(User.id)).scalar()
+    users_24h = db.query(func.count(User.id)).filter(User.created_at >= last_24h).scalar()
+
     active_pro = (
         db.query(func.count(User.id)).filter(User.plan.like("%PRO%")).scalar()
     )  # PRO or OWNER likely
+
     hidden_signals = (
         db.query(func.count(Signal.id)).filter(Signal.is_hidden == 1).scalar()
     )
     total_signals = db.query(func.count(Signal.id)).scalar()
+    signals_24h = db.query(func.count(Signal.id)).filter(Signal.timestamp >= last_24h).scalar()
 
     return {
         "total_users": total_users,
+        "users_24h": users_24h,
         "active_plans": active_pro,
         "hidden_signals": hidden_signals,
         "total_signals": total_signals,
+        "signals_24h": signals_24h,
+        "system_status": "ONLINE (Scheduler Active)", # Placeholder until health check integration
+        "last_updated": now.isoformat()
     }
 
 
