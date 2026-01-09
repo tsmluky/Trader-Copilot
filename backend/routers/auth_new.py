@@ -429,7 +429,7 @@ async def request_password_recovery(
         expires_delta=access_token_expires
     )
 
-    from core.email import send_recovery_email
+    from core.email_sender import send_recovery_email
     send_recovery_email(user.email, recovery_token)
 
     return {"message": "Recovery email sent."}

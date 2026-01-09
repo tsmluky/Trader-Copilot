@@ -103,6 +103,10 @@ class BacktestEngine:
                 candles_per_day = 6
             if timeframe == "15m":
                 candles_per_day = 96
+            if timeframe == "5m":
+                candles_per_day = 288
+            if timeframe == "1m":
+                candles_per_day = 1440
 
             limit = days * candles_per_day
 
@@ -178,7 +182,6 @@ class BacktestEngine:
                         else:
                             pnl_raw = (entry_price - exit_price) * quantity
 
-                        # ZERO FEES for Marketing/MVP Presentation
                         fees = 0.0
                         net_pnl = pnl_raw - fees
 
@@ -288,7 +291,6 @@ class BacktestEngine:
             # Max Drawdown
             max_equity = self.initial_capital
             max_drawdown = 0.0
-
             for point in equity_curve:
                 eq = point["strategy_equity"]
                 if eq > max_equity:
