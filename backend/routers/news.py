@@ -1,8 +1,7 @@
-import os
 import requests
 import xml.etree.ElementTree as ET
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Query
 from typing import Optional, List, Dict, Any
 
 router = APIRouter()
@@ -54,7 +53,8 @@ def parse_rss_to_news_items(xml_content: str) -> List[Dict[str, Any]]:
     try:
         root = ET.fromstring(xml_content)
         channel = root.find("channel")
-        if channel is None: return []
+        if channel is None:
+            return []
             
         for i, item in enumerate(channel.findall("item")):
             title = item.find("title").text if item.find("title") is not None else "No Title"
@@ -96,7 +96,8 @@ def parse_rss_to_news_items(xml_content: str) -> List[Dict[str, Any]]:
                 "kind": "news"
             })
             
-            if len(items) >= 20: break
+            if len(items) >= 20:
+                break
                 
     except Exception as e:
         print(f"[RSS Parser] Error: {e}")
@@ -108,7 +109,7 @@ async def get_news(
     limit: Optional[int] = Query(20, description="Items limit")
 ):
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"  # noqa: E501
     }
     
     try:
