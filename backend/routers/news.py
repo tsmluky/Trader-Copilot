@@ -108,12 +108,13 @@ def parse_rss_to_news_items(xml_content: str) -> List[Dict[str, Any]]:
 async def get_news(
     limit: Optional[int] = Query(20, description="Items limit")
 ):
-    # noqa: E501
+    headers = {
         "User-Agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
             "AppleWebKit/537.36 (KHTML, like Gecko) "
             "Chrome/91.0.4472.124 Safari/537.36"
         )
+    }
     
     try:
         response = requests.get(RSS_URL, headers=headers, timeout=10)
