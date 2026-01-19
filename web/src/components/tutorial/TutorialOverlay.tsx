@@ -58,18 +58,22 @@ const STEPS: Step[] = [
 
 export const TutorialOverlay: React.FC = () => {
     const navigate = useNavigate();
+    const { userProfile, completeOnboarding } = useAuth(); // Integrate AuthContext
     const [isVisible, setIsVisible] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
     const [coords, setCoords] = useState<{ top: number; left: number; height: number; width: number } | null>(null);
 
     // Initial Check
     useEffect(() => {
-        const seen = localStorage.getItem('tradercopilot_tutorial_completed_v2');
-        if (!seen) {
+        // Double Check: Local Storage AND User Profile
+        const localSeen = localStorage.getItem('tradercopilot_tutorial_completed_v2');
+        const dbSeen = userProfile?.user?.onboarding_completed;
+
+        if (!localSeen && !dbSeen) {
             // Small delay to ensure render
             setTimeout(() => setIsVisible(true), 1000);
         }
-    }, []);
+    }, [userProfile]); // Re-run when profile loads
 
     // Update coordinates when step changes
     useEffect(() => {
@@ -105,6 +109,7 @@ export const TutorialOverlay: React.FC = () => {
 
     const finishTour = () => {
         localStorage.setItem('tradercopilot_tutorial_completed_v2', 'true');
+        completeOnboarding(); // Persist to DB/Profile
         setIsVisible(false);
     };
 
