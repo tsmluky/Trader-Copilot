@@ -2,7 +2,7 @@
 # Genera señales "última vela" para TODAS las estrategias activas del catálogo.
 # Guarda results/live_signals.csv y results/<RUN_ID>/live_signals.csv
 
-import os, sys, json
+import os
 from datetime import datetime, timezone
 from typing import Dict, Any, List
 

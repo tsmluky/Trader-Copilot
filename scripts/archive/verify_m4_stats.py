@@ -91,7 +91,7 @@ async def verify_stats():
                 print(f"Calculated WR: {wr}%")
                 
                 if total > 0 and wins >= 1:
-                    print(f"✅ Stats Injection Logic Validation Passed.")
+                    print("✅ Stats Injection Logic Validation Passed.")
                     found = True
                     
                     # Verify Injection

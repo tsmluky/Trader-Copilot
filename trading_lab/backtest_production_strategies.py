@@ -1,8 +1,6 @@
 import sys
 import os
 import pandas as pd
-import numpy as np
-from datetime import datetime
 
 # Ensure we can import from demo_execution and core
 sys.path.append(os.path.join(os.getcwd(), "demo_execution"))
@@ -12,7 +10,6 @@ from demo_execution.strategies.implementations.trend_ma_strategy import TrendMaC
 from demo_execution.strategies.implementations.donchian_strategy import DonchianBreakoutStrategy
 from trading_rules.indicators import ensure_features
 from trading_rules.side_generators import side_ma_cross, side_donchian
-from trading_rules.signal_builder import compute_entry_tp_sl
 
 # --- Backtest Engine Helpers ---
 

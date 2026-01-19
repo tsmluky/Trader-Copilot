@@ -218,14 +218,14 @@ def _inject_rag_into_lite_rationale(
     return combined
 
 
-async def _build_pro_markdown(
+async def _build_pro_analysis(
     req: ProReq,
     lite: LiteSignal,
     indicators: Dict[str, Any],
     brain: Dict[str, str],
-) -> str:
+) -> Dict[str, Any]:
     """
-    Construye un prompt y delega en Gemini Flash para el análisis PRO.
+    Construye un prompt y delega en Gemini Flash para el análisis PRO (Output JSON).
     """
     # 1. Extract context
     token_up = lite.token
@@ -247,74 +247,67 @@ async def _build_pro_markdown(
     snapshot = brain.get("snapshot", "").strip()
 
     # 2. Build Prompt
-    # from gemini_client import generate_pro  <-- REMOVED
-    from core.ai_service import get_ai_service
-
     system_instruction = (
-        "Eres TraderCopilot, un analista técnico de élite institucional y asesor de posiciones para trading.\n"
-        "Tu objetivo es impresionar al usuario con la profundidad y claridad de tu análisis.\n"
-        "Debes responder SIEMPRE ÚNICAMENTE con un bloque de texto formateado entre "
-        "#ANALYSIS_START y #ANALYSIS_END, manteniendo las secciones requeridas: "
-        "#CTXT# (Contexto de mercado), #TA# (Análisis Técnico Institucional), #PLAN# (Estrategia precisa), "
-        "#INSIGHT# (Dato clave OnChain/Fundamental), #PARAMS# (Niveles exactos).\n"
-        "IMPORTANTE: NO uses negritas ni markdown en los tags. "
-        "Usa exactamente #TAG# (ej: #CTXT#, no **#CTXT#**).\n"
-        "El idioma de respuesta debe ser SIEMPRE ESPAÑOL (Castellano) de España, "
-        "tono profesional, serio y directo al grano.\n"
-        "Usa terminología técnica correcta (Order Blocks, FVG, Liquidez, Estructura de Mercado)."
+        "Eres TraderCopilot, un quant advisor experto.\n"
+        "Tu objetivo es devolver un análisis JSON estructurado estricto.\n"
+        "NO devuelvas markdown. NO devuelvas texto libre fuera del JSON.\n"
+        "El JSON debe cumplir exactamente con este esquema:\n"
+        "{\n"
+        "  \"context\": {\"summary\": \"...\", \"sentiment\": \"...\"},\n"
+        "  \"technical\": {\"summary\": \"...\", \"key_levels\": [\"...\"]},\n"
+        "  \"plan\": {\"strategy\": \"...\", \"management\": \"...\"},\n"
+        "  \"insight\": {\"type\": \"...\", \"content\": \"...\"},\n"
+        "  \"params\": {\"entry\": 0.0, \"tp\": 0.0, \"sl\": 0.0}\n"
+        "}\n\n"
+        "REGLAS:\n"
+        "- Sentiment debe ser breve.\n"
+        "- Params deben ser floats, usa los sugeridos si tienen sentido o ajústalos ligeramente.\n"
+        "- Idioma: Español.\n"
     )
 
     prompt = f"""
-Has recibido una solicitud de análisis PRO para {token_up} en timeframe {tf}.
+ANÁLISIS PRO PARA {token_up} ({tf}).
 
-DATOS TÉCNICOS (LITE):
+DATOS TÉCNICOS (Base LITE):
 - Dirección: {lite.direction.upper()}
-- Entrada Sugerida: {lite.entry}
-- TP Sugerido: {lite.tp}
-- SL Sugerido: {lite.sl}
-- RSI: {rsi_str}
-- EMA21: {ema21_str}
-- Tendencia: {trend}
+- RSI: {rsi_str} | EMA21: {ema21_str} | Tendencia: {trend}
+- Sugeridos: Entry={lite.entry}, TP={lite.tp}, SL={lite.sl}
 
-CONTEXTO DE MERCADO (RAG):
-- Insight Clave: {insights}
+CONTEXTO RAG:
 - Noticias: {news}
-- OnChain: {onchain}
-- Sentimiento: {sentiment_txt}
-- Snapshot Precio: {snapshot}
+- Sentiment: {sentiment_txt}
+- Insight: {insights}
 
-MENSAJE DEL USUARIO:
-{user_msg if user_msg else "Ninguno"}
+USER REQUEST: {user_msg}
 
-TAREA:
-Genera un informe profesional institucional.
-Debes rellenar EXACTAMENTE las secciones requeridas.
-Sé conciso pero "insightful". No uses relleno. Queremos que el usuario sienta que habla con un Senior Quant.
-Integra los datos técnicos con el contexto fundamental/onchain si tiene sentido.
-Si el sentimiento o noticias contradicen la señal técnica, menciónalo como riesgo.
-
-FORMATO DE SALIDA (Estricto):
-#ANALYSIS_START
-#CTXT#
-(Resumen ejecutivo de la situación macro/técnica)
-#TA#
-(Análisis técnico detallado: estructura, liquidez, indicadores)
-#PLAN#
-(Plan de ejecución, gestión de la posición)
-#INSIGHT#
-(Un dato clave fundamental, onchain o psicológico que apoye la tesis)
-#PARAMS#
-Entry: {lite.entry}
-TP: {lite.tp}
-SL: {lite.sl}
-#ANALYSIS_END
+GENERA EL JSON AHORA.
 """
 
-    # 3. Offload blocking LLM call to threadpool (using ai_service)
+    # 3. Offload to threadpool
     from fastapi.concurrency import run_in_threadpool
+    from core.ai_service import get_ai_service
+    import json
 
     def _generate_safe():
         service = get_ai_service()
-        return service.generate_analysis(prompt, system_instruction=system_instruction)
+        # Call generate logic
+        # Gemini Flash supports JSON mode via MIME type usually, but text works if prompted well.
+        # We can try to enforce formatting in `generate_analysis` or just parse here.
+        # Ideally ai_service could expose `generate_structured` but let's parse text for now.
+        raw_text = service.generate_analysis(prompt, system_instruction=system_instruction)
+        
+        # Strip markdown fences if present
+        clean_text = raw_text.replace("```json", "").replace("```", "").strip()
+        try:
+            return json.loads(clean_text)
+        except json.JSONDecodeError:
+            # Fallback trivial
+            return {
+                "context": {"summary": "Error parsing JSON", "sentiment": "Neutral"},
+                "technical": {"summary": "Data error", "key_levels": []},
+                "plan": {"strategy": "Hold", "management": "Manual review"},
+                "insight": {"type": "Error", "content": "AI Output mismatch"},
+                "params": {"entry": lite.entry, "tp": lite.tp, "sl": lite.sl}
+            }
 
     return await run_in_threadpool(_generate_safe)

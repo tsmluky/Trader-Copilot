@@ -1,6 +1,6 @@
 import sys
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from database import SessionLocal
 from models_db import Signal, AdminAuditLog, User
 
@@ -54,7 +54,7 @@ def verify_audit_logging():
             admin_id=admin.id,
             action="HIDE_SIGNAL",
             target_id=str(signal.id),
-            details=f"Set is_hidden to 1 (Verification Script)"
+            details="Set is_hidden to 1 (Verification Script)"
         )
         db.add(log_entry)
         db.commit()

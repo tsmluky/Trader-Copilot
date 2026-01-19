@@ -1,7 +1,4 @@
-import sys
-import os
 import requests
-import time
 import subprocess
 
 BASE_URL = "http://127.0.0.1:8000"
@@ -59,7 +56,7 @@ def verify_m3():
     if r.status_code != 403:
         print(f"✅ Success! Status: {r.status_code} (Not 403)")
     else:
-        print(f"❌ Still 403 Forbidden! Upgrade didn't work?")
+        print("❌ Still 403 Forbidden! Upgrade didn't work?")
 
 if __name__ == "__main__":
     verify_m3()

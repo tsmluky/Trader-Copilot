@@ -4,9 +4,10 @@
 #
 # UPDATED: Uses backend.strategies.base.Strategy classes!
 
-import os, math, json, sys
+import os
+import sys
 from datetime import datetime, timezone
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Tuple
 from pathlib import Path
 
 import numpy as np

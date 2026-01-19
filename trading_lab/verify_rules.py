@@ -1,7 +1,5 @@
 import sys
 import os
-import pandas as pd
-import numpy as np
 
 # Add root to path to import engine
 sys.path.append(os.getcwd())

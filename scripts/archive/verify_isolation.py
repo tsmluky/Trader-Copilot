@@ -1,6 +1,5 @@
 import sys
 import os
-import requests
 from fastapi.testclient import TestClient
 
 # Setup path

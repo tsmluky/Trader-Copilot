@@ -5,31 +5,44 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 interface ProAnalysisViewerProps {
-  raw: string;
+  raw: any; // Can be string (legacy/fallback) or JSON object
   token: string;
 }
 
 export function ProAnalysisViewer({ raw, token }: ProAnalysisViewerProps) {
-
   const sections = useMemo(() => {
     if (!raw) return null;
 
-    // Parser for the #TAG# format
-    const parse = (tag: string) => {
-      const regex = new RegExp(`#${tag}#([\\s\\S]*?)(?=#|$)`, 'i');
-      const match = raw.match(regex);
-      return match ? match[1].trim() : null;
-    };
+    // A) Si es objeto JSON (Nueva estructura)
+    if (typeof raw === 'object' && raw.context) {
+      return {
+        context: raw.context.summary, // + sentiment?
+        technical: raw.technical.summary, // + key_levels?
+        plan: raw.plan.strategy, // + management?
+        insight: raw.insight.content,
+        params: `Entry: ${raw.params.entry}\nTP: ${raw.params.tp}\nSL: ${raw.params.sl}`
+      };
+    }
 
-    return {
-      context: parse('CTXT'),
-      technical: parse('TA'),
-      plan: parse('PLAN'),
-      insight: parse('INSIGHT'),
-      params: parse('PARAMS'),
-      // Fallback: if no tags found, show full raw
-      fallback: raw.includes('#ANALYSIS_START') ? null : raw
-    };
+    // B) Si es string (Legacy Markdown fallback)
+    if (typeof raw === 'string') {
+      const parse = (tag: string) => {
+        const regex = new RegExp(`#${tag}#([\\s\\S]*?)(?=#|$)`, 'i');
+        const match = raw.match(regex);
+        return match ? match[1].trim() : null;
+      };
+
+      return {
+        context: parse('CTXT'),
+        technical: parse('TA'),
+        plan: parse('PLAN'),
+        insight: parse('INSIGHT'),
+        params: parse('PARAMS'),
+        fallback: raw.includes('#ANALYSIS_START') ? null : raw
+      };
+    }
+
+    return null;
   }, [raw]);
 
   if (!raw) {

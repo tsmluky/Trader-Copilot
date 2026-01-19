@@ -1,7 +1,6 @@
 import time
 import requests
 import random
-from datetime import datetime
 
 API_URL = "https://zesty-surprise-production-1f0f.up.railway.app"
 TOKENS = ["ETH", "BTC", "SOL"]
