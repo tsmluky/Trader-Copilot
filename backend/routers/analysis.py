@@ -14,7 +14,7 @@ from core.analysis_logic import (
     _build_lite_from_market,
     _load_brain_context,
     _inject_rag_into_lite_rationale,
-    _build_pro_markdown,
+    _build_pro_analysis,
 )
 
 # Entitlements
@@ -188,20 +188,24 @@ async def analyze_pro(
     brain_context = _load_brain_context(req.token, market_data=market)
 
     # 5. Generate Analysis
-    markdown_report = await _build_pro_markdown(
+    # 5. Generate Analysis
+    analysis_json = await _build_pro_analysis(
         req, lite_signal, indicators, brain_context
     )
 
-    # 6. Log (PRO signals should also be logged to history)
-    # The prompt didn't explicitly ask for this, but it's good practice for "Audit".
-    # We leave it for now to avoid scope creep, or just log basic metadata somewhere?
-    # 'log_signal' accepts a Signal object. We could construct a PRO signal.
-    # Skipped to stick to strict prompt "Scope Creep: No".
-
     # 6. Log (PRO signals persisted as transient first, enable Tracking)
+    # Extract text summary for DB rationale
+    try:
+        if isinstance(analysis_json, dict) and "context" in analysis_json:
+            db_rationale = analysis_json.get("context", {}).get("summary", "Analysis Generated")
+        else:
+            db_rationale = str(analysis_json)[:200]
+    except Exception:
+        db_rationale = "PRO Analysis generated."
+
     unified_sig = Signal(
         timestamp=datetime.utcnow(),
-        strategy_id="pro_deepseek_v2",
+        strategy_id="pro_gemini_flash",
         mode="PRO",
         token=req.token,
         timeframe=req.timeframe,
@@ -210,9 +214,9 @@ async def analyze_pro(
         tp=lite_signal.tp,
         sl=lite_signal.sl,
         confidence=lite_signal.confidence,  # Base confidence, maybe boosted by LLM?
-        rationale=markdown_report[:200] + "...",  # Summary for DB
-        source="LLM_HYBRID",
-        extra={"full_report_length": len(markdown_report)},
+        rationale=db_rationale[:500],  # Summary for DB
+        source="GEMINI_FLASH_JSON",
+        extra={"full_report_structure": "json"},
         user_id=current_user.id,
         is_saved=0,
     )
@@ -221,7 +225,7 @@ async def analyze_pro(
 
     return {
         "id": saved_sig.id if saved_sig else None,  # Return ID for tracking
-        "raw": markdown_report,
+        "raw": analysis_json, # Return JSON object
         "token": req.token,
         "mode": "PRO",
         "timestamp": datetime.utcnow().isoformat(),

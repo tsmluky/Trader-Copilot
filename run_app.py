@@ -16,7 +16,6 @@ sys.path.append(current_dir)
 try:
     import uvicorn
     # Verify we can import main
-    from backend import main
     print("[BOOT HANDLER] Successfully imported backend.main", flush=True)
 except Exception as e:
     print(f"[BOOT HANDLER] CRITICAL IMPORT ERROR: {e}", flush=True)

@@ -1,7 +1,5 @@
 import sys
 import os
-import requests
-import time
 from fastapi.testclient import TestClient
 
 # Setup path
@@ -9,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from main import app
 from database import SessionLocal
-from models_db import User, Signal
+from models_db import User
 from core.security import get_password_hash
 
 # Set Limiter to Throw Exception instead of just 429 logic inside app?

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from datetime import datetime
 from core.schemas import Signal
 from strategies.base import Strategy, StrategyConfigInRuntime

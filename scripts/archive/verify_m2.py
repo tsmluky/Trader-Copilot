@@ -1,14 +1,11 @@
 import sys
 import os
-import requests
 from fastapi.testclient import TestClient
 
 # Setup path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from main import app
-from database import SessionLocal
-from models_db import User
 
 client = TestClient(app)
 

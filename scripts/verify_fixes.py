@@ -1,7 +1,7 @@
 import sys
 import os
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 # Add backend to path
 sys.path.append(os.path.join(os.getcwd(), "backend"))
@@ -29,8 +29,6 @@ class TestCriticalFixes(unittest.TestCase):
         print("\nTesting RAG Context Imports...")
         try:
             # rag_context is in backend/ root
-            import rag_context
-            from typing import Any
             # Just importing it proves the syntax and basic imports are valid
             print("[OK] rag_context.py loads successfully without ImportErrors.")
         except Exception as e:

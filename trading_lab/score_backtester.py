@@ -1,5 +1,7 @@
 # score_backtester.py — v3 (robusto a BOM/espacios en cabeceras)
-import os, math, argparse
+import os
+import math
+import argparse
 from dataclasses import dataclass
 from typing import Tuple, Optional
 import numpy as np

@@ -1,9 +1,7 @@
 import sys
 import os
-from datetime import datetime
-from sqlalchemy import func
 from database import SessionLocal
-from models_db import User, Signal, SignalEvaluation, AdminAuditLog, SchedulerLock, StrategyConfig
+from models_db import User, Signal, SignalEvaluation, AdminAuditLog, StrategyConfig
 
 # Setup path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))

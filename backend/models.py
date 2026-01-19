@@ -154,3 +154,33 @@ class CopilotProfileResp(CopilotProfileBase):
     updated_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ProContext(BaseModel):
+    summary: str
+    sentiment: str
+
+class ProTechnical(BaseModel):
+    summary: str
+    key_levels: List[str]
+
+class ProPlan(BaseModel):
+    strategy: str
+    management: str
+
+class ProInsight(BaseModel):
+    type: str  # Fundamental, OnChain, Psychology
+    content: str
+
+class ProParams(BaseModel):
+    entry: float
+    tp: float
+    sl: float
+
+class ProAnalysisResponse(BaseModel):
+    context: ProContext
+    technical: ProTechnical
+    plan: ProPlan
+    insight: ProInsight
+    params: ProParams
+

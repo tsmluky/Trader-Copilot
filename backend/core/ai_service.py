@@ -88,8 +88,8 @@ class DeepSeekProvider(AIProvider):
 class GeminiProvider(AIProvider):
     def __init__(self):
         self.api_key = os.getenv("GEMINI_API_KEY", "")
-        # Gemini 1.5 Flash es el mejor balance costo/velocidad en Free Tier
-        self.model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+        # Gemini 1.5 Flash: Best balance of speed/cost/quality
+        self.model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
         self.genai = None
         if self.api_key:
@@ -178,9 +178,13 @@ class GeminiProvider(AIProvider):
             return response.text
         except Exception as e:
             error_msg = str(e)
+            print(f"[DEBUG AI] Error Msg: {error_msg}")
             is_quota_error = (
                 "429" in error_msg
                 or "403" in error_msg
+                or "400" in error_msg
+                or "location" in error_msg.lower()
+                or "supported" in error_msg.lower()
                 or "quota" in error_msg.lower()
                 or "resource" in error_msg.lower()
             )
@@ -219,13 +223,13 @@ def get_ai_service() -> AIProvider:
     elif provider == "deepseek":
         return DeepSeekProvider()
 
-    # Auto-selección: Preferimos DeepSeek por costo/estabilidad (User Request)
-    if deepseek_key:
-        print("[AI Service] Auto-selecting: DeepSeek")
-        return DeepSeekProvider()
-    elif gemini_key:
+    # Auto-selección: Preferimos Gemini por velocidad/costo (Migración 2026)
+    if gemini_key:
         print("[AI Service] Auto-selecting: Gemini")
         return GeminiProvider()
+    elif deepseek_key:
+        print("[AI Service] Auto-selecting: DeepSeek")
+        return DeepSeekProvider()
 
     # Fallback dummy si no hay nada
     print("[AI Service] ⚠️ NO KEYS FOUND. AI Service Disabled.")

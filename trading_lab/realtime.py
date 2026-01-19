@@ -5,7 +5,6 @@ import os
 import json
 import argparse
 import pandas as pd
-import numpy as np
 
 from models.scoring import score_signals
 
