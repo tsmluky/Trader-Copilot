@@ -22,6 +22,12 @@ from core.entitlements import assert_token_allowed, check_and_increment_quota
 from sqlalchemy.orm import Session
 from database import get_db
 
+# Auth Dependency
+from routers.auth_new import get_current_user
+from models_db import User
+from core.limiter import limiter
+from fastapi import Request
+
 
 
 
@@ -29,12 +35,6 @@ from database import get_db
 router = APIRouter()
 
 # ==== 9. Endpoint LITE ====
-
-# Auth Dependency
-from routers.auth_new import get_current_user  # noqa: E402
-from models_db import User  # noqa: E402
-from core.limiter import limiter  # noqa: E402
-from fastapi import Request  # noqa: E402
 
 
 @router.post("/lite")
@@ -160,80 +160,86 @@ async def analyze_pro(
     request: Request,
     req: ProReq,
     db: Session = Depends(get_db),
-    # Removed require_pro to allow Free/Trader to TRY and fail quotas
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Generates a deep AI analysis using Gemini/DeepSeek.
-    Enforces Token + Quota.
-    """
-    # 1. Token Check
-    req.token = assert_token_allowed(current_user, req.token)
-
-    # 2. Quota Check (Counts as 'ai_analysis')
-    quota_res = check_and_increment_quota(db, current_user, "ai_analysis")
-
-    # 3. Get LITE foundation
     try:
-        _, market = get_market_data(req.token, req.timeframe, limit=300)
-        lite_signal, indicators = _build_lite_from_market(
-            req.token, req.timeframe, market
+        """
+        Generates a deep AI analysis using Gemini/DeepSeek.
+        Enforces Token + Quota.
+        """
+        # 1. Token Check
+        req.token = assert_token_allowed(current_user, req.token)
+
+        # 2. Quota Check (Counts as 'ai_analysis')
+        quota_res = check_and_increment_quota(db, current_user, "ai_analysis")
+
+        # 3. Get LITE foundation
+        try:
+            _, market = get_market_data(req.token, req.timeframe, limit=300)
+            lite_signal, indicators = _build_lite_from_market(
+                req.token, req.timeframe, market
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, detail=f"Failed to build base technicals: {e}"
+            )
+
+        # 4. Load Deep Context (RAG)
+        brain_context = _load_brain_context(req.token, market_data=market)
+
+        # 5. Generate Analysis
+        analysis_json = await _build_pro_analysis(
+            req, lite_signal, indicators, brain_context
         )
+
+        # 6. Log (PRO signals persisted as transient first, enable Tracking)
+        # Extract text summary for DB rationale
+        try:
+            if isinstance(analysis_json, dict) and "context" in analysis_json:
+                db_rationale = analysis_json.get("context", {}).get("summary", "Analysis Generated")
+            else:
+                db_rationale = str(analysis_json)[:200]
+        except Exception:
+            db_rationale = "PRO Analysis generated."
+
+        unified_sig = Signal(
+            timestamp=datetime.utcnow(),
+            strategy_id="pro_gemini_flash",
+            mode="PRO",
+            token=req.token,
+            timeframe=req.timeframe,
+            direction=lite_signal.direction,  # Inherit base direction
+            entry=lite_signal.entry,
+            tp=lite_signal.tp,
+            sl=lite_signal.sl,
+            confidence=lite_signal.confidence,  # Base confidence, maybe boosted by LLM?
+            rationale=db_rationale[:500],  # Summary for DB
+            source="GEMINI_FLASH_JSON",
+            extra={"full_report_structure": "json"},
+            user_id=current_user.id,
+            is_saved=0,
+        )
+
+        saved_sig_id = log_signal(unified_sig)
+
+        return {
+            "id": saved_sig_id,  # Return ID for tracking
+            "raw": analysis_json, # Return JSON object
+            "token": req.token,
+            "mode": "PRO",
+            "timestamp": datetime.utcnow().isoformat(),
+            "usage": quota_res,
+            # Re-inject technicals for Reference
+            "entry": lite_signal.entry,
+            "tp": lite_signal.tp,
+            "sl": lite_signal.sl,
+            "confidence": lite_signal.confidence,
+            "direction": lite_signal.direction,
+        }
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to build base technicals: {e}"
-        )
-
-    # 4. Load Deep Context (RAG)
-    brain_context = _load_brain_context(req.token, market_data=market)
-
-    # 5. Generate Analysis
-    # 5. Generate Analysis
-    analysis_json = await _build_pro_analysis(
-        req, lite_signal, indicators, brain_context
-    )
-
-    # 6. Log (PRO signals persisted as transient first, enable Tracking)
-    # Extract text summary for DB rationale
-    try:
-        if isinstance(analysis_json, dict) and "context" in analysis_json:
-            db_rationale = analysis_json.get("context", {}).get("summary", "Analysis Generated")
-        else:
-            db_rationale = str(analysis_json)[:200]
-    except Exception:
-        db_rationale = "PRO Analysis generated."
-
-    unified_sig = Signal(
-        timestamp=datetime.utcnow(),
-        strategy_id="pro_gemini_flash",
-        mode="PRO",
-        token=req.token,
-        timeframe=req.timeframe,
-        direction=lite_signal.direction,  # Inherit base direction
-        entry=lite_signal.entry,
-        tp=lite_signal.tp,
-        sl=lite_signal.sl,
-        confidence=lite_signal.confidence,  # Base confidence, maybe boosted by LLM?
-        rationale=db_rationale[:500],  # Summary for DB
-        source="GEMINI_FLASH_JSON",
-        extra={"full_report_structure": "json"},
-        user_id=current_user.id,
-        is_saved=0,
-    )
-
-    saved_sig = log_signal(unified_sig)
-
-    return {
-        "id": saved_sig.id if saved_sig else None,  # Return ID for tracking
-        "raw": analysis_json, # Return JSON object
-        "token": req.token,
-        "mode": "PRO",
-        "timestamp": datetime.utcnow().isoformat(),
-        "usage": quota_res,
-        # Re-inject technicals for Reference
-        "entry": lite_signal.entry,
-        "tp": lite_signal.tp,
-        "sl": lite_signal.sl,
-        "confidence": lite_signal.confidence,
-        "direction": lite_signal.direction,
-    }
+        try:
+            with open("router_crash.log", "a", encoding="utf-8") as f:
+                f.write(f"[{datetime.utcnow()}] ROUTER CRASH: {str(e)}\n{traceback.format_exc()}\n")
+        except Exception:
+            print(f"CRITICAL: Failed to write to log. Error: {e}")
+        raise e

@@ -63,6 +63,10 @@ class DeepSeekProvider(AIProvider):
             "max_tokens": int(os.getenv("DEEPSEEK_MAX_TOKENS", "4000")),
         }
 
+        # [SPEED INTENT] Enable JSON Mode if requested in system instruction
+        if system_instruction and "json" in system_instruction.lower():
+            payload["response_format"] = {"type": "json_object"}
+
         try:
             headers = {
                 "Authorization": f"Bearer {self.api_key}",
@@ -183,6 +187,7 @@ class GeminiProvider(AIProvider):
                 "429" in error_msg
                 or "403" in error_msg
                 or "400" in error_msg
+                or "404" in error_msg
                 or "location" in error_msg.lower()
                 or "supported" in error_msg.lower()
                 or "quota" in error_msg.lower()
@@ -223,13 +228,13 @@ def get_ai_service() -> AIProvider:
     elif provider == "deepseek":
         return DeepSeekProvider()
 
-    # Auto-selección: Preferimos Gemini por velocidad/costo (Migración 2026)
-    if gemini_key:
-        print("[AI Service] Auto-selecting: Gemini")
-        return GeminiProvider()
-    elif deepseek_key:
-        print("[AI Service] Auto-selecting: DeepSeek")
+    # Auto-selección: DEEPSEEK PRIMARY (Strict User Requirement - Cost/Limits)
+    if deepseek_key:
+        print("[AI Service] Auto-selecting: DeepSeek (Primary)")
         return DeepSeekProvider()
+    elif gemini_key:
+        print("[AI Service] Auto-selecting: Gemini (Backup)")
+        return GeminiProvider()
 
     # Fallback dummy si no hay nada
     print("[AI Service] ⚠️ NO KEYS FOUND. AI Service Disabled.")

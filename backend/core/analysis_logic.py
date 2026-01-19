@@ -1,5 +1,7 @@
 from typing import Dict, Any, Tuple
 from datetime import datetime
+import traceback
+import json
 
 # Imports from project
 from models import LiteSignal, ProReq
@@ -247,22 +249,38 @@ async def _build_pro_analysis(
     snapshot = brain.get("snapshot", "").strip()
 
     # 2. Build Prompt
+    # 2. Build Prompt (Institucional / V3 Optimized)
     system_instruction = (
-        "Eres TraderCopilot, un quant advisor experto.\n"
-        "Tu objetivo es devolver un análisis JSON estructurado estricto.\n"
-        "NO devuelvas markdown. NO devuelvas texto libre fuera del JSON.\n"
-        "El JSON debe cumplir exactamente con este esquema:\n"
+        "Eres TraderCopilot, un Senior Hedge Fund Analyst especializado en Crypto Quant.\n"
+        "Tu objetivo es generar un 'Institutional Report' en formato JSON.\n"
+        "NO describas los indicadores (ej 'RSI es 50'), eso ya lo veo.\n"
+        "INTERPRETA la confluencia de datos: ¿Qué nos dice la divergencia entre Precio y OnChain?\n"
+        "¿Por qué la EMA21 actúa de barrera?\n\n"
+        "ESTRUCTURA DE RESPUESTA (JSON estricto):\n"
         "{\n"
-        "  \"context\": {\"summary\": \"...\", \"sentiment\": \"...\"},\n"
-        "  \"technical\": {\"summary\": \"...\", \"key_levels\": [\"...\"]},\n"
-        "  \"plan\": {\"strategy\": \"...\", \"management\": \"...\"},\n"
-        "  \"insight\": {\"type\": \"...\", \"content\": \"...\"},\n"
+        "  \"context\": {\n"
+        "    \"summary\": \"Narrativa macro/fundamental. Causa y efecto.\",\n"
+        "    \"sentiment\": \"Bearish/Bullish/Neutral\"\n"
+        "  },\n"
+        "  \"technical\": {\n"
+        "    \"summary\": \"Análisis de estructura de mercado, liquidez y Price Action.\",\n"
+        "    \"key_levels\": [\"Soporte $X\", \"Resistencia $Y\"]\n"
+        "  },\n"
+        "  \"plan\": {\n"
+        "    \"strategy\": \"Plan de ejecución preciso.\",\n"
+        "    \"management\": \"Gestión de riesgo (Invalidación).\"\n"
+        "  },\n"
+        "  \"insight\": {\n"
+        "    \"type\": \"Institutional Edge\",\n"
+        "    \"content\": \"Dato no obvio que da ventaja (Alpha).\"\n"
+        "  },\n"
         "  \"params\": {\"entry\": 0.0, \"tp\": 0.0, \"sl\": 0.0}\n"
         "}\n\n"
-        "REGLAS:\n"
-        "- Sentiment debe ser breve.\n"
-        "- Params deben ser floats, usa los sugeridos si tienen sentido o ajústalos ligeramente.\n"
-        "- Idioma: Español.\n"
+        "REGLAS DE CALIDAD:\n"
+        "- Tono: Profesional, directo, sin relleno.\n"
+        "- Razonamiento: Busca la 'Historia detrás del precio'.\n"
+        "- Params: Optimiza entry/sl/tp basándote en volatilidad y estructura.\n"
+        "- Idioma: Español Financiero Profesional.\n"
     )
 
     prompt = f"""
@@ -288,28 +306,65 @@ GENERA EL JSON AHORA.
     # 3. Offload to threadpool
     from fastapi.concurrency import run_in_threadpool
     from core.ai_service import get_ai_service
-    import json
 
     def _generate_safe():
-        service = get_ai_service()
-        # Call generate logic
-        # Gemini Flash supports JSON mode via MIME type usually, but text works if prompted well.
-        # We can try to enforce formatting in `generate_analysis` or just parse here.
-        # Ideally ai_service could expose `generate_structured` but let's parse text for now.
-        raw_text = service.generate_analysis(prompt, system_instruction=system_instruction)
-        
-        # Strip markdown fences if present
-        clean_text = raw_text.replace("```json", "").replace("```", "").strip()
         try:
-            return json.loads(clean_text)
-        except json.JSONDecodeError:
-            # Fallback trivial
-            return {
-                "context": {"summary": "Error parsing JSON", "sentiment": "Neutral"},
-                "technical": {"summary": "Data error", "key_levels": []},
-                "plan": {"strategy": "Hold", "management": "Manual review"},
-                "insight": {"type": "Error", "content": "AI Output mismatch"},
-                "params": {"entry": lite.entry, "tp": lite.tp, "sl": lite.sl}
-            }
+            service = get_ai_service()
+            # Call generate logic
+            # Gemini Flash supports JSON mode via MIME type usually, but text works if prompted well.
+            # We can try to enforce formatting in `generate_analysis` or just parse here.
+            # Ideally ai_service could expose `generate_structured` but let's parse text for now.
+            raw_text = service.generate_analysis(prompt, system_instruction=system_instruction)
+            
+            # Strip markdown fences if present
+            clean_text = raw_text.replace("```json", "").replace("```", "").strip()
+            try:
+                return json.loads(clean_text)
+            except json.JSONDecodeError:
+                # [RELIABILITY FIX] Soft Fallback:
+                # Si falla el JSON, no crasheamos. Devolvemos el texto crudo en la estructura.
+                # Así el usuario SIEMPRE recibe el análisis de valor.
+                
+                print(f"[AI WARN] JSON Parsing failed. Using Raw Text Fallback. Len: {len(raw_text)}")
+                
+                try:
+                    with open("analysis_fallback.log", "a", encoding="utf-8") as f:
+                        f.write(f"[{datetime.utcnow()}] RAW TEXT CAPTURE:\n{raw_text}\n{'-'*50}\n")
+                except Exception:
+                    pass # Don't crash on logging
+
+                # Intentar limpiar texto para que no sea inmenso en un solo campo
+                # O simplemente ponerlo todo en context y el resto defaults.
+                safe_summary = raw_text[:500] + "..." if len(raw_text) > 500 else raw_text
+                
+                return {
+                    "context": {
+                        "summary": safe_summary, 
+                        "sentiment": "Neutral (Parse Error)"
+                    },
+                    "technical": {
+                        "summary": "Ver análisis detallado en Contexto (Formato AI raw).", 
+                        "key_levels": ["Soporte (Estimado)", "Resistencia (Estimado)"]
+                    },
+                    "plan": {
+                        "strategy": "Gestión Manual recomendada (AI Format Issue).", 
+                        "management": "Revisar gráfico."
+                    },
+                    "insight": {
+                        "type": "Raw Output Preservation", 
+                        "content": (
+                            "La IA generó el análisis pero falló la estructura JSON. "
+                            "La información principal está en 'Market Context'."
+                        )
+                    },
+                    "params": {"entry": lite.entry, "tp": lite.tp, "sl": lite.sl}
+                }
+        except Exception as e:
+            try:
+                with open("analysis_crash.log", "a", encoding="utf-8") as f:
+                    f.write(f"[{datetime.utcnow()}] CRASH: {str(e)}\n{traceback.format_exc()}\n")
+            except Exception:
+                pass
+            raise e
 
     return await run_in_threadpool(_generate_safe)

@@ -14,7 +14,7 @@ import csv
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from .schemas import Signal
 
@@ -39,7 +39,7 @@ CSV_HEADERS = [
 ]
 
 
-def log_signal(signal: Signal) -> bool:
+def log_signal(signal: Signal) -> Optional[int]:
     """
     Guarda una señal en DB (Canonical) y si tiene éxito, en CSV.
 
@@ -47,18 +47,17 @@ def log_signal(signal: Signal) -> bool:
         signal: Instancia del modelo Signal unificado
 
     Returns:
-        bool: True si se insertó correctamente (Nueva señal).
-              False si fue duplicada (dedupe) o error.
+        Optional[int]: ID de la señal insertada o None si falló/duplicada.
     """
 
     mode = signal.mode.upper()
     
     # === 1. Persistir en DB (CANONICAL SOURCE OF TRUTH) ===
     # Si falla dedupe aquí, abortamos todo lo demás.
-    inserted = _write_to_db(signal, mode)
+    saved_id = _write_to_db(signal, mode)
     
-    if not inserted:
-        return False
+    if not saved_id:
+        return None
 
     # === 2. Persistir en CSV (Solo si DB aceptó) ===
     token_lower = signal.token.lower()
@@ -68,7 +67,7 @@ def log_signal(signal: Signal) -> bool:
     # Solo si es nueva.
     _send_push_notification(signal)
     
-    return True
+    return saved_id
 
 
 def _snap_to_grid(dt: datetime, tf_str: str) -> datetime:
@@ -101,10 +100,10 @@ def _snap_to_grid(dt: datetime, tf_str: str) -> datetime:
     return dt
 
 
-def _write_to_db(signal: Signal, mode: str) -> bool:
+def _write_to_db(signal: Signal, mode: str) -> Optional[int]:
     """
     Escritura exclusiva de DB para una señal.
-    Retorna True si insertó, False si duplicado/error.
+    Retorna ID si insertó, None si duplicado/error.
     """
     try:
         from database import SessionLocal
@@ -139,14 +138,6 @@ def _write_to_db(signal: Signal, mode: str) -> bool:
             strategy_id=signal.strategy_id,
             idempotency_key=idem_key,
             user_id=signal.user_id,
-            # is_saved default=0 (set by scheduler logic if needed, signal obj might not have it)
-            # Actually scheduler sets dynamic attr, here we rely on defaults or pass it?
-            # Signal schema doesn't have is_saved. It's an extra DB column.
-            # We can leave default or add if passed in kwargs if we modify callers.
-            # For now, default 0 is safe, scheduler updates it later? 
-            # Wait, scheduler sets `sig.is_saved = 1` just before calling log_signal.
-            # But `Signal` Pydantic model doesn't have `is_saved`.
-            # We should check if `signal` object has `is_saved` attribute dynamically set by scheduler.
         )
         
         # Check dynamic attr from scheduler
@@ -157,30 +148,30 @@ def _write_to_db(signal: Signal, mode: str) -> bool:
         try:
             db.add(db_signal)
             db.commit()
-            print(f"[DB] ✅ INSERT: {signal.token} {signal.direction} @ {ts_normalized}")
-            return True
+            db.refresh(db_signal) # Refresh to get ID
+            print(f"[DB] ✅ INSERT: {signal.token} {signal.direction} @ {ts_normalized} ID={db_signal.id}")
+            return db_signal.id
 
         except IntegrityError:
             db.rollback()
             # Silent Duplicate Skip
-            # print(f"[DB] ℹ️ Duplicate ignored: {idem_key}") 
-            return False
+            return None
 
         except Exception as db_err:
             print(f"[DB] ❌ Error Insert: {db_err}")
             db.rollback()
-            return False
+            return None
         finally:
             db.close()
 
     except ImportError as imp_err:
         print(f"[DB] ⚠️  Import Error: {imp_err}")
-        return False
+        return None
     except Exception as e:
         print(f"[DB] ⚠️  Unexpected Error: {e}")
         import traceback
         traceback.print_exc()
-        return False
+        return None
 
 
 def _write_to_csv(signal: Signal, mode: str, token_lower: str) -> None:
