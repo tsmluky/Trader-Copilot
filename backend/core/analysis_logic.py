@@ -277,6 +277,8 @@ CONTEXTO RAG:
 - Noticias: {news}
 - Sentiment: {sentiment_txt}
 - Insight: {insights}
+- OnChain: {onchain}
+- Snapshot: {snapshot}
 
 USER REQUEST: {user_msg}
 
