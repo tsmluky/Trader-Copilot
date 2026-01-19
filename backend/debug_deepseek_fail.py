@@ -9,9 +9,9 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 load_dotenv()
 
-from core.analysis_logic import _build_pro_analysis
-from models import ProReq, LiteSignal
-from datetime import datetime
+from core.analysis_logic import _build_pro_analysis  # noqa: E402
+from models import ProReq, LiteSignal  # noqa: E402
+from datetime import datetime  # noqa: E402
 
 async def main():
     print("--- DEBUGGING DEEPSEEK PRO ANALYSIS CRASH ---")

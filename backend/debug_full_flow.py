@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 load_dotenv()
 
-from core.analysis_logic import _build_lite_from_market, _load_brain_context
-from routers.analysis import get_market_data, ProReq
+from core.analysis_logic import _build_lite_from_market, _load_brain_context, _build_pro_analysis  # noqa: E402
+from routers.analysis import get_market_data, ProReq  # noqa: E402
 
 async def test_full_flow():
     print("--- START DEBUG FULL FLOW ---")
@@ -38,6 +38,9 @@ async def test_full_flow():
         
         # Ensure DeepSeek is active
         os.environ["AI_PROVIDER"] = "deepseek"
+        
+        # FIX: Actually call the analysis to define 'result'
+        result = await _build_pro_analysis(req, lite_signal, indicators, brain_context)
         
         print("5. SUCCESS! Result Type:", type(result))
         

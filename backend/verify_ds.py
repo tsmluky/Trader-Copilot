@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 load_dotenv()
 
-from core.ai_service import get_ai_service
+from core.ai_service import get_ai_service  # noqa: E402
 
 # FORCE DEEPSEEK
 os.environ["AI_PROVIDER"] = "deepseek"
