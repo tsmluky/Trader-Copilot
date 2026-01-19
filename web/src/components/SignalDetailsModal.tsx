@@ -1,7 +1,8 @@
 import React from 'react';
 import { formatPrice } from '../utils/format';
-
 import { useAuth } from '../context/AuthContext'; // Import context
+import { ShareMenu } from './common/ShareMenu';
+import { Zap } from 'lucide-react'; // Added Zap
 
 export interface SignalHistory {
     id: string;
@@ -51,6 +52,16 @@ export const SignalDetailsModal: React.FC<SignalDetailsModalProps> = ({ signal, 
 
     const isLong = signal.direction.toUpperCase() === 'LONG';
 
+    // Construct Share Text
+    const shareText = `🚨 *SIGNAL ALERT: ${signal.token}*
+${isLong ? '🟢 LONG' : '🔴 SHORT'} @ ${formatPrice(signal.entry)}
+    
+🎯 *TP:* ${formatPrice(signal.tp)}
+🛑 *SL:* ${formatPrice(signal.sl)}
+    
+${signal.rationale ? `💡 _${signal.rationale.substring(0, 150)}${signal.rationale.length > 150 ? '...' : ''}_` : ''}
+
+🚀 Verified by TraderCopilot`;
 
     return (
         <div
@@ -89,7 +100,26 @@ export const SignalDetailsModal: React.FC<SignalDetailsModalProps> = ({ signal, 
                             })}
                         </p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white">✕</button>
+
+                    {/* Right Side: Confidence & Actions */}
+                    <div className="flex flex-col items-end gap-2">
+                        {signal.confidence && (
+                            <div className="flex items-center gap-1.5 mb-1">
+                                <Zap size={14} className="text-brand-400 fill-brand-400 animate-pulse" />
+                                <span className="text-xl font-black text-white tracking-tighter">
+                                    {(signal.confidence * 100).toFixed(0)}%
+                                </span>
+                            </div>
+                        )}
+
+                        <div className="flex items-center gap-2">
+                            <ShareMenu
+                                title={`${signal.token} Signal`}
+                                text={shareText}
+                            />
+                            <button onClick={onClose} className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors">✕</button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Main Stats Grid */}

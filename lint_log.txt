@@ -1,0 +1,120 @@
+E402 Module level import not at top of file
+  --> backend\debug_deepseek_fail.py:12:1
+   |
+10 | load_dotenv()
+11 |
+12 | from core.analysis_logic import _build_pro_analysis
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+13 | from models import ProReq, LiteSignal
+14 | from datetime import datetime
+   |
+
+E402 Module level import not at top of file
+  --> backend\debug_deepseek_fail.py:13:1
+   |
+12 | from core.analysis_logic import _build_pro_analysis
+13 | from models import ProReq, LiteSignal
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+14 | from datetime import datetime
+   |
+
+E402 Module level import not at top of file
+  --> backend\debug_deepseek_fail.py:14:1
+   |
+12 | from core.analysis_logic import _build_pro_analysis
+13 | from models import ProReq, LiteSignal
+14 | from datetime import datetime
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+15 |
+16 | async def main():
+   |
+
+E402 Module level import not at top of file
+  --> backend\debug_full_flow.py:11:1
+   |
+ 9 | load_dotenv()
+10 |
+11 | from core.analysis_logic import _build_lite_from_market, _load_brain_context
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+12 | from routers.analysis import get_market_data, ProReq
+   |
+
+E402 Module level import not at top of file
+  --> backend\debug_full_flow.py:12:1
+   |
+11 | from core.analysis_logic import _build_lite_from_market, _load_brain_context
+12 | from routers.analysis import get_market_data, ProReq
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+13 |
+14 | async def test_full_flow():
+   |
+
+F841 Local variable `req` is assigned to but never used
+  --> backend\debug_full_flow.py:37:9
+   |
+35 |         # 4. Pro Analysis (DeepSeek)
+36 |         print("4. Running PRO Analysis (DeepSeek)...")
+37 |         req = ProReq(token=token, timeframe=timeframe)
+   |         ^^^
+38 |         
+39 |         # Ensure DeepSeek is active
+   |
+help: Remove assignment to unused variable `req`
+
+F821 Undefined name `result`
+  --> backend\debug_full_flow.py:42:48
+   |
+40 |         os.environ["AI_PROVIDER"] = "deepseek"
+41 |         
+42 |         print("5. SUCCESS! Result Type:", type(result))
+   |                                                ^^^^^^
+43 |         
+44 |         # 6. VERIFY DB WRITE (The previous crash point)
+   |
+
+F821 Undefined name `result`
+  --> backend\debug_full_flow.py:63:19
+   |
+61 |             rationale="Debug Test",
+62 |             source="DEBUG",
+63 |             extra=result if isinstance(result, dict) else {"raw": str(result)},
+   |                   ^^^^^^
+64 |             user_id=1 
+65 |         )
+   |
+
+F821 Undefined name `result`
+  --> backend\debug_full_flow.py:63:40
+   |
+61 |             rationale="Debug Test",
+62 |             source="DEBUG",
+63 |             extra=result if isinstance(result, dict) else {"raw": str(result)},
+   |                                        ^^^^^^
+64 |             user_id=1 
+65 |         )
+   |
+
+F821 Undefined name `result`
+  --> backend\debug_full_flow.py:63:71
+   |
+61 |             rationale="Debug Test",
+62 |             source="DEBUG",
+63 |             extra=result if isinstance(result, dict) else {"raw": str(result)},
+   |                                                                       ^^^^^^
+64 |             user_id=1 
+65 |         )
+   |
+
+E402 Module level import not at top of file
+  --> backend\verify_ds.py:9:1
+   |
+ 7 | load_dotenv()
+ 8 |
+ 9 | from core.ai_service import get_ai_service
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+10 |
+11 | # FORCE DEEPSEEK
+   |
+
+Found 11 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

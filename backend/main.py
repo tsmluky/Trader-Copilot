@@ -664,7 +664,8 @@ def start_scheduler_thread():
     # 2. Launch Scheduler (Conditional)
     # [HARDENING] Prevent Duplicate Schedulers
     # Only run if RUN_SCHEDULER env var is "true" or "1".
-    run_scheduler = os.getenv("RUN_SCHEDULER", "false").lower() in ["true", "1", "yes"]
+    # User Request: "Always running" implies default should be True.
+    run_scheduler = os.getenv("RUN_SCHEDULER", "true").lower() in ["true", "1", "yes"]
     
     if run_scheduler:
         print("🚀 [STARTUP] Launching Strategy Scheduler Thread...")

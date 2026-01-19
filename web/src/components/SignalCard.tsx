@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useCopilot } from '@/context/CopilotContext';
+import { ShareMenu } from './common/ShareMenu'; // Import ShareMenu
 
 import { formatPrice } from '@/utils/format';
 
@@ -59,14 +60,17 @@ export function SignalCard({ signal, chartNode }: SignalCardProps) {
     }
   };
 
-  const handleShare = async () => {
-    try {
-      await api.notifyTelegram(`🚀 *TRADERCOPILOT SIGNAL*\n\nAsset: #${signal.token}\nDirection: ${signal.direction.toUpperCase()}\n\n🎯 Entry: ${fmt(signal.entry)}\n💰 TP: ${fmt(signal.tp)}\n🛡️ SL: ${fmt(signal.sl)}\n\n⚡ Confidence: ${(signal.confidence * 100).toFixed(0)}%`);
-      toast.success("Sent to Telegram");
-    } catch (e) {
-      toast.error("Failed to share");
-    }
-  };
+  // Construct Share Text (Consistent with Modal)
+  const shareText = `🚨 *SIGNAL ALERT: ${signal.token}*
+${isLong ? '🟢 LONG' : '🔴 SHORT'} @ ${fmt(signal.entry)}
+
+🎯 *TP:* ${fmt(signal.tp)}
+🛑 *SL:* ${fmt(signal.sl)}
+
+${signal.rationale ? `💡 _${signal.rationale.substring(0, 150)}${signal.rationale.length > 150 ? '...' : ''}_` : ''}
+
+🚀 Verified by TraderCopilot`;
+
 
   return (
     <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -117,16 +121,16 @@ export function SignalCard({ signal, chartNode }: SignalCardProps) {
               </div>
             </div>
 
-            {/* Confidence Score - Top Right (Above Stop Loss) */}
-            <div className="text-right">
-              <div className="flex items-center gap-1.5 justify-end mb-1">
+            {/* Right Side: Share + Confidence */}
+            <div className="text-right flex flex-col items-end gap-2">
+              <div className="flex items-center gap-1.5 mb-1">
                 <Zap size={14} className="text-brand-400 fill-brand-400 animate-pulse" />
                 <span className="text-2xl font-black text-white tracking-tighter">
                   {(Number(signal.confidence || 0) * 100).toFixed(0)}%
                 </span>
               </div>
-              <div className="text-[10px] uppercase font-bold text-brand-400/80 tracking-widest">
-                Confidence
+              <div className="flex items-center gap-4">
+                <ShareMenu title={`${signal.token} Signal`} text={shareText} />
               </div>
             </div>
           </div>
