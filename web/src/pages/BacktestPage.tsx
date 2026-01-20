@@ -233,7 +233,7 @@ export const BacktestPage: React.FC = () => {
                 </div>
 
                 {/* Controls */}
-                <Card className="border-white/10 bg-[#0f172a]/40 backdrop-blur-sm shadow-2xl">
+                <Card className="border-white/10 bg-[#0f172a]/40 backdrop-blur-sm shadow-2xl relative z-20">
                     <CardContent className="p-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 items-end">
 
